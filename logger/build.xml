@@ -1,0 +1,39 @@
+<project name="Java Logger" default="all" basedir=".">
+
+  <description>
+    logger agent using javassist
+  </description>
+
+  <target name="all" depends="logger"/>
+
+  <!-- global properties for this build file -->
+  <property name="source.dir" location="src"/>
+  <property name="build.dir" location="bin"/>
+  <property name="lib.dir" location="lib"/>
+  <property name="jassist.jar" value="${lib.dir}/javassist.jar"/>
+  <property name="agent.jar" value="${lib.dir}/loggeragent.jar"/>
+
+  <!-- set up some directories used by this project -->
+  <target name="init" description="setup project directories">
+    <delete dir="${build.dir}"/>
+    <mkdir dir="${build.dir}"/>
+  </target>
+
+  <!-- build logger agent -->
+  <target name="logger" depends="init" description="build logger agent">
+    <javac destdir="${build.dir}" classpath="${jassist.jar}">
+      <src path="${source.dir}"/>
+    </javac>
+    <jar basedir="${build.dir}" destfile="${agent.jar}" manifest="Manifest.mf"/>
+  </target>
+
+  <!-- delete the build & doc directories and Emacs backup (*~) files -->
+  <target name="clean" description="tidy up the workspace">
+    <delete dir="${build.dir}"/>
+    <delete>
+      <fileset defaultexcludes="no" dir="${source.dir}" includes="**/*~"/>
+    </delete>
+    <delete file="${agent.jar}"/>
+  </target>
+
+</project>
