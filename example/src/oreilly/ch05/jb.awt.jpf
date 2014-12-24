@@ -1,0 +1,8 @@
+@include=../oreilly.jpf
+
+target = oreilly.ch05.JButtonEvents
+symbolic.method = oreilly.ch05.JButtonEvents.main(sym)
+
+@using jpf-awt
+event.class = oreilly.ch05.JButtonTest
+

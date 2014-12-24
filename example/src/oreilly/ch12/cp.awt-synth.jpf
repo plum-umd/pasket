@@ -1,0 +1,8 @@
+@include=../oreilly.jpf
+
+target = oreilly.ch12.ColorPicker
+symbolic.method = oreilly.ch12.ColorPicker.main(sym)
+
+@using jpf-awt-synth
+event.class = oreilly.ch12.ColorPickerTest
+
