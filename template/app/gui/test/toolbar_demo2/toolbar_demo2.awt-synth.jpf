@@ -1,0 +1,3 @@
+# run ${jpf-symbc}/bin/jpf with this config
+xmpl = toolbar_demo2
+@include=../tutorial.awt-synth.jpf

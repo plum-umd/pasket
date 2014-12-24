@@ -1,0 +1,2 @@
+$Disabled.doClick()
+$Enable.doClick()
