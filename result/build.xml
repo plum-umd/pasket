@@ -1,0 +1,66 @@
+<project name="synthesis output" default="all" basedir=".">
+
+  <description>Synthesis output</description>
+
+  <target name="all" depends="compile" />
+
+  <!-- global properties for this build file -->
+  <property name="source.dir" location="java"/>
+  <property name="build.dir" location="bin" />
+  <property name="lib.dir" location="../lib"/>
+  <property name="junit.jar" value="${lib.dir}/junit-4.11.jar"/>
+  <property name="hamcrest.jar" value="${lib.dir}/hamcrest-core-1.3.jar"/>
+  <property name="tablelayout.jar" value="${lib.dir}/TableLayout.jar"/>
+
+  <!-- set your own path to jpf-awt-synth -->
+  <property name="jpf-awt-synth" location="${user.home}/Downloads/jpf/jpf-awt-synth"/>
+
+  <target name="gui" description="copy GUI modelings into jpf-awt-synth">
+    <delete dir="${jpf-awt-synth}/src/classes/java/util"/>
+    <copy todir="${jpf-awt-synth}/src/classes/java/util">
+      <fileset dir="${source.dir}/java/util"/>
+    </copy>
+    <delete dir="${jpf-awt-synth}/src/classes/java/awt"/>
+    <copy todir="${jpf-awt-synth}/src/classes/java/awt">
+      <fileset dir="${source.dir}/java/awt"/>
+    </copy>
+    <delete dir="${jpf-awt-synth}/src/classes/javax/swing"/>
+    <copy todir="${jpf-awt-synth}/src/classes/javax/swing">
+      <fileset dir="${source.dir}/javax/swing"/>
+    </copy>
+    <delete dir="${jpf-awt-synth}/src/classes/javax/accessibility"/>
+    <copy todir="${jpf-awt-synth}/src/classes/javax/accessibility">
+      <fileset dir="${source.dir}/javax/accessibility"/>
+    </copy>
+  </target>
+
+  <target name="init" description="setup project directories">
+    <delete dir="${build.dir}"/>
+    <mkdir dir="${build.dir}"/>
+  </target>
+
+  <!-- compile the java code in ${source.dir} into ${build.dir} -->
+  <target name="compile" depends="init" description="compile java sources">
+    <javac srcdir="${source.dir}" destdir="${build.dir}" includeantruntime="false">
+      <classpath path="${junit.jar}"/>
+      <classpath path="${hamcrest.jar}"/>
+      <classpath path="${tablelayout.jar}"/>
+    </javac>
+  </target>
+
+  <!-- execute the project -->
+  <target name="run" description="run the project">
+    <java classname="org.junit.runner.JUnitCore" fork="yes">
+      <classpath path="${build.dir}"/>
+      <classpath path="${junit.jar}"/>
+      <classpath path="${hamcrest.jar}"/>
+      <classpath path="${tablelayout.jar}"/>
+      <arg value="${test}"/>
+    </java>
+  </target>
+
+  <target name="clean" description="tidy up the workspace">
+    <delete dir="${build.dir}"/>
+  </target>
+
+</project>
