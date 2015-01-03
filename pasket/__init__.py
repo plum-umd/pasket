@@ -249,7 +249,11 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
       sketch.set_default_option(_opts)
 
       if conf["parallel"]:
-        _, r = sketch.be_p_run(sk_dir, output_path)
+        ## Python implementation as a CEGIS (sketch-backend) wrapper
+        #_, r = sketch.be_p_run(sk_dir, output_path)
+        # Java implementation inside sketch-frontend
+        _opts.append("--slv-parallel")
+        _, r = sketch.run(sk_dir, output_path)
       else:
         _, r = sketch.run(sk_dir, output_path)
       # if sketch fails, halt the process here
