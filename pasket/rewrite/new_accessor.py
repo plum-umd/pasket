@@ -15,7 +15,14 @@ from ..meta.clazz import Clazz
 from ..meta.method import Method
 from ..meta.field import Field
 from ..meta.statement import Statement, to_statements
-from ..meta.expression import Expression, to_expression
+from ..meta.expression import Expression, to_expression, gen_E_gen
+
+def to_shorty(ty):
+  if ty == C.J.i: return u'i'
+  elif ty == C.J.z: return u'b'
+  elif ty == C.J.STR: return u's'
+  else: return u""
+
 
 class NewAccessor(object):
   # to build unique aux class names
@@ -60,12 +67,19 @@ class NewAccessor(object):
         continue
       self._clss.append(cls)
 
+  @staticmethod
+  def is_candidate_cls(cls):
+    mtds = cls.mtds
+    getter_mtds = filter(lambda m: len(m.params) == 0 and m.typ != C.J.v, mtds)
+    cons_mtds = filter(lambda m: m.is_init, mtds)
+    return cls.is_class and (any(getter_mtds) or any(cons_mtds))
+
   # assume methods that participate will be neither <init> nor static
   @staticmethod
   def is_candidate_mtd(mtd):
     return not mtd.is_init and not mtd.is_static
 
-  # retrieve candidate methods
+  # retrieve candidate methods (in general)
   @staticmethod
   def get_candidate_mtds(cls):
     mtds = cls.mtds
@@ -75,7 +89,7 @@ class NewAccessor(object):
 
   # retrieve constructors
   @staticmethod
-  def get_constructors(cls):
+  def get_candidate_inits(cls):
     return filter(lambda x: x.is_init, cls.mtds)
 
   # add a global counter
@@ -117,75 +131,63 @@ class NewAccessor(object):
 
   # code for getting a field
   @staticmethod
-  def getter(aux):
+  def __getter(aux, ty):
+    shorty = to_shorty(ty)
     params = NewAccessor.getter_params()
-    getr = Method(clazz=aux, mods=C.PBST, typ=C.J.OBJ, params=params, name=u"get")
-    getr.body = to_statements(getr, u"return callee._prvt_fld[fld_id];")
+    getr = Method(clazz=aux, mods=C.PBST, typ=ty, params=params, name=shorty+u"get")
+    rtn = u"return callee._prvt_{}fld[fld_id];".format(shorty)
+    getr.body = to_statements(getr, rtn)
     aux.add_mtds([getr])
-    setattr(aux, "gttr", getr)
+    setattr(aux, shorty + "gttr", getr)
+
+  @staticmethod
+  def getter(aux):
+    NewAccessor.__getter(aux, C.J.OBJ)
   
   @staticmethod
   def igetter(aux):
-    params = NewAccessor.getter_params()
-    getr = Method(clazz=aux, mods=C.PBST, typ=C.J.i, params=params, name=u"iGet")
-    getr.body = to_statements(getr, u"return callee._prvt_ifld[fld_id];")
-    aux.add_mtds([getr])
-    setattr(aux, "igttr", getr)
+    NewAccessor.__getter(aux, C.J.i)
   
   @staticmethod
   def bgetter(aux):
-    params = NewAccessor.getter_params()
-    getr = Method(clazz=aux, mods=C.PBST, typ=C.J.z, params=params, name=u"bGet")
-    getr.body = to_statements(getr, u"return callee._prvt_bfld[fld_id];")
-    aux.add_mtds([getr])
-    setattr(aux, "bgttr", getr)
+    NewAccessor.__getter(aux, C.J.z)
   
   @staticmethod
   def sgetter(aux):
-    params = NewAccessor.getter_params()
-    getr = Method(clazz=aux, mods=C.PBST, typ=C.J.STR, params=params, name=u"sGet")
-    getr.body = to_statements(getr, u"return callee._prvt_sfld[fld_id];")
-    aux.add_mtds([getr])
-    setattr(aux, "sgttr", getr)
+    NewAccessor.__getter(aux, C.J.STR)
   
   # code for setting a field
   @staticmethod
-  def setter(aux):
-    params = NewAccessor.getter_params() + [(C.J.OBJ, u"val")]
-    setr = Method(clazz=aux, mods=C.PBST, params=params, name=u"set")
-    setr.body = to_statements(setr, u"callee._prvt_fld[fld_id] = val;")
+  def __setter(aux, ty):
+    shorty = to_shorty(ty)
+    params = NewAccessor.getter_params() + [(ty, u"val")]
+    setr = Method(clazz=aux, mods=C.PBST, params=params, name=shorty+u"set")
+    assign = u"callee._prvt_{}fld[fld_id] = val;".format(shorty)
+    setr.body = to_statements(setr, assign)
     aux.add_mtds([setr])
-    setattr(aux, "sttr", setr)
+    setattr(aux, shorty + "sttr", setr)
+
+  @staticmethod
+  def setter(aux):
+    NewAccessor.__setter(aux, C.J.OBJ)
   
   @staticmethod
   def isetter(aux):
-    params = NewAccessor.getter_params() + [(C.J.i, u"val")]
-    setr = Method(clazz=aux, mods=C.PBST, params=params, name=u"iSet")
-    setr.body = to_statements(setr, u"callee._prvt_ifld[fld_id] = val;")
-    aux.add_mtds([setr])
-    setattr(aux, "isttr", setr)
+    NewAccessor.__setter(aux, C.J.i)
   
   @staticmethod
   def bsetter(aux):
-    params = NewAccessor.getter_params() + [(C.J.z, u"val")]
-    setr = Method(clazz=aux, mods=C.PBST, params=params, name=u"bSet")
-    setr.body = to_statements(setr, u"callee._prvt_bfld[fld_id] = val;")
-    aux.add_mtds([setr])
-    setattr(aux, "bsttr", setr)
+    NewAccessor.__setter(aux, C.J.z)
   
   @staticmethod
   def ssetter(aux):
-    params = NewAccessor.getter_params() + [(C.J.STR, u"val")]
-    setr = Method(clazz=aux, mods=C.PBST, params=params, name=u"sSet")
-    setr.body = to_statements(setr, u"callee._prvt_sfld[fld_id] = val;")
-    aux.add_mtds([setr])
-    setattr(aux, "ssttr", setr)
+    NewAccessor.__setter(aux, C.J.STR)
  
   @staticmethod
   def check_getter_param(aux, nums, c):
     rule = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"check"+c+u"GetterParam")
     def check_single_getter(n):
-      return u"assert 0 == (argNum("+getattr(aux, "getter_"+c+"_"+str(n))+"));"
+      return u"assert 0 == (argNum(" + getattr(aux, '_'.join([C.ACC.GET, c, str(n)])) + "));"
     rule.body = to_statements(rule, "\n".join(map(check_single_getter, range(nums[c][1]))))
     aux.add_mtds([rule])
   
@@ -193,99 +195,59 @@ class NewAccessor(object):
   def check_setter_param(aux, nums, c):
     rule = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"check"+c+u"SetterParam")
     def check_single_setter(n):
-      return u"assert 1 == (argNum("+getattr(aux, "setter_"+c+"_"+str(n))+"));"
+      return u"assert 1 == (argNum(" + getattr(aux, '_'.join([C.ACC.SET, c, str(n)])) + "));"
     if (nums[c][2] > 0):
       rule.body = to_statements(rule, "\n".join(map(check_single_setter, range(nums[c][2]))))
       aux.add_mtds([rule])
 
   # getter will be invoked here
   @staticmethod
-  def getter_in_one(aux, nums, fld_g, g_cnt):
+  def __getter_in_one(aux, nums, fld_g, g_cnt, ty, default):
+    shorty = to_shorty(ty)
     params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee")]
-    one = Method(clazz=aux, mods=C.PBST, typ=C.J.OBJ, params=params, name=u"getterInOne")
+    one = Method(clazz=aux, mods=C.PBST, typ=ty, params=params, name=shorty+u"getterInOne")
     def getter_switch_whole(cl):
       def getter_switch(role):
         aname = aux.name
-        v = getattr(aux, "getter_"+cl+"_"+role)
-        f = getattr(aux, "gttr").name
-        argpairs = params+[(C.J.i, getattr(aux, u"gs_field_"+cl+"_"+role))]
+        v = getattr(aux, '_'.join([C.ACC.GET, cl, role]))
+        f = getattr(aux, shorty + "gttr").name
+        argpairs = params+[(C.J.i, getattr(aux, '_'.join([C.ACC.GS, cl, role])))]
         args = ", ".join(map(lambda (ty, nm): nm, argpairs))
         return u"if (mtd_id == {v}) return {aname}.{f}({args});".format(**locals())
       roles = map(str, range(nums[cl][1]))
       return "\nelse ".join(map(getter_switch, roles))
     one.body = to_statements(one, "\nelse ".join(map(getter_switch_whole, filter(lambda x: nums[x][1] > 0, nums.iterkeys()))))
-    NewAccessor.limit_number(one, fld_g, g_cnt, C.J.N)
+    NewAccessor.limit_number(one, fld_g, g_cnt, default)
     aux.add_mtds([one])
-    setattr(aux, "one", one)
+
+  @staticmethod
+  def getter_in_one(aux, nums, fld_g, g_cnt):
+    NewAccessor.__getter_in_one(aux, nums, fld_g, g_cnt, C.J.OBJ, C.J.N)
   
   @staticmethod
   def igetter_in_one(aux, nums, fld_g, g_cnt):
-    params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee")]
-    one = Method(clazz=aux, mods=C.PBST, typ=C.J.i, params=params, name=u"iGetterInOne")
-    def getter_switch_whole(cl):
-      def getter_switch(role):
-        aname = aux.name
-        v = getattr(aux, "getter_"+cl+"_"+role)
-        f = getattr(aux, "igttr").name
-        argpairs = params+[(C.J.i, getattr(aux, u"gs_field_"+cl+"_"+role))]
-        args = ", ".join(map(lambda (ty, nm): nm, argpairs))
-        return u"if (mtd_id == {v}) return {aname}.{f}({args});".format(**locals())
-      roles = map(str, range(nums[cl][1]))
-      return "\nelse ".join(map(getter_switch, roles))
-    one.body = to_statements(one, "\nelse ".join(map(getter_switch_whole, filter(lambda x: nums[x][1] > 0, nums.iterkeys()))))
-    NewAccessor.limit_number(one, fld_g, g_cnt, u"-1")
-    aux.add_mtds([one])
-    setattr(aux, "one", one)
+    NewAccessor.__getter_in_one(aux, nums, fld_g, g_cnt, C.J.i, u"-1")
   
   @staticmethod
   def bgetter_in_one(aux, nums, fld_g, g_cnt):
-    params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee")]
-    one = Method(clazz=aux, mods=C.PBST, typ=C.J.z, params=params, name=u"bGetterInOne")
-    def getter_switch_whole(cl):
-      def getter_switch(role):
-        aname = aux.name
-        v = getattr(aux, "getter_"+cl+"_"+role)
-        f = getattr(aux, "bgttr").name
-        argpairs = params+[(C.J.i, getattr(aux, u"gs_field_"+cl+"_"+role))]
-        args = ", ".join(map(lambda (ty, nm): nm, argpairs))
-        return u"if (mtd_id == {v}) return {aname}.{f}({args});".format(**locals())
-      roles = map(str, range(nums[cl][1]))
-      return "\nelse ".join(map(getter_switch, roles))
-    one.body = to_statements(one, "\nelse ".join(map(getter_switch_whole, filter(lambda x: nums[x][1] > 0, nums.iterkeys()))))
-    NewAccessor.limit_number(one, fld_g, g_cnt, C.J.F)
-    aux.add_mtds([one])
-    setattr(aux, "one", one)
+    NewAccessor.__getter_in_one(aux, nums, fld_g, g_cnt, C.J.z, C.J.F)
   
   @staticmethod
   def sgetter_in_one(aux, nums, fld_g, g_cnt):
-    params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee")]
-    one = Method(clazz=aux, mods=C.PBST, typ=C.J.STR, params=params, name=u"sGetterInOne")
-    def getter_switch_whole(cl):
-      def getter_switch(role):
-        aname = aux.name
-        v = getattr(aux, "getter_"+cl+"_"+role)
-        f = getattr(aux, "sgttr").name
-        argpairs = params+[(C.J.i, getattr(aux, u"gs_field_"+cl+"_"+role))]
-        args = ", ".join(map(lambda (ty, nm): nm, argpairs))
-        return u"if (mtd_id == {v}) return {aname}.{f}({args});".format(**locals())
-      roles = map(str, range(nums[cl][1]))
-      return "\nelse ".join(map(getter_switch, roles))
-    one.body = to_statements(one, "\nelse ".join(map(getter_switch_whole, filter(lambda x: nums[x][1] > 0, nums.iterkeys()))))
-    NewAccessor.limit_number(one, fld_g, g_cnt, C.J.F) # TODO: default string?
-    aux.add_mtds([one])
-    setattr(aux, "one", one)
+    NewAccessor.__getter_in_one(aux, nums, fld_g, g_cnt, C.J.STR, C.J.F)
   
   # setter will be invoked here
   @staticmethod
-  def setter_in_one(aux, nums, fld_s, s_cnt):
-    params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (C.J.OBJ, u"val")]
-    one = Method(clazz=aux, mods=C.PBST, params=params, name=u"setterInOne")
+  def __setter_in_one(aux, nums, fld_s, s_cnt, ty):
+    shorty = to_shorty(ty)
+    params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (ty, u"val")]
+    one = Method(clazz=aux, mods=C.PBST, params=params, name=shorty+u"setterInOne")
     def setter_switch_whole(cl):
       def setter_switch(role):
         aname = aux.name
-        v = getattr(aux, "setter_"+cl+"_"+role)
-        f = getattr(aux, "sttr").name
-        argpairs = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (C.J.i, getattr(aux, u"gs_field_"+cl+"_"+role)), (C.J.OBJ, u"val")]
+        v = getattr(aux, '_'.join([C.ACC.SET, cl, role]))
+        f = getattr(aux, shorty + "sttr").name
+        argpairs = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (C.J.i, getattr(aux, '_'.join([C.ACC.GS, cl, role]))), (ty, u"val")]
         args = ", ".join(map(lambda (ty, nm): nm, argpairs))
         return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
       roles = map(str, range(nums[cl][2]))
@@ -293,165 +255,55 @@ class NewAccessor(object):
     one.body = to_statements(one, "\nelse ".join(map(setter_switch_whole, filter(lambda x: nums[x][2] > 0, nums.iterkeys()))))
     NewAccessor.limit_number(one, fld_s, s_cnt)
     aux.add_mtds([one])
-    setattr(aux, "one", one)
+
+  @staticmethod
+  def setter_in_one(aux, nums, fld_s, s_cnt):
+    NewAccessor.__setter_in_one(aux, nums, fld_s, s_cnt, C.J.OBJ)
   
   @staticmethod
   def isetter_in_one(aux, nums, fld_s, s_cnt):
-    params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (C.J.i, u"val")]
-    one = Method(clazz=aux, mods=C.PBST, params=params, name=u"iSetterInOne")
-    def setter_switch_whole(cl):
-      def setter_switch(role):
-        aname = aux.name
-        v = getattr(aux, "setter_"+cl+"_"+role)
-        f = getattr(aux, "isttr").name
-        argpairs = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (C.J.i, getattr(aux, u"gs_field_"+cl+"_"+role)), (C.J.OBJ, u"val")]
-        args = ", ".join(map(lambda (ty, nm): nm, argpairs))
-        return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
-      roles = map(str, range(nums[cl][1]))
-      return "\nelse ".join(map(setter_switch, roles))
-    one.body = to_statements(one, "\nelse ".join(map(setter_switch_whole, filter(lambda x: nums[x][2] > 0, nums.iterkeys()))))
-    NewAccessor.limit_number(one, fld_s, s_cnt)
-    aux.add_mtds([one])
-    setattr(aux, "one", one)
+    NewAccessor.__setter_in_one(aux, nums, fld_s, s_cnt, C.J.i)
   
   @staticmethod
   def bsetter_in_one(aux, nums, fld_s, s_cnt):
-    params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (C.J.z, u"val")]
-    one = Method(clazz=aux, mods=C.PBST, params=params, name=u"bSetterInOne")
-    def setter_switch_whole(cl):
-      def setter_switch(role):
-        aname = aux.name
-        v = getattr(aux, "setter_"+cl+"_"+role)
-        f = getattr(aux, "bsttr").name
-        argpairs = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (C.J.i, getattr(aux, u"gs_field_"+cl+"_"+role)), (C.J.OBJ, u"val")]
-        args = ", ".join(map(lambda (ty, nm): nm, argpairs))
-        return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
-      roles = map(str, range(nums[cl][1]))
-      return "\nelse ".join(map(setter_switch, roles))
-    one.body = to_statements(one, "\nelse ".join(map(setter_switch_whole, filter(lambda x: nums[x][2] > 0, nums.iterkeys()))))
-    NewAccessor.limit_number(one, fld_s, s_cnt)
-    aux.add_mtds([one])
-    setattr(aux, "one", one)
+    NewAccessor.__setter_in_one(aux, nums, fld_s, s_cnt, C.J.z)
   
   @staticmethod
   def ssetter_in_one(aux, nums, fld_s, s_cnt):
-    params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (C.J.STR, u"val")]
-    one = Method(clazz=aux, mods=C.PBST, params=params, name=u"sSetterInOne")
-    def setter_switch_whole(cl):
-      def setter_switch(role):
-        aname = aux.name
-        v = getattr(aux, "setter_"+cl+"_"+role)
-        f = getattr(aux, "ssttr").name
-        argpairs = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (C.J.i, getattr(aux, u"gs_field_"+cl+"_"+role)), (C.J.OBJ, u"val")]
-        args = ", ".join(map(lambda (ty, nm): nm, argpairs))
-        return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
-      roles = map(str, range(nums[cl][1]))
-      return "\nelse ".join(map(setter_switch, roles))
-    one.body = to_statements(one, "\nelse ".join(map(setter_switch_whole, filter(lambda x: nums[x][2] > 0, nums.iterkeys()))))
-    NewAccessor.limit_number(one, fld_s, s_cnt)
-    aux.add_mtds([one])
-    setattr(aux, "one", one)
+    NewAccessor.__setter_in_one(aux, nums, fld_s, s_cnt, C.J.STR)
 
   # initializer will be invoked here
   @staticmethod
-  def constructor_in_one(aux, nums, fld_c, c_cnt):
-    params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (C.J.OBJ, u"val"), (C.J.i, u"fld_id")]
-    one = Method(clazz=aux, mods=C.PBST, params=params, name=u"constructorInOne")
+  def __constructor_in_one(aux, nums, fld_c, c_cnt, ty):
+    shorty = to_shorty(ty)
+    params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (ty, u"val"), (C.J.i, u"fld_id")]
+    one = Method(clazz=aux, mods=C.PBST, params=params, name=shorty+u"constructorInOne")
     def constructor_switch_whole(cl):
       aname = aux.name
-      v = getattr(aux, "cons_"+cl)
-      f = getattr(aux, "sttr").name
-      argpairs = NewAccessor.getter_params() + [(C.J.OBJ, u"val")]
+      v = getattr(aux, '_'.join([C.ACC.CONS, cl]))
+      f = getattr(aux, shorty + "sttr").name
+      argpairs = NewAccessor.getter_params() + [(ty, u"val")]
       args = ", ".join(map(lambda (ty, nm): nm, argpairs))
       return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
-      #def constructor_switch(role):
-        #aname = aux.name
-        #v = getattr(aux, "cons_"+cl+"_"+role)
-        #f = getattr(aux, "sttr").name
-        #argpairs = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (C.J.i, v), (C.J.OBJ, u"val")]
-        #args = ", ".join(map(lambda (ty, nm): nm, argpairs))
-        #return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
-      #roles = map(str, range(nums[cl][1]))
-      #return "\nelse ".join(map(constructor_switch, roles))
     one.body = to_statements(one, "\nelse ".join(map(constructor_switch_whole, filter(lambda n: nums[n][0]>=0, nums.iterkeys()))))
     NewAccessor.limit_number(one, fld_c, c_cnt)
     aux.add_mtds([one])
-    setattr(aux, "one", one)
+
+  @staticmethod
+  def constructor_in_one(aux, nums, fld_c, c_cnt):
+    NewAccessor.__constructor_in_one(aux, nums, fld_c, c_cnt, C.J.OBJ)
   
   @staticmethod
   def iconstructor_in_one(aux, nums, fld_c, c_cnt):
-    params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (C.J.i, u"val"), (C.J.i, u"fld_id")]
-    one = Method(clazz=aux, mods=C.PBST, params=params, name=u"iConstructorInOne")
-    def constructor_switch_whole(cl):
-      aname = aux.name
-      v = getattr(aux, "cons_"+cl)
-      f = getattr(aux, "isttr").name
-      argpairs = NewAccessor.getter_params() + [(C.J.i, u"val")]
-      args = ", ".join(map(lambda (ty, nm): nm, argpairs))
-      return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
-      #def constructor_switch(role):
-        #aname = aux.name
-        #v = getattr(aux, "cons_"+cl+"_"+role)
-        #f = getattr(aux, "isttr").name
-        #argpairs = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (C.J.i, v), (C.J.i, u"val")]
-        #args = ", ".join(map(lambda (ty, nm): nm, argpairs))
-        #return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
-      #roles = map(str, range(nums[cl][1]))
-      #return "\nelse ".join(map(constructor_switch, roles))
-    one.body = to_statements(one, "\nelse ".join(map(constructor_switch_whole, filter(lambda n: nums[n][0]>=0, nums.iterkeys()))))
-    NewAccessor.limit_number(one, fld_c, c_cnt)
-    aux.add_mtds([one])
-    setattr(aux, "one", one)
+    NewAccessor.__constructor_in_one(aux, nums, fld_c, c_cnt, C.J.i)
 
   @staticmethod
   def bconstructor_in_one(aux, nums, fld_c, c_cnt):
-    params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (C.J.z, u"val"), (C.J.i, u"fld_id")]
-    one = Method(clazz=aux, mods=C.PBST, params=params, name=u"bConstructorInOne")
-    def constructor_switch_whole(cl):
-      aname = aux.name
-      v = getattr(aux, "cons_"+cl)
-      f = getattr(aux, "bsttr").name
-      argpairs = NewAccessor.getter_params() + [(C.J.z, u"val")]
-      args = ", ".join(map(lambda (ty, nm): nm, argpairs))
-      return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
-      #def constructor_switch(role):
-        #aname = aux.name
-        #v = getattr(aux, "cons_"+cl+"_"+role)
-        #f = getattr(aux, "bsttr").name
-        #argpairs = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (C.J.i, v), (C.J.z, u"val")]
-        #args = ", ".join(map(lambda (ty, nm): nm, argpairs))
-        #return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
-      #roles = map(str, range(nums[cl][1]))
-      #return "\nelse ".join(map(constructor_switch, roles))
-    one.body = to_statements(one, "\nelse ".join(map(constructor_switch_whole, filter(lambda n: nums[n][0]>=0, nums.iterkeys()))))
-    NewAccessor.limit_number(one, fld_c, c_cnt)
-    aux.add_mtds([one])
-    setattr(aux, "one", one)
+    NewAccessor.__constructor_in_one(aux, nums, fld_c, c_cnt, C.J.z)
 
   @staticmethod
   def sconstructor_in_one(aux, nums, fld_c, c_cnt):
-    params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (C.J.STR, u"val"), (C.J.i, u"fld_id")]
-    one = Method(clazz=aux, mods=C.PBST, params=params, name=u"sConstructorInOne")
-    def constructor_switch_whole(cl):
-      aname = aux.name
-      v = getattr(aux, "cons_"+cl)
-      f = getattr(aux, "ssttr").name
-      argpairs = NewAccessor.getter_params() + [(C.J.STR, u"val")]
-      args = ", ".join(map(lambda (ty, nm): nm, argpairs))
-      return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
-      #def constructor_switch(role):
-        #aname = aux.name
-        #v = getattr(aux, "cons_"+cl+"_"+role)
-        #f = getattr(aux, "ssttr").name
-        #argpairs = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (C.J.i, v), (C.J.STR, u"val")]
-        #args = ", ".join(map(lambda (ty, nm): nm, argpairs))
-        #return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
-      #roles = map(str, range(nums[cl][1]))
-      #return "\nelse ".join(map(constructor_switch, roles))
-    one.body = to_statements(one, "\nelse ".join(map(constructor_switch_whole, filter(lambda n: nums[n][0]>=0, nums.iterkeys()))))
-    NewAccessor.limit_number(one, fld_c, c_cnt)
-    aux.add_mtds([one])
-    setattr(aux, "one", one)
+    NewAccessor.__constructor_in_one(aux, nums, fld_c, c_cnt, C.J.STR)
   
   @staticmethod
   def add_fld(cls, ty, nm):
@@ -465,7 +317,7 @@ class NewAccessor(object):
   @staticmethod
   def call_adaptee(aux, clss):
     callee = u'_'.join(["rcv", aux.name])
-    rcv = u"_prvt_fld["+getattr(aux, "field")+u"]"
+    rcv = u"_prvt_fld[" + getattr(aux, C.ACC.FLD) + u"]"
     params = [(C.J.i, u"mtd_id"), (aux.name, callee)]
     reflect = Method(clazz=aux, mods=C.PBST, params=params, name=u"call_adaptee")
     def switch( cls ):
@@ -481,7 +333,7 @@ class NewAccessor(object):
       invocations = filter(None, map(invoke, mtds))
       return "\nelse ".join(invocations)
     tests = filter(None, map(switch, clss))
-    prefix = u"if (" + getattr(aux, "adapter") + u" == mtd_id) {\n"
+    prefix = u"if (" + getattr(aux, C.ACC.ADPT) + u" == mtd_id) {\n"
     reflect.body = to_statements(reflect, prefix + u"\nelse ".join(tests) + u"\n}")
     NewAccessor.limit_depth(aux, reflect, 2)
     aux.add_mtds([reflect])
@@ -490,34 +342,40 @@ class NewAccessor(object):
   ##
   ## generate an aux type for getter/setter
   ##
-  def gen_aux_cls(self, nums, clsses, tmpl):
+  def gen_aux_cls(self, nums, tmpl):
     self.aux_name = NewAccessor.new_aux()
     tmpl.acc_auxs.append(self.aux_name)
-    aux = Clazz(name=self.aux_name, mods=[C.mod.PB], subs=clsses)
+    aux = Clazz(name=self.aux_name, mods=[C.mod.PB], subs=self._clss)
     NewAccessor.set_aux(aux)
-    constructors = []
+
+    rv_cons = []
     for c in nums:
-      constructors.append("cons_"+c)
-    constructor_args = []
+      rv_cons.append('_'.join([C.ACC.CONS, c]))
+    #constructor_args = []
     #for c in nums:
-    #  new_args = map(lambda n: "cons_"+c+"_"+str(n), range(nums[c][0]))
+    #  new_args = map(lambda n: '_'.join([C.ACC.CONS, c, str(n)]), range(nums[c][0]))
     #  constructor_args.extend(new_args)
     
+    rv_accs = map(lambda c: '_'.join([C.ACC.ACC, c]), nums.iterkeys())
+
+    def get_g_roles(name, c):
+      return map(lambda n: '_'.join([name, c, str(n)]), range(nums[c][1]))
+    def get_s_roles(name, c):
+      return map(lambda n: '_'.join([name, c, str(n)]), range(nums[c][2]))
+
+    rv_gtts = util.flatten(map(partial(get_g_roles, C.ACC.GET), nums.iterkeys()))
+    gs_vars = util.flatten(map(partial(get_g_roles, C.ACC.GS), nums.iterkeys()))
+    rv_stts = util.flatten(map(partial(get_s_roles, C.ACC.SET), nums.iterkeys()))
+
     # set role variables
-    def get_g_roles(c, name):
-      return map(lambda n: name+"_"+c+"_"+str(n), range(nums[c][1]))
-    def get_s_roles(c, name):
-      return map(lambda n: name+"_"+c+"_"+str(n), range(nums[c][2]))
-    def gs_vars(c):
-      return reduce(lambda x, y: x+y, map(partial(get_g_roles, c), ["getter", "gs_field"])) + reduce(lambda x, y: x+y, map(partial(get_s_roles, c), ["setter"]))
-    all_gs_vars = reduce(lambda x, y: x+y, map(gs_vars, nums.iterkeys()))
-    insts = map(lambda n: "accessor_"+n, nums.iterkeys())
     def set_role(role):
       setattr(aux, role, '_'.join([role, aux.name]))
-    map(set_role, constructors)
+    map(set_role, rv_cons)
     #map(set_role, constructor_args)
-    map(set_role, all_gs_vars)
-    map(set_role, insts)
+    map(set_role, rv_accs)
+    map(set_role, rv_gtts)
+    map(set_role, gs_vars)
+    map(set_role, rv_stts)
     
     # add fields that stand for non-deterministic rule choices
     def aux_fld(init, ty, nm):
@@ -525,74 +383,88 @@ class NewAccessor(object):
       return Field(clazz=aux, mods=[C.mod.ST], typ=ty, name=nm, init=init)
     hole = to_expression(C.T.HOLE)
     aux_int = partial(aux_fld, hole, C.J.i)
-    roles = constructors + insts + all_gs_vars # + constructor_args
-    annos = map(aux_int, roles)
-    aux.add_flds(annos)
 
-    # range check
+    aux.add_flds(map(aux_int, gs_vars))
+
+    c_to_e = lambda c: to_expression(unicode(c))
+
+    ## range check
     rg_chk = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"checkRange")
+    checkers = []
+    gen_range = lambda ids: gen_E_gen(map(c_to_e, ids))
     get_id = op.attrgetter("id")
-    def is_accessor_candidate(cls):
-      mtds = cls.mtds
-      getter_mtds = filter(lambda m: len(m.params) == 0 and m.typ != C.J.v, mtds)
-      cons_mtds = filter(lambda m: m.is_init, mtds)
-      return getter_mtds or cons_mtds
-    cls_ids = map(get_id, filter(is_accessor_candidate, clsses))
-    #for c in clsses: print c.name + ": " + str(c.id)
-    mtds = util.flatten(map(NewAccessor.get_candidate_mtds, clsses))
-    #for m in mtds: print m.name + ": " + str(m.id)
-    constructors = util.flatten(map(NewAccessor.get_constructors, clsses))
-    #for cs in constructors: print cs.name + ": " + str(cs.id)
-    mtd_ids = map(get_id, mtds)
-    cons_ids = map(get_id, constructors)
+
+    # range check for accessors
+    cls_ids = map(get_id, filter(NewAccessor.is_candidate_cls, self._clss))
+    cls_init = gen_range(cls_ids)
+    aux_int_cls = partial(aux_fld, cls_init, C.J.i)
+    aux.add_flds(map(aux_int_cls, rv_accs))
+
+    # range check for getter/setter
+    mtds = util.flatten(map(NewAccessor.get_candidate_mtds, self._clss))
+
     def aux_range(rl, c, nm, mtds, num_args, is_void):
       ids = map(get_id, filter(lambda m: len(m.params) == num_args and (m.typ == C.J.v) == is_void, mtds))
-      eqs = map(lambda i: getattr(aux, rl+"_"+c+"_"+str(nm))+" == "+str(i), ids)
-      return u"assert " + reduce(lambda x, y: x+" || "+y, eqs) + ";"
+      init = gen_range(ids)
+      role = getattr(aux, '_'.join(map(str, [rl, c, nm])))
+      aux.add_flds([aux_fld(init, C.J.i, role)])
 
     def mtd_range(c):
-      return reduce(lambda x,y: x+y, map(lambda m: [aux_range("getter", c, m, mtds, 0, False)], range(nums[c][1])), []) + reduce(lambda x,y: x+y, map(lambda m: [aux_range("setter", c, m, mtds, 1, True)], range(nums[c][2])), [])
-    checkers = reduce(lambda x,y: x+y, map(mtd_range, nums.iterkeys()))
+      map(lambda m: [aux_range(C.ACC.GET, c, m, mtds, 0, False)], range(nums[c][1]))
+      map(lambda m: [aux_range(C.ACC.SET, c, m, mtds, 1, True)], range(nums[c][2]))
+    map(mtd_range, nums.iterkeys())
 
-    def cls_range(c):
-      eqs = map(lambda i: getattr(aux, "accessor_"+c)+" == "+str(i), cls_ids)
-      return u"assert " + reduce(lambda x, y: x+" || "+y, eqs) + ";"
-    checkers.append('\n'.join(map(cls_range, nums.iterkeys())))
-    
-    def cons_range(c):
-      eqs = map(lambda i: getattr(aux, "cons_"+c)+" == "+str(i), cons_ids)
-      return u"assert " + reduce(lambda x, y: x+" || "+y, eqs) + ";"
-    checkers.append('\n'.join(map(cons_range, nums.iterkeys())))
+    # range check for constructors
+    inits = util.flatten(map(NewAccessor.get_candidate_inits, self._clss))
+    cons_ids = map(get_id, inits)
+    cons_init = gen_range(cons_ids)
+    aux_int_cons = partial(aux_fld, cons_init, C.J.i)
+    aux.add_flds(map(aux_int_cons, rv_cons))
+
     for c in nums.iterkeys():
-      if (nums[c][0] >= 0):
-        checkers.append("assert (argNum(" + getattr(aux, "cons_"+c) + ")) == " + str(nums[c][0]) + ";")
-        checkers.append("assert (belongsTo(" + getattr(aux, "cons_"+c) + ")) == " + getattr(aux, "accessor_"+c) + ";")
+      if nums[c][0] >= 0:
+        checkers.append("assert (argNum(" + getattr(aux, '_'.join([C.ACC.CONS, c])) + ")) == " + str(nums[c][0]) + ";")
+        checkers.append("assert (belongsTo(" + getattr(aux, '_'.join([C.ACC.CONS, c])) + ")) == " + getattr(aux, '_'.join([C.ACC.ACC, c])) + ";")
     
     def owner_range(rl, c, ids):
-      return map(lambda i: "assert subcls("+getattr(aux, "accessor_"+c)+", belongsTo("+getattr(aux, rl+"_"+c+"_"+str(i))+"));", ids)
+      return map(lambda i: "assert subcls("+getattr(aux, '_'.join([C.ACC.ACC, c]))+", belongsTo("+getattr(aux, '_'.join([rl, c, str(i)]))+"));", ids)
     for c in nums.iterkeys():
-      checkers.extend(owner_range("getter", c, range(nums[c][1])))
-      checkers.extend(owner_range("setter", c, range(nums[c][2])))
+      checkers.extend(owner_range(C.ACC.GET, c, range(nums[c][1])))
+      checkers.extend(owner_range(C.ACC.SET, c, range(nums[c][2])))
 
     def bundle_getter_setter(c, gids, sids):
-      return map(lambda (g, s): "assert belongsTo("+getattr(aux, "getter"+"_"+c+"_"+str(g))+") == belongsTo("+getattr(aux, "setter"+"_"+c+"_"+str(s))+");", product(gids, sids))
+      return map(lambda (g, s): "assert belongsTo("+getattr(aux, '_'.join([C.ACC.GET, c, str(g)])) + ") == belongsTo(" + getattr(aux, '_'.join([C.ACC.SET, c, str(s)])) + ");", product(gids, sids))
     for c in nums.iterkeys():
       checkers.extend(bundle_getter_setter(c, range(nums[c][1]), range(nums[c][2])))
 
-    def getter_range(c):
-      return map(lambda i: "assert (argNum("+getattr(aux, "getter_"+c+"_"+str(i))+")) == 0;", range(nums[c][1]))
-    def setter_range(c):
-      return map(lambda i: "assert (argNum("+getattr(aux, "setter_"+c+"_"+str(i))+")) == 1;", range(nums[c][2]))
+    def getter_sig(c):
+      return map(lambda i: "assert (argNum(" + getattr(aux, '_'.join([C.ACC.GET, c, str(i)])) + ")) == 0;", range(nums[c][1]))
+    def setter_sig(c):
+      return map(lambda i: "assert (argNum(" + getattr(aux, '_'.join([C.ACC.SET, c, str(i)])) + ")) == 1;", range(nums[c][2]))
     def gs_match(c):
-      return map(lambda i: "assert subcls(argType("+getattr(aux, "setter_"+c+"_"+str(i))+", 0), retType("+getattr(aux, "getter_"+c+"_"+str(i))+"));", range(nums[c][2]))
+      return map(lambda i: "assert subcls(argType(" + getattr(aux, '_'.join([C.ACC.SET, c, str(i)]))+", 0), retType(" + getattr(aux, '_'.join([C.ACC.GET, c, str(i)])) + "));", range(nums[c][2]))
     def gs_type_match(c):
-        return map(lambda i: "assert argType("+getattr(aux, "cons_"+c)+", "+getattr(aux, "gs_field_"+c+"_"+str(i))+") == retType("+getattr(aux, "getter_"+c+"_"+str(i))+");", range(nums[c][1]))
-    checkers.extend(reduce(lambda x,y: x+y, map(getter_range, nums.iterkeys())))
-    checkers.extend(reduce(lambda x,y: x+y, map(setter_range, nums.iterkeys())))
+        return map(lambda i: "assert argType(" + getattr(aux, '_'.join([C.ACC.CONS, c])) + ", " + getattr(aux, '_'.join([C.ACC.GS, c, str(i)]))+") == retType(" + getattr(aux, '_'.join([C.ACC.GET, c, str(i)]))+");", range(nums[c][1]))
+    checkers.extend(reduce(lambda x,y: x+y, map(getter_sig, nums.iterkeys())))
+    checkers.extend(reduce(lambda x,y: x+y, map(setter_sig, nums.iterkeys())))
     checkers.extend(reduce(lambda x,y: x+y, map(gs_match, nums.iterkeys())))
     checkers.extend(reduce(lambda x,y: x+y, map(gs_type_match, nums.iterkeys())))
 
-    rg_chk.body = to_statements(rg_chk, '\n'.join(checkers))
+    ## adapter pattern
+
+    map(set_role, C.adp_roles)
+    mtd_ids = map(get_id, mtds)
+    mtd_init = gen_range(mtd_ids)
+    aux_int_adap = partial(aux_fld, mtd_init, C.J.i)
+    adapter_roles = [C.ACC.ADPT, C.ACC.ADPE]
+    adapter_flds = map(aux_int_adap, adapter_roles)
+    aux.add_flds(adapter_flds + [aux_int(C.ACC.FLD)])
+    NewAccessor.call_adaptee(aux, self._clss)
+
+    #checkers.append(u"assert (argNum(" + getattr(aux, C.ACC.ADPT) + ")) == 0 && (argNum(" + getattr(aux, C.ACC.ADPT) + ")) == 0;")
+    #checkers.append(u"assert (retType(" + getattr(aux, C.ACC.ADPT) + ")) == -1 && (retType(" + getattr(aux, C.ACC.FLD) + ")) == -1;")
+
+    rg_chk.body += to_statements(rg_chk, '\n'.join(checkers))
     aux.add_mtds([rg_chk])
     
     for c in nums.iterkeys():
@@ -601,7 +473,7 @@ class NewAccessor(object):
       if nums[c][2] > 0:
         NewAccessor.check_setter_param(aux, nums, c)
 
-    # global counters
+    ## global counters
 
     # assumption: # of objects and events could be instantiated
     obj_cnt = sample.max_objs(self._smpls)
@@ -656,33 +528,17 @@ class NewAccessor(object):
     NewAccessor.bconstructor_in_one(aux, nums, fld_c, c_cnt)
     NewAccessor.sconstructor_in_one(aux, nums, fld_c, c_cnt)
 
-    # adapter pattern
-
-    adapter_roles = ["adapter", "adaptee", "field"]
-    map(set_role, adapter_roles)
-    aux_int = partial(aux_fld, hole, C.J.i)
-    adapter_flds = map(aux_int, adapter_roles)
-    aux.add_flds(adapter_flds)
-    NewAccessor.call_adaptee(aux, clsses)
-
     add_artifacts([aux.name])
     return aux
 
-    def adapter_range(rl, ids):
-      eqs = map(lambda i: getattr(aux, rl)+" == "+str(i), ids)
-      return u"assert " + reduce(lambda x, y: x+" || "+y, eqs) + ";"
-    checkers = [adapter_range("adapter", mtd_ids), adapter_range("adaptee", mtd_ids), adapter_range("field", mtd_ids)]
-    checkers.append(u"assert (argNum(" + getattr(aux, "adapter") + ")) == 0 && (argNum(" + getattr(aux, "adapter") + ")) == 0;")
-    checkers.append(u"assert (retType(" + getattr(aux, "adapter") + ")) == -1 && (retType(" + getattr(aux, "field") + ")) == -1;")
-    rg_chk.body += to_statements(rg_chk, '\n'.join(checkers))
 
   @v.when(Template)
   def visit(self, node):
     nums = C.acc_conf
     
     self.find_clss_involved(node)
-    clss = self._clss
-    node.add_classes([self.gen_aux_cls(nums, clss, node)])
+    aux = self.gen_aux_cls(nums, node)
+    node.add_classes([aux])
 
   @v.when(Clazz)
   def visit(self, node):
@@ -701,58 +557,32 @@ class NewAccessor(object):
   @v.when(Method)
   def visit(self, node):
     self._cur_mtd = node
-  
+
+    if node.clazz.name in C.acc_default: return
+
+    if node.clazz.client: return
+ 
     # constructors
-    if node.is_init and not node.clazz.client:
+    if node.is_init:
       for i in xrange(len(node.params)):
-        mname = u""
-        typ = node.params[i][0]
-        if typ == C.J.i: mname = u"iConstructorInOne"
-        elif typ == C.J.z: mname = u"bConstructorInOne"
-        elif typ == C.J.STR: mname = u"sConstructorInOne"
-        else: mname = u"constructorInOne"
+        shorty = to_shorty(node.params[i][0])
+        mname = shorty + u"constructorInOne"
         fid = unicode(i)
         args = ", ".join([unicode(node.id), C.J.THIS, unicode(node.params[i][1]), fid])
         node.body += to_statements(node, u"{}.{}({});".format(self.aux_name, mname, args))
-      
-      #aux = NewAccessor.get_aux()
-      #nums = C.acc_conf
-      #rg_chk = aux.mtd_by_name(u"checkRange")
-      #for ty, nm in node.params:
-        #NewAccessor.add_fld(aux, C.J.i, unicode(node.id) + nm)
-        #role = unicode(node.id) + nm
-        #hole = to_expression(C.T.HOLE)
-        #fld = Field(clazz=aux, mods=[C.mod.ST], typ=C.J.i, name=role, init=hole)
-        #aux.add_flds([fld])
-        
-        #old_body = rg_chk.body
-        #def init_range(rl, c, nm, ids):
-          #eqs = map(lambda i: role+" == "+str(i), range(nums[c][0]))
-          #return u"assert " + reduce(lambda x, y: x+" || "+y, eqs) + ";"
-        #rg_chk.body = to_statements(rg_chk, old_body + "\n" + )
-      
       return
     
-    if node.clazz.name in C.acc_default:
-      return
-
     # getter candidate
-    if len(node.params) == 0 and node.typ != C.J.v and not node.clazz.client:
-      mname = u""
-      if node.typ == C.J.i: mname = u"iGetterInOne"
-      elif node.typ == C.J.z: mname = u"bGetterInOne"
-      elif node.typ == C.J.STR: mname = u"sGetterInOne"
-      else: mname = u"getterInOne"
+    if len(node.params) == 0 and node.typ != C.J.v:
+      shorty = to_shorty(node.typ)
+      mname = shorty + u"getterInOne"
       callee = u"null" if node.is_static else C.J.THIS
       node.body += to_statements(node, u"return " + self.aux_name + u"." + mname + u"(" + unicode(node.id) + u", " + callee + u");")
 
     # setter candidate
-    if len(node.params) == 1 and node.typ == C.J.v and not node.clazz.client:
-      mname = u""
-      if node.params[0][0] == C.J.i: mname = u"iSetterInOne"
-      elif node.params[0][0] == C.J.z: mname = u"bSetterInOne"
-      elif node.params[0][0] == C.J.STR: mname = u"sSetterInOne"
-      else: mname = u"setterInOne"
+    if len(node.params) == 1 and node.typ == C.J.v:
+      shorty = to_shorty(node.params[0][0])
+      mname = shorty + u"setterInOne"
       callee = u"null" if node.is_static else C.J.THIS
       node.body += to_statements(node, self.aux_name + u"." + mname + u"(" + unicode(node.id) + u", " + callee + u", " + unicode(node.params[0][1]) + u");")
 
@@ -760,7 +590,7 @@ class NewAccessor(object):
     if len(node.params) == 0 and node.typ == C.J.v and not node.is_static:
       aux = NewAccessor.get_aux()
       #fname = u"_prvt_fld"
-      #callee = C.J.THIS+u"."+fname+u"["+getattr(aux, "adapter")+u"]"
+      #callee = C.J.THIS+u"."+fname+u"["+getattr(aux, C.ACC.ADPT)+u"]"
       node.body += to_statements(node, self.aux_name + u".call_adaptee(" + unicode(node.id) + u", " + unicode(C.J.THIS) + u");")
 
   @v.when(Statement)

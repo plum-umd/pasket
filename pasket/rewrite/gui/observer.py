@@ -17,7 +17,7 @@ from ...meta.clazz import Clazz, merge_flat
 from ...meta.method import Method, sig_match, call_stt
 from ...meta.field import Field
 from ...meta.statement import Statement, to_statements
-from ...meta.expression import Expression, to_expression
+from ...meta.expression import Expression, to_expression, gen_E_gen
 
 class Observer(object):
 
@@ -380,38 +380,37 @@ class Observer(object):
       return Field(clazz=aux, mods=[C.mod.ST], typ=ty, name=nm, init=init)
     hole = to_expression(C.T.HOLE)
     aux_int = partial(aux_fld, hole, C.J.i)
-    #aux_str = partial(aux_fld, hole, C.J.STR)
 
-    role_names = C.obs_roles[:]
-    role_names.remove(C.OBS.EVT)
-    role_vars = map(aux_int, role_names)
+    c_to_e = lambda c: to_expression(unicode(c))
+
     # if explicitly annotated, use those concrete event names
     if self._tmpl.is_event_annotated:
-      ev_init = to_expression(unicode(aux.evt.id))
+      ev_init = c_to_e(aux.evt.id)
       role_var_evt = aux_fld(ev_init, C.J.i, C.OBS.EVT)
     else: # o.w., introduce a role variable for event
       role_var_evt = aux_int(C.OBS.EVT)
-    aux.add_flds(role_vars + [role_var_evt])
+    aux.add_flds([role_var_evt])
     
-    # range check
-    rg_chk = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"checkRange")
+    ## range check
+    gen_range = lambda ids: gen_E_gen(map(c_to_e, ids))
     get_id = op.attrgetter("id")
+
+    # range check for classes
+    cls_vars = [C.OBS.OBSR, C.OBS.SUBJ]
     cls_ids = map(get_id, clss)
+    cls_init = gen_range(cls_ids)
+    aux_int_cls = partial(aux_fld, cls_init, C.J.i)
+    aux.add_flds(map(aux_int_cls, cls_vars))
+
+    # range check for methods
+    mtd_vars = [C.OBS.A, C.OBS.D, C.OBS.H, C.OBS.U]
     mtds = util.flatten(map(Observer.get_candidate_mtds, clss))
     mtd_ids = map(get_id, mtds)
-    def aux_range(nm, ids):
-      eqs = map(lambda i: getattr(aux, nm)+" == "+str(i), ids)
-      return u"assert " + reduce(lambda x, y: x+" || "+y, eqs) + ";"
-    
-    cls_vars = [C.OBS.OBSR, C.OBS.SUBJ]
-    mtd_vars = [C.OBS.A, C.OBS.D, C.OBS.H, C.OBS.U]
-    checkers = map(lambda c: aux_range(c, cls_ids), cls_vars) \
-             + map(lambda m: aux_range(m, mtd_ids), mtd_vars)
-    #checkers.append(u"assert subcls(event_"+aux_name+u", argType("+getattr(aux, C.OBS.A)+u", 0));")
-    #checkers.append(u"assert subcls(event_"+aux_name+u", argType("+getattr(aux, C.OBS.D)+u", 0));")
-    rg_chk.body = to_statements(rg_chk, '\n'.join(checkers))
-    aux.add_mtds([rg_chk])
+    mtd_init = gen_range(mtd_ids)
+    aux_int_mtd = partial(aux_fld, mtd_init, C.J.i)
+    aux.add_flds(map(aux_int_mtd, mtd_vars))
 
+    ## rules regarding non-deterministic rewritings
     Observer.check_rule1(aux)
     Observer.check_rule2(aux)
 

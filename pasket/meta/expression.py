@@ -18,8 +18,8 @@ from ..anno import parse_anno
 from . import class_lookup
 import clazz
 
-# e ::= anno | ?? | c | id | uop e | e bop e | e.e | e[e] | new e | e(e*) | (e)e
-C.E = util.enum("ANNO", "HOLE", 'C', "ID", "UOP", "BOP", "DOT", "IDX", "NEW", "CALL", "CAST")
+# e ::= anno | ?? | {| e* |} | c | id | uop e | e bop e | e.e | e[e] | new e | e(e*) | (e)e
+C.E = util.enum("ANNO", "HOLE", "GEN", "C", "ID", "UOP", "BOP", "DOT", "IDX", "NEW", "CALL", "CAST")
 C.uop = ['+', '-', '~', '!', "++", "--"]
 C.bop = ["||", "&&", '|', '^', '&'] \
       + ['+', '-', '*', '/', '%'] \
@@ -44,6 +44,14 @@ class Expression(v.BaseNode):
 
     elif self._kind == C.E.HOLE:
       buf.write(C.T.HOLE)
+
+    elif self._kind == C.E.GEN:
+      if self.consts:
+        buf.write("{| ")
+        buf.write(" | ".join(map(str, self.consts)))
+        buf.write(" |}")
+      else:
+        buf.write(C.T.HOLE)
 
     elif self._kind == C.E.C:
       buf.write(str(self.c))
@@ -148,7 +156,7 @@ class Expression(v.BaseNode):
     elif self.kind == C.E.CAST:
       return curried(self.ty)
 
-    else: # HOLE, C
+    else: # HOLE, GEN, C
       return C.J.i
 
   def accept(self, visitor):
@@ -186,6 +194,12 @@ def gen_E_anno(x):
 @returns(Expression)
 def gen_E_hole():
   return Expression(C.E.HOLE)
+
+
+@takes(optional(list_of(Expression)))
+@returns(Expression)
+def gen_E_gen(consts=[]):
+  return Expression(C.E.GEN, consts=consts)
 
 
 # x -> E(C, x)
