@@ -199,7 +199,7 @@ if __name__ == "__main__":
 
   if opt.verbose: _opts.extend(["-V", "10"])
   if opt.parallel:
-    _opts.append("--be:randassign")
+    _opts.append("--slv-randassign")
     _opts.extend(["--bnd-dag-size", "16000000"]) # 16M ~> 8G memory
 
   # custom codegen

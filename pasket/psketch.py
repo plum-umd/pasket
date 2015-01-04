@@ -102,7 +102,8 @@ if __name__ == "__main__":
   sketch_home = os.environ["SKETCH_HOME"]
   cegis = os.path.join(sketch_home, "..", "sketch-backend", "src", "SketchSolver", "cegis")
 
-  # double-check cegis is running with --be:randassign
+  # double-check that cegis is running with -randassign
+  # which could be set via --be:randassign or --slv-randassign
   if "-randassign" in sys.argv:
     _, res = p_run(cegis, sys.argv[1:])
   else:

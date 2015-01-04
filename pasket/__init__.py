@@ -243,7 +243,7 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
       _opts.extend(["--fe-custom-codegen", codegen_jar])
 
       if conf["randassign"] or conf["parallel"]:
-        _opts.append("--be:randassign")
+        _opts.append("--slv-randassign")
         _opts.extend(["--bnd-dag-size", "16000000"]) # 16M ~> 8G memory
 
       sketch.set_default_option(_opts)

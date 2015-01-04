@@ -41,7 +41,7 @@ def main():
     help="proceed the whole process without running sketch")
   parser.add_option("--randassign",
     action="store_true", dest="randassign", default=False,
-    help="run sketch with \"--be:randassign\" option")
+    help="run sketch with the concretization feature")
   parser.add_option("--parallel",
     action="store_true", dest="parallel", default=False,
     help="run sketch in parallel until it finds a solution")
