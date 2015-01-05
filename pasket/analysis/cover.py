@@ -63,7 +63,7 @@ def covered(tmpl_files, demo_files):
 
 """
 To import lib.*, run as follows:
-  pasket $ python -m spec.analysis.cover [-t tmpl_path] (demo_file | demo_path)+
+  pasket $ python -m pasket.analysis.cover [-t tmpl_path] (demo_file | demo_path)+
 """
 if __name__ == "__main__":
   from optparse import OptionParser

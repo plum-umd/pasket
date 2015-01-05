@@ -402,11 +402,11 @@ def find_setter(smpls, typs, Fname):
 
 """
 To import lib.*, run as follows:
-  pasket $ python -m spec.sample
+  pasket $ python -m pasket.sample
 """
 if __name__ == "__main__":
   from optparse import OptionParser
-  usage = "usage: python -m spec.sample (sample.txt | sample_folder)+ [opt]"
+  usage = "usage: python -m pasket.sample (sample.txt | sample_folder)+ [opt]"
   parser = OptionParser(usage=usage)
   parser.add_option("-m", "--method",
     action="store_true", dest="method", default=False,

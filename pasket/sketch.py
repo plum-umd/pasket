@@ -158,12 +158,12 @@ def ctrl_flow_run(sk_dir, output_path, out_dir):
 
 
 """
-  pasket $ python -m spec.sketch -p demo [--parallel]
-  pasket $ ./spec/sketch.py -p demo [...]
+  pasket $ python -m pasket.sketch -p demo [--parallel]
+  pasket $ ./pasket/sketch.py -p demo [...]
 """
 if __name__ == "__main__":
   from optparse import OptionParser
-  usage = "usage: python -m spec.sketch [opt]"
+  usage = "usage: python -m pasket.sketch [opt]"
   parser = OptionParser(usage=usage)
   parser.add_option("-p", "--pattern", # same as run.py at the top level
     action="store", dest="demo", default=None,

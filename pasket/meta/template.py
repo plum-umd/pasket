@@ -292,11 +292,11 @@ class Template(v.BaseNode):
 
 """
 To import lib.*, run as follows:
-  pasket $ python -m spec.meta.template
+  pasket $ python -m pasket.meta.template
 """
 if __name__ == "__main__":
   from optparse import OptionParser
-  usage = "usage: python -m spec.meta.template (template.java | template_folder)+ [opt]"
+  usage = "usage: python -m pasket.meta.template (template.java | template_folder)+ [opt]"
   parser = OptionParser(usage=usage)
   parser.add_option("--hierarchy",
     action="store_true", dest="hierarchy", default=False,

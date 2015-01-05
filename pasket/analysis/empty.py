@@ -63,7 +63,7 @@ class EmptyFinder(object):
 
 """
 To import lib.*, run as follows:
-  pasket $ python -m spec.analysis.empty (demo_file | demo_path)+
+  pasket $ python -m pasket.analysis.empty (demo_file | demo_path)+
 """
 if __name__ == "__main__":
   from optparse import OptionParser
