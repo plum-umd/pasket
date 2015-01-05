@@ -554,7 +554,8 @@ class Observer(object):
           cls_ty = class_lookup(ty)
           # downcast AWTEvent to actual event
           if aux.evt <= cls_ty:
-            evt_passed = nm
+            # to not dereferrence event of interface sort (e.g., DocumentEvent)
+            if cls_ty.is_class: evt_passed = nm
             one_params.append( (aux.evt.name, nm) )
           elif self.find_aux(ty):
             one_params.append( (aux.name, nm) )
