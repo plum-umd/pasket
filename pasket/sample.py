@@ -17,12 +17,13 @@ import util
 class CallBase(object):
 
   # (>|<) pkg...cls.mtd(val1, val2, ...)
-  def __init__(self, line):
+  def __init__(self, line, depth=0):
+    self._depth = depth
     m = re.match(r"(>|<) (.*)\((.*)\)", line)
     if m: # m.group(1) = '>' or '<'
       self._pkg, self._cls, self._mtd = util.explode_mname(m.group(2))
       vals = map(op.methodcaller("strip"), m.group(3).split(','))
-      self._vals = filter(None, vals) # to remove empty strings
+      self._vals = util.ffilter(vals) # to remove empty strings
     else:
       raise Exception("wrong call sequences", line)
 
@@ -31,6 +32,10 @@ class CallBase(object):
     if self._pkg: mid.append(self._pkg)
     mid.extend([self._cls, self._mtd])
     return '.'.join(mid) + '(' + ", ".join(map(str, self._vals)) + ')'
+
+  @property
+  def indent(self):
+    return ' ' * (self._depth * 2)
 
   @property
   def pkg(self):
@@ -60,13 +65,13 @@ class CallBase(object):
 # >
 class CallEnt(CallBase):
   def __str__(self):
-    return "> " + super(CallEnt, self).__str__()
+    return self.indent + "> " + super(CallEnt, self).__str__()
 
 
 # <
 class CallExt(CallBase):
   def __str__(self):
-    return "< " + super(CallExt, self).__str__()
+    return self.indent + "< " + super(CallExt, self).__str__()
 
 
 class Evt(object):
@@ -122,12 +127,18 @@ class Sample(object):
 
     with open(fname) as f:
       logging.debug("reading sample: " + os.path.normpath(f.name))
+      depth = 0
       for line in f.readlines():
         line = unicode(line.strip())
         try:
-          if line[0] == '>': log = CallEnt(line)
-          elif line[0] == '<': log = CallExt(line)
-          elif line[0] in string.ascii_letters: log = Evt(line=line)
+          if line[0] == '>':
+            log = CallEnt(line, depth)
+            depth = depth + 1
+          elif line[0] == '<':
+            depth = depth - 1
+            log = CallExt(line, depth)
+          elif line[0] in string.ascii_letters:
+            log = Evt(line=line)
           else: continue # comments or something
         except IndexError: continue # empty line
 
