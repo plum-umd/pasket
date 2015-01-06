@@ -204,12 +204,10 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
     for smpl_path in _smpl_paths:
       smpl_files.extend(util.get_files_from_path(smpl_path, "txt"))
 
-    def is_event(mname): return mname in tmpl.events
-
     sample.reset()
     smpls = []
     for fname in smpl_files:
-      smpl = Sample(fname, is_event)
+      smpl = Sample(fname, tmpl.is_event)
       smpls.append(smpl)
 
     ## make harness

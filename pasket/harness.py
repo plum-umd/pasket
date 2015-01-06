@@ -47,7 +47,7 @@ def gen_events(tmpl, smpl, post, react_immediately=False, ev_name=u"Event"):
         {ev_name} {e_i} = new {init};
       """.format(**locals()))
 
-    e_kind = tmpl.events[evt.kind]
+    e_kind = tmpl.get_event_id(evt.kind)
     buf.write("""
       {e_i}.kind = {e_kind};
       {post}({e_i});

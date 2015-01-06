@@ -152,6 +152,22 @@ class Template(v.BaseNode):
   def is_event_annotated(self):
     return self._evt_annotated
 
+  # retrieve event's kind index
+  def get_event_id(self, cname):
+    # if name appears explicitly, access to its kind index directly
+    if cname in self._events: return self._events[cname]
+    # o.w. consider subtype (e.g., implementing an interface)
+    cls = class_lookup(cname)
+    c_evts = util.ffilter(map(class_lookup, self._events))
+    try:
+      c_evt = util.find(lambda c_evt: cls <= c_evt, c_evts)
+      return self._events[c_evt.name]
+    except Exception: return None
+
+  # check whether the given type is event sort
+  def is_event(self, cname):
+    return self.get_event_id(cname) != None
+
   @property
   def obs_auxs(self):
     return self._obs_auxs
