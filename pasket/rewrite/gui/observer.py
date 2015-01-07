@@ -229,7 +229,7 @@ class Observer(object):
   def get_candidate_mtds(cls):
     mtds = cls.mtds
     if cls.is_itf and cls.subs:
-      mtds = util.flatten(map(op.attrgetter("mtds"), cls.subs))
+      mtds = util.flatten(map(Observer.get_candidate_mtds, cls.subs))
     return filter(Observer.is_candidate_mtd, mtds)
 
   # common params for methods in Aux...
