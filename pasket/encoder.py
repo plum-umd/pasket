@@ -150,7 +150,7 @@ def trans_mname(cname, mname, arg_typs=[]):
 def trans_lib():
   buf = cStringIO.StringIO()
 
-  # String.equals()
+  # String.equals -> equals_String
   cname = C.J.STR
   sname = trans_ty(cname)
   buf.write("""
@@ -158,6 +158,45 @@ def trans_lib():
       return s1 == s2;
     }}
   """.format(trans_mname(cname, u"equals"), sname))
+
+  # String.length -> length_String
+  buf.write("""
+    int {0} ({1} s) {{
+      int len = 0;
+      while (s[len] != 0) len++;
+      return len;
+    }}
+  """.format(trans_mname(cname, u"length"), sname))
+
+  # String.indexOf(String, int) -> indexOf_String
+  buf.write("""
+    int {0} ({1} source, {1} target, int fromIndex) {{
+      int source_len = 0;
+      while (source[source_len] != 0) source_len++;
+      int target_len = 0;
+      while (target[target_len] != 0) target_len++;
+
+      if (fromIndex >= source_len) {{
+        if (target_len == 0) return source_len;
+        else return -1;
+      }}
+      if (target_len == 0) return fromIndex;
+
+      int index = fromIndex;
+      while (index <= source_len - target_len) {{
+        bit mismatch = 0;
+        int j;
+        for (j = 0; j < target_len; j++) {{
+          if (source[index + j] != target[j]) {{
+            mismatch = 1; break;
+          }}
+        }}
+        if (!mismatch) return index;
+        index++;
+      }}
+      return -1;
+    }}
+  """.format(trans_mname(cname, u"indexOf"), sname))
 
   return unicode(buf.getvalue())
 
