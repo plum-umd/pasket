@@ -31,7 +31,8 @@ class Accessor(object):
   def visit(self, node):
     name = node.name
     if name in C.J.OBJ: pass
-    elif node.is_itf or node.is_anony: pass
+    elif not node.is_class: pass
+    elif node.is_anony: pass
     elif node.has_init: pass
     else:
       sup = node.in_hierarchy(op.attrgetter("has_init"))
