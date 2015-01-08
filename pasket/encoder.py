@@ -525,13 +525,13 @@ def trans_fname(cname, fname, is_static=False):
   return r_fld
 
 
-# collect method declarations in the given class and its inner classes
+# collect method/field declarations in the given class and its inner classes
 @takes(Clazz)
-@returns(list_of(Method))
-def collect_method_decls(cls):
-  classes = util.flatten_classes([cls], "inners")
-  _mtds = map(op.attrgetter("mtds"), classes)
-  return util.flatten(_mtds)
+@returns(list_of((Method, Field)))
+def collect_decls(cls, attr):
+  clss = util.flatten_classes([cls], "inners")
+  declss = map(op.attrgetter(attr), clss)
+  return util.flatten(declss)
 
 
 # TODO: no longer used?
@@ -1000,13 +1000,14 @@ def gen_type_sk(sk_dir, bases):
 @takes(str, list_of(sample.Sample), Clazz)
 @returns(optional(unicode))
 def gen_cls_sk(sk_dir, smpls, cls):
-  mtds = collect_method_decls(cls)
+  mtds = collect_decls(cls, "mtds")
   inits, non_inits = util.partition(op.attrgetter("is_init"), mtds)
-  s_flds = filter(op.attrgetter("is_static"), cls.flds)
-  if cls.is_itf:
-    if not s_flds: return None
-  else:
+  flds = collect_decls(cls, "flds")
+  s_flds = filter(op.attrgetter("is_static"), flds)
+  if cls.is_class:
     if not inits and not non_inits and not s_flds: return None
+  else: # cls.is_itf or cls.is_enum
+    if not s_flds: return None
 
   buf = cStringIO.StringIO()
   buf.write("package {};\n".format(cls.name))
@@ -1224,7 +1225,7 @@ def gen_log_sk(sk_dir, tmpl):
 
   buf.write("\n// distinct method IDs\n")
   for cls in tmpl.classes:
-    mtds = collect_method_decls(cls)
+    mtds = collect_decls(cls, "mtds")
     if not mtds: continue
 
     for mtd in mtds:
