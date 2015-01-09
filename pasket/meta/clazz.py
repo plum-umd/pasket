@@ -268,18 +268,26 @@ class Clazz(v.BaseNode):
     buf.write("\n}\n")
     return buf.getvalue()
 
-  # reflective: c == c
   def __eq__(self, other):
+    # reflective: c == c
     return self._name == other.name
 
-  # topmost: c < Object
-  # superclass: c (extends | implements) d
-  # transitive: c < x and x < d
   def __lt__(self, other):
+    # topmost: c < Object
     if other.name in C.J.OBJ: return True 
+    # pre-defined, e.g., primitives
+    if self._name in C.primitives and other.name in C.primitives:
+      s_id = C.primitives.index(self._name)
+      o_id = C.primitives.index(other.name)
+      if s_id < o_id: return True
+
+    # superclass: c (extends | implements) d
     if self._sup and self._sup == other.name: return True
     if other.name in self._itfs: return True
+
+    # transitive: c < x and x < d
     if self._sup: return class_lookup(self._sup) < other
+
     return False
 
   def __le__(self, other):
