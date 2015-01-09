@@ -242,7 +242,6 @@ class Clazz(v.BaseNode):
   def __repr__(self):
     cname = self._name
     if self._outer: cname = u'.'.join([self._outer.name, self._name])
-    else: cname = self._name
     return util.sanitize_ty(cname)
 
   def __str__(self, s_printer=None):
