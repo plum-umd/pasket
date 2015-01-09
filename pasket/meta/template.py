@@ -232,8 +232,7 @@ class Template(v.BaseNode):
       sups = map(util.sanitize_ty, cls.itfs)
       if cls.sup: sups.append(util.sanitize_ty(cls.sup))
       for sup in clss:
-        sname = repr(sup)
-        if sname in sups:
+        if sup.name in sups or repr(sup) in sups:
           if cls not in sup.subs: sup.subs.append(cls)
 
     # discard interfaces that have no implementers, without constants
@@ -357,7 +356,9 @@ if __name__ == "__main__":
       if cls.itfs: buf.write(" : " + ", ".join(map(str, cls.itfs)))
       buf.write('\n')
       for sub in cls.subs:
-        buf.write(toStringTree(sub, depth+2))
+        buf.write(toStringTree(sub, depth+4))
+      for inner in cls.inners:
+        buf.write(toStringTree(inner, depth+2))
       return buf.getvalue()
 
     tmpl.consist()
