@@ -251,6 +251,7 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
         #_, r = sketch.be_p_run(sk_dir, output_path)
         # Java implementation inside sketch-frontend
         _opts.append("--slv-parallel")
+        _opts.extend(["--slv-strategy", "WILCOXON"])
         _, r = sketch.run(sk_dir, output_path)
       else:
         _, r = sketch.run(sk_dir, output_path)
