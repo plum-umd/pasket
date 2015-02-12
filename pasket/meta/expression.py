@@ -95,6 +95,11 @@ class Expression(v.BaseNode):
       if anno.name in [C.A.NEW, C.A.OBJ]: return anno.typ
       elif anno.name in [C.A.CMP, C.A.CMP_STR]: return C.J.i
 
+    elif self.kind == C.E.C:
+      if self.c == C.J.N: return C.J.OBJ
+      elif self.c in [C.J.T, C.J.F]: return C.J.z
+      else: return C.J.i
+
     elif self.kind == C.E.ID:
       if hasattr(self, "ty"): return self.ty
       v = self.id
@@ -156,7 +161,7 @@ class Expression(v.BaseNode):
     elif self.kind == C.E.CAST:
       return curried(self.ty)
 
-    else: # HOLE, GEN, C
+    else: # HOLE, GEN
       return C.J.i
 
   def accept(self, visitor):
