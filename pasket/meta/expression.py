@@ -318,7 +318,9 @@ def parse_e(node, cls=None):
   # const or id
   elif len(_nodes) <= 1:
     if kind:
-      try: e = gen_E_c(ast.literal_eval(kind))
+      try:
+        if kind in [C.J.T, C.J.F, C.J.N]: e = gen_E_c(unicode(kind))
+        else: e = gen_E_c(ast.literal_eval(kind))
       except Exception: e = gen_E_id(unicode(kind))
     else: e = gen_E_id(_nodes[0].getText())
 
