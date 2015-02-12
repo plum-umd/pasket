@@ -487,9 +487,9 @@ class Observer(object):
           hdl = '.'.join([cls_h_name, cls_h.handle])
           cond_call = u"""
             else if ({evt}_k == {i}) {{
-              {cls_h_name} rcv = ({cls_h_name}){evt}.getSource();
-              //{cls_h_name} rcv = ({cls_h_name}){evt}._source;
-              {cls_h_name}.{reflect}({hdl}, rcv, null, ({event}){evt});
+              {cls_h_name} rcv_{i} = ({cls_h_name}){evt}.getSource();
+              //{cls_h_name} rcv_{i} = ({cls_h_name}){evt}._source;
+              {cls_h_name}.{reflect}({hdl}, rcv_{i}, null, ({event}){evt});
             }}"""
           switches += cond_call.format(**locals())
 
