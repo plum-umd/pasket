@@ -1020,7 +1020,7 @@ def gen_cls_sk(sk_dir, smpls, cls):
 
   # accessors for static fields
   for fld in ifilterfalse(op.attrgetter("is_private"), s_flds):
-    accessor = trans_fname(cls.name, fld.name, True)
+    accessor = trans_fname(fld.clazz.name, fld.name, True)
     buf.write("""
       {} {accessor}() {{ return {fld.name}; }}
     """.format(trans_ty(fld.typ), **locals()))
