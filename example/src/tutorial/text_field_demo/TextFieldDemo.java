@@ -187,13 +187,15 @@ public class TextFieldDemo extends JFrame
                 hilit.addHighlight(index, end, painter);
                 textArea.setCaretPosition(end);
                 entry.setBackground(entryBg);
-                message("'" + s + "' found. Press ESC to end search");
+                //message("'" + s + "' found. Press ESC to end search");
+                message(s);
             } catch (BadLocationException e) {
                 e.printStackTrace();
             }
         } else {
             entry.setBackground(ERROR_COLOR);
-            message("'" + s + "' not found. Press ESC to start a new search");
+            //message("'" + s + "' not found. Press ESC to start a new search");
+            message(s);
         }
     }
 
