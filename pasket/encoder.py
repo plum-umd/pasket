@@ -41,7 +41,7 @@ def rm_subs(clss):
   for cname in decls.keys():
     if util.is_collection(cname): continue
     cls = class_lookup(cname)
-    if cls.is_itf: continue
+    if not cls.is_class: continue
     if cls.is_aux: continue # virtual relations; don't remove sub classes
     for sub in cls.subs:
       if sub.name in decls:
@@ -465,6 +465,7 @@ def to_struct(cls):
       logging.debug("{} => {}".format(fid, fname))
       _s_flds[fid] = fname
 
+  cname = cls.name
   global _ty
   # if this is an interface, merge this into another family of classes
   # as long as classes that implement this interface are in the same family
@@ -472,17 +473,17 @@ def to_struct(cls):
     # interface may have static constants
     gen_s_flds_accessors(cls)
     bases = util.rm_dup(map(lambda sub: find_base(sub), cls.subs))
-    if len(bases) > 1:
-      logging.debug("ambiguous inheritance: {} {}".format(cls.name, bases))
-      return ''
-
-    try:
-      base = bases[0]
+    # filter out interfaces that extend other interfaces, e.g., Action
+    base_clss, _ = util.partition(op.attrgetter("is_class"), bases)
+    if not base_clss:
+      logging.debug("no implementer of {}".format(cname))
+    elif len(base_clss) > 1:
+      logging.debug("ambiguous inheritance of {}: {}".format(cname, base_clss))
+    else: # len(base_clss) == 1
+      base = base_clss[0]
       base_name = base.name
-      logging.debug("{} => {}".format(cls.name, base_name))
-      _ty[cls.name] = base_name
-    except IndexError: # means no implementer
-      pass
+      logging.debug("{} => {}".format(cname, base_name))
+      _ty[cname] = base_name
 
     return ''
 
@@ -490,15 +491,16 @@ def to_struct(cls):
   # make a virtual struct first
   if cls.subs and not cls.is_aux:
     cls = to_v_struct(cls)
+    cname = cls.name
 
   # cls can be modified above, thus generate static fields accessors here
   gen_s_flds_accessors(cls)
 
   # for unique class numbering, add an identity mapping
-  if cls.name not in _ty: _ty[cls.name] = cls.name
+  if cname not in _ty: _ty[cname] = cname
 
   buf = cStringIO.StringIO()
-  buf.write("struct " + cls.name + " {\n  int hash;\n")
+  buf.write("struct " + cname + " {\n  int hash;\n")
 
   # to avoid static fields, which will be bound to a class-representing package
   _, i_flds = util.partition(op.attrgetter("is_static"), cls.flds)
@@ -891,14 +893,13 @@ def gen_type_sk(sk_dir, bases):
   buf.write('\n')
 
   cols, decls = util.partition(lambda c: util.is_collection(c.name), bases)
-
   decls = filter(lambda c: not util.is_array(c.name), decls)
   itfs, clss = util.partition(op.attrgetter("is_itf"), decls)
   logging.debug("# interface(s): {}".format(len(itfs)))
   logging.debug("# class(es): {}".format(len(clss)))
   # convert interfaces first, then usual classes
-  buf.write('\n'.join(map(to_struct, itfs)))
-  buf.write('\n'.join(map(to_struct, clss)))
+  buf.write('\n'.join(util.ffilter(map(to_struct, itfs))))
+  buf.write('\n'.join(util.ffilter(map(to_struct, clss))))
 
   # convert collections at last
   logging.debug("# collection(s): {}".format(len(cols)))
