@@ -37,7 +37,7 @@ class Clazz(v.BaseNode):
     self._name = kwargs.get("name", None)
     # superclass
     self._sup = kwargs.get("sup", C.J.OBJ)
-    if self._kind != C.T.CLS: self._sup = None
+    if self._kind == C.T.ITF: self._sup = None
     # to hold class hierarchy info:
     #   subclasses that extend this class
     #   classes that implement this interface

@@ -424,7 +424,9 @@ def to_v_struct(cls):
       def upd_flds(cname):
         fid = '.'.join([cname, fld.name])
         # if A.f1 exists and B redefines f1, then B.f1 : f1_A
-        if fid in _s_flds or fid in _flds: return
+        # except for enum, which can (re)define its own fields
+        # e.g., SwingConstands.LEADING vs. GroupLayout.Alignment.LEADING
+        if not cls.is_enum and (fid in _s_flds or fid in _flds): return
         logging.debug("{} => {}".format(fid, fname))
         if fld.is_static: _s_flds[fid] = fname
         else: _flds[fid] = fname # { ..., B.f2 : f2_B }
