@@ -16,7 +16,7 @@ import util
 import sample
 from meta import methods, classes, class_lookup
 from meta.template import Template
-from meta.clazz import Clazz, find_fld, find_mtd, find_base
+from meta.clazz import Clazz, find_fld, find_mtd_by_name, find_mtd_by_sig, find_base
 from meta.method import Method, sig_match
 from meta.field import Field
 from meta.statement import Statement
@@ -135,7 +135,7 @@ def trans_mname(cname, mname, arg_typs=[]):
       tr_name = trans_ty(cname)
       cls = class_lookup(tr_name)
       if cls and cls.is_aux: cname = tr_name
-    mtd = find_mtd(cname, mname, arg_typs)
+    mtd = find_mtd_by_sig(cname, mname, arg_typs)
     if mtd: r_mtd = unicode(repr(mtd))
     else: r_mtd = '_'.join([mname, util.sanitize_ty(cname)])
 
@@ -384,6 +384,9 @@ def to_v_struct(cls):
     if cls.name != cls_v.name: # exclude the root of this family
       logging.debug("{} => {}".format(cls.name, cls_v.name))
       _ty[cls.name] = cls_v.name
+      if cls.is_inner: # to handle inner class w/ outer class name
+        logging.debug("{} => {}".format(repr(cls), cls_v.name))
+        _ty[unicode(repr(cls))] = cls_v.name
 
     # if this class implements an interface which has constants,
     # then copy those constants
@@ -442,6 +445,7 @@ def to_v_struct(cls):
 @returns(str)
 def trans_fld(fld):
   buf = cStringIO.StringIO()
+  if trans_ty(fld.typ) != C.J.OBJ: import pdb; pdb.set_trace()
   buf.write(' '.join([trans_ty(fld.typ), fld.name]))
   if fld.init and fld.is_static:
     buf.write(" = " + trans_e(None, fld.init))
@@ -484,6 +488,9 @@ def to_struct(cls):
       base_name = base.name
       logging.debug("{} => {}".format(cname, base_name))
       _ty[cname] = base_name
+      if cls.is_inner: # to handle inner interface w/ outer class name
+        logging.debug("{} => {}".format(repr(cls), base_name))
+        _ty[unicode(repr(cls))] = base_name
 
     return ''
 
@@ -681,7 +688,7 @@ def trans_e(mtd, e):
     if e.f.kind == C.E.DOT: # rcv.mid
       rcv_ty = typ_of_e(mtd, e.f.le)
       mname = e.f.re.id
-      mtd_callee = find_mtd(rcv_ty, mname, arg_typs)
+      mtd_callee = find_mtd_by_sig(rcv_ty, mname, arg_typs)
       if mtd_callee and mtd_callee.is_static: rcv = None
       else: rcv = curried(e.f.le)
       mid = trans_mname(rcv_ty, mname, arg_typs)
@@ -698,7 +705,7 @@ def trans_e(mtd, e):
         mid = trans_mname(sup.name, sup.name, arg_typs)
         rcv = C.SK.self
       else: # member methods
-        mtd_callee = find_mtd(mtd.clazz.name, mname, arg_typs)
+        mtd_callee = find_mtd_by_sig(mtd.clazz.name, mname, arg_typs)
         if mtd_callee and mtd_callee.is_static: rcv = None
         else: rcv = C.SK.self
         mid = trans_mname(mtd.clazz.name, mname, arg_typs)
@@ -1059,7 +1066,7 @@ def gen_smpl_sk(sk_path, smpl, tmpl, main):
     # ignore <init>
     if io.is_init: continue
     try: # ignore methods that are not declared in the template
-      mtd = find_mtd(io.cls, io.mtd)
+      mtd = find_mtd_by_name(io.cls, io.mtd)
       mid = repr(mtd)
       if mid not in _mids: continue
     except AttributeError: continue
@@ -1178,6 +1185,9 @@ def gen_log_sk(sk_dir, tmpl):
   global _inits
   reg_codes = []
   for ty in _inits:
+    cls = class_lookup(ty)
+    if not cls: continue
+
     buf.write("""
       int obj_{0}_cnt = 0;
       {1}[O] obj_{0};
@@ -1200,8 +1210,6 @@ def gen_log_sk(sk_dir, tmpl):
       }}
     """.format(ty, trans_ty(ty), ty.lower()))
 
-    cls = class_lookup(ty)
-    if not cls: continue
     reg_code = "if (ty == {0}) register_{1}@log({2});".format(cls.id, repr(cls), C.SK.self)
     reg_codes.append(reg_code)
 
@@ -1216,12 +1224,17 @@ def gen_log_sk(sk_dir, tmpl):
   """.format(C.SK.self, "\nelse ".join(reg_codes)))
 
   global _ty;
-  buf.write("\n// distinct class IDs\n")
-  for cname in _ty.keys():
-    if util.is_collection(cname): continue
-    if util.is_array(cname): continue
-    cls = class_lookup(cname)
+  _clss = []
+  for ty in _ty.keys():
+    if util.is_collection(ty): continue
+    if util.is_array(ty): continue
+    cls = class_lookup(ty)
     if not cls: continue # to avoid None definition
+    # inner class may appear twice: w/ and w/o outer class name
+    if cls not in _clss: _clss.append(cls)
+
+  buf.write("\n// distinct class IDs\n")
+  for cls in _clss:
     buf.write("int {cls!r} () {{ return {cls.id}; }}\n".format(**locals()))
 
   buf.write("\n// distinct method IDs\n")

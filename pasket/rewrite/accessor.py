@@ -8,7 +8,7 @@ from .. import util
 from .. import sample
 from ..meta import class_lookup
 from ..meta.template import Template
-from ..meta.clazz import Clazz, find_mtd
+from ..meta.clazz import Clazz, find_mtd_by_sig
 from ..meta.method import Method, sig_match
 from ..meta.field import Field
 from ..meta.statement import Statement, to_statements
@@ -90,7 +90,7 @@ class Accessor(object):
     ## add super() into <init>
     ##
     if node.is_init and cls.sup and cls.sup != C.J.OBJ:
-      sup_init = find_mtd(cls.sup, cls.sup, node.param_typs)
+      sup_init = find_mtd_by_sig(cls.sup, cls.sup, node.param_typs)
       if sup_init: # sig-matched super()
         args = sig_match(sup_init.params, node.params)
       else: # try other super(...)

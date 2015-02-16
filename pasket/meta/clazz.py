@@ -218,6 +218,10 @@ class Clazz(v.BaseNode):
     self._outer = v
 
   @property
+  def is_inner(self):
+    return self._outer != None
+
+  @property
   def client(self):
     return self._client
 
@@ -377,12 +381,41 @@ class Clazz(v.BaseNode):
     def match(mtd):
       def subtype_cmp(formal_params, actual_params):
         for f_param, a_param in zip(formal_params, actual_params):
+          # actual argument might be null whose type is regarded as Object
+          if util.is_class_name(f_param) and a_param == C.J.OBJ: continue
+
+          # ignore undefined types
           cls_f, cls_a = class_lookup(f_param), class_lookup(a_param)
-          if cls_f and cls_a and cls_a <= cls_f: continue
-          else: return False
+          if not cls_f or not cls_a: return False
+
+          # actual argument is a subtype of formal parameter
+          if cls_a <= cls_f: continue
+
+          # event type is allowed to be downcasted
+          elif cls_a.is_event and cls_f <= cls_a: continue
+
+          # aux type is allowed to be downcasted: a) formal parameter
+          elif cls_f.is_aux:
+            aux_subtyped = False
+            for cls_s in cls_f.subs:
+              aux_subtyped = aux_subtyped or cls_a <= cls_s
+            if aux_subtyped: continue
+
+          # aux type is allowed to be downcasted: b) actual argument
+          elif cls_a.is_aux:
+            aux_subtyped = False
+            for cls_s in cls_a.subs:
+              aux_subtyped = aux_subtyped or cls_s <= cls_f
+            if aux_subtyped: continue
+
+          return False
+
+        # end of for loop; means, all parameters are compatible
         return True
-      return mtd.name == mname and \
-          len(mtd.param_typs) == len(sig) and subtype_cmp(mtd.param_typs, sig)
+
+      return mtd.name == mname and len(mtd.param_typs) == len(sig) and \
+          subtype_cmp(mtd.param_typs, sig)
+
     def finder(cls): return util.exists(match, cls.mtds)
     def getter(cls): return util.find(match, cls.mtds)
     return self.in_hierarchy(finder, getter)
@@ -525,31 +558,49 @@ def find_fld(cname, fname, visited=[]):
   return None
 
 
-# find the method by the given class and method name
-@takes(unicode, unicode, list_of(unicode))
-@returns(optional("Method"))
-def find_mtd(cname, mname, sig=[]):
+@takes(unicode, callable)
+@returns(list_of("Method"))
+def __find_mtd(cname, f):
   cls = class_lookup(cname)
-  if not cls: return None
+  if not cls: return []
 
   # try to concretize a call to interface
   if cls.is_itf and cls.subs:
     for sub in cls.subs:
-      mtd = find_mtd(sub.name, mname, sig)
-      if mtd: return mtd
+      mtds = __find_mtd(sub.name, f)
+      if mtds: return mtds
 
-  # try the current and super class
-  mtds = cls.mtd_by_name(mname)
-  if mtds:
-    if len(mtds) == 1: return mtds[0]
-    else: return cls.mtd_by_sig(mname, sig)
+  # try the current class and super classes in the hierarchy
+  if cls.is_class:
+    mtds = f(cls)
+    if mtds: return mtds
 
   # aux type is allowed to move down to actual classes, like downcast
   if cls.is_aux and cls.subs:
     for sub in cls.subs:
-      mtd = find_mtd(sub.name, mname, sig)
-      if mtd: return mtd
-  return None
+      mtds = __find_mtd(sub.name, f)
+      if mtds: return mtds
+  return []
+
+
+# find the method by the given class name and method name
+@takes(unicode, unicode)
+@returns(optional("Method"))
+def find_mtd_by_name(cname, mname):
+  f = lambda cls: cls.mtd_by_name(mname)
+  mtds = __find_mtd(cname, f)
+  if mtds: return mtds[0]
+  else: return None
+
+
+# find the method by the given class name, method name, and parameter types
+@takes(unicode, unicode, list_of(unicode))
+@returns(optional("Method"))
+def find_mtd_by_sig(cname, mname, sig):
+  f = lambda cls: util.ffilter([cls.mtd_by_sig(mname, sig)])
+  mtds = __find_mtd(cname, f)
+  if 1 == len(mtds): return mtds[0]
+  else: return None
 
 
 # find the base class of the family in which the given class is involved

@@ -207,6 +207,15 @@ class Template(v.BaseNode):
     # for easier(?) membership test
     # { cls!r: Clazz(cname, ...), ... }
     decls = { repr(cls): cls for cls in clss }
+    def is_defined(tname):
+      _tname = util.sanitize_ty(tname)
+      for cls_r in decls.keys():
+        if decls[cls_r].is_inner:
+          if _tname == cls_r: return True
+          if _tname in cls_r.split('_'): return True
+        else:
+          if tname == cls_r: return True
+      return False
 
     def add_decl(tname):
       # (not) to handle primitive types, such as int
@@ -221,10 +230,10 @@ class Template(v.BaseNode):
     # finding types that occur at field/method declarations
     for cls in clss:
       for fld in cls.flds:
-        if fld.typ not in decls: add_decl(fld.typ)
+        if not is_defined(fld.typ): add_decl(fld.typ)
       for mtd in cls.mtds:
         for (ty, nm) in mtd.params:
-          if ty not in decls: add_decl(ty)
+          if not is_defined(ty): add_decl(ty)
 
     # build class hierarchy: fill Clazz.subs
     for cls in clss:
@@ -248,7 +257,7 @@ class Template(v.BaseNode):
     # discard methods that refer to undefined types
     for cls in clss:
       for mtd in cls.mtds[:]: # to remove items, should use a shallow copy
-        def undefined_type( (ty, _) ): return ty not in decls
+        def undefined_type( (ty, _) ): return not is_defined(ty)
         if util.exists(undefined_type, mtd.params):
           ty, _ = util.find(undefined_type, mtd.params)
           logging.debug("discarding {} due to lack of {}".format(mtd.name, ty))

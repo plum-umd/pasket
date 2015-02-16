@@ -141,7 +141,7 @@ class Expression(v.BaseNode):
       if self.f.kind == C.E.DOT: # rcv.mid
         rcv_ty = curried(self.f.le)
         mname = self.f.re.id
-        mtd_callee = clazz.find_mtd(rcv_ty, mname, arg_typs)
+        mtd_callee = clazz.find_mtd_by_sig(rcv_ty, mname, arg_typs)
         return mtd_callee.typ
       else: # mid
         mname = self.f.id
@@ -153,9 +153,9 @@ class Expression(v.BaseNode):
           return mtd.clazz.sup
         else:
           if mname == C.J.SUP: # super(...)
-            mtd_callee = clazz.find_mtd(mtd.clazz.sup, mtd.name, mtd.param_typs)
+            mtd_callee = clazz.find_mtd_by_sig(mtd.clazz.sup, mtd.name, mtd.param_typs)
           else: # member methods
-            mtd_callee = clazz.find_mtd(mtd.clazz.name, mname, arg_typs)
+            mtd_callee = clazz.find_mtd_by_sig(mtd.clazz.name, mname, arg_typs)
           return mtd_callee.typ
 
     elif self.kind == C.E.CAST:
