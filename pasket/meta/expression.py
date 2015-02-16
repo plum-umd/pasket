@@ -329,7 +329,7 @@ def parse_e(node, cls=None):
   elif _nodes[0].getText() == C.J.NEW:
     is_init = util.exists(lambda n: n.getText() == C.T.ARG, _nodes)
     if is_init: # class <init>
-      if _nodes[-1].getText() == '}': # anonymous class
+      if _nodes[-1].getText() == '}': # anonymous inner class
         for i, n in enumerate(_nodes):
           if n.getText() == '{':
             c_node = util.mk_v_node_w_children(_nodes[1:i])
@@ -337,7 +337,7 @@ def parse_e(node, cls=None):
             break
         c = curried_e(c_node)
         name = clazz.anony_name(cls)
-        anony = clazz.Clazz(name=name, sup=cls.name, itfs=[c.f.id])
+        anony = clazz.Clazz(name=name, sup=cls.name, itfs=[c.f.id], outer=cls)
         map(partial(clazz.parse_decl, anony), decl_nodes)
         cls.inners.append(anony)
         c.f.id = name
