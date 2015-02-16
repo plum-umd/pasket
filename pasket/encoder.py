@@ -68,34 +68,35 @@ def add_ty_map(m):
 @takes(unicode)
 @returns(unicode)
 def trans_ty(tname):
+  _tname = util.sanitize_ty(tname.strip())
   array_regex = r"([^ \[\]]+)((\[\])+)"
-  m = re.match(array_regex, tname.strip())
+  m = re.match(array_regex, _tname)
 
   global _ty
-  r_ty = util.sanitize_ty(tname)
+  r_ty = _tname
   # to avoid primitive types that Sketch doesn't support
-  if tname == C.J.z: r_ty = C.SK.z
-  elif tname in [C.J.b, C.J.s, C.J.j]: r_ty = C.J.i
+  if _tname == C.J.z: r_ty = C.SK.z
+  elif _tname in [C.J.b, C.J.s, C.J.j]: r_ty = C.J.i
   # TODO: parameterize len?
-  elif tname in [C.J.c+"[]", C.J.STR]: r_ty = u"{}[51]".format(C.J.c)
-  elif tname in [C.J.INT]: r_ty = C.J.i
+  elif _tname in [C.J.c+"[]", C.J.STR]: r_ty = u"{}[51]".format(C.J.c)
+  elif _tname in [C.J.INT]: r_ty = C.J.i
   # array bounds
   elif m:
     r_ty = trans_ty(m.group(1)) + \
         "[{}]".format(len(methods())) * len(re.findall(r"\[\]", m.group(2)))
   # use memoized type conversion
-  elif tname in _ty: r_ty = _ty[tname]
+  elif _tname in _ty: r_ty = _ty[_tname]
   # convert Java collections into an appropriate struct name
   # Map<K,V> / List<T> / ... -> Map_K_V / List_T / ...
-  elif util.is_collection(tname):
+  elif util.is_collection(_tname):
     # to avoid strange names, e.g., Map_char[41]_V
     def trans_except(excludes, t):
       if t in excludes: return t
       else: return trans_ty(t)
     trans_except_String = partial(trans_except, [C.J.STR])
-    r_ty = '_'.join(map(trans_except_String, util.of_collection(tname)))
-    logging.debug("{} => {}".format(tname, r_ty))
-    _ty[tname] = r_ty
+    r_ty = '_'.join(map(trans_except_String, util.of_collection(_tname)))
+    logging.debug("{} => {}".format(_tname, r_ty))
+    _ty[_tname] = r_ty
 
   return r_ty
 
@@ -445,7 +446,6 @@ def to_v_struct(cls):
 @returns(str)
 def trans_fld(fld):
   buf = cStringIO.StringIO()
-  if trans_ty(fld.typ) != C.J.OBJ: import pdb; pdb.set_trace()
   buf.write(' '.join([trans_ty(fld.typ), fld.name]))
   if fld.init and fld.is_static:
     buf.write(" = " + trans_e(None, fld.init))
