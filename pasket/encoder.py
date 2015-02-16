@@ -829,7 +829,7 @@ def to_func(smpls, mtd):
 
   # add "logging" flag into parameters
   # to check log conformity only if invocations cross the boundary
-  if not mtd.is_init:
+  if not mtd.is_init and not mtd.is_clinit:
     params.append( (C.SK.z, u"logging") )
 
   if len(params) > 0:
@@ -837,7 +837,7 @@ def to_func(smpls, mtd):
   buf.write(") {\n")
 
   # once function signature is dumped out, remove "logging" flag
-  if not mtd.is_init:
+  if not mtd.is_init and not mtd.is_clinit:
     params.pop()
 
   clss = util.flatten_classes([mtd.clazz], "subs")
@@ -1103,7 +1103,7 @@ def gen_smpl_sk(sk_path, smpl, tmpl, main):
   max_objs = max(max_objs, obj_cnt)
 
   # invoke class initializers
-  for cls in tmpl.classes:
+  for cls in util.flatten_classes(tmpl.classes, "inners"):
     clinit = cls.mtd_by_sig(C.J.CLINIT)
     if not clinit: continue
     buf.write("  {}();\n".format(trans_mname(cls.name, clinit.name)))

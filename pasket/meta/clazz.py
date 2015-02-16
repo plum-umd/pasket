@@ -728,7 +728,13 @@ def parse_enum(node):
   _nodes = node.getChildren()[1:] # exclude name
   constants = util.implode_id(util.mk_v_node_w_children(_nodes)).split(',')
   for c in constants:
+    # define representative field
     fld = field.Field(clazz=cls, mods=C.PBST, typ=cls.name, name=c)
     cls.add_fld(fld)
+    # initialize it in <clinit>
+    f = exp.gen_E_id(cls.name)
+    init_e = exp.gen_E_new(exp.gen_E_call(f, []))
+    init_s = st.gen_S_assign(exp.gen_E_id(c), init_e)
+    cls.clinit_fld(fld, [init_s])
   return cls
 

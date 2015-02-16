@@ -73,6 +73,10 @@ class Method(v.BaseNode):
     return util.is_class_name(self._name) and self._name == self._typ
 
   @property
+  def is_clinit(self):
+    return self._name == C.J.CLINIT
+
+  @property
   def params(self):
     return self._params
 
