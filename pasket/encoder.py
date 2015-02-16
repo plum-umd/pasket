@@ -382,9 +382,10 @@ def to_v_struct(cls):
     # keep mappings from original subclasses to the representative
     # so that subclasses can refer to the representative
     # e.g., for C < B < A, { B : A, C : A }
-    if cls.name != cls_v.name: # exclude the root of this family
-      logging.debug("{} => {}".format(cls.name, cls_v.name))
-      _ty[cls.name] = cls_v.name
+    cname = util.sanitize_ty(cls.name)
+    if cname != cls_v.name: # exclude the root of this family
+      logging.debug("{} => {}".format(cname, cls_v.name))
+      _ty[cname] = cls_v.name
       if cls.is_inner: # to handle inner class w/ outer class name
         logging.debug("{} => {}".format(repr(cls), cls_v.name))
         _ty[unicode(repr(cls))] = cls_v.name
@@ -403,7 +404,7 @@ def to_v_struct(cls):
     for sup_fld in sup_flds.keys():
       fld = sup_flds[sup_fld]
       fname = unicode(repr(fld))
-      fid = '.'.join([cls.name, sup_fld])
+      fid = '.'.join([cname, sup_fld])
       logging.debug("{} => {}".format(fid, fname))
       if fld.is_static: _s_flds[fid] = fname
       else: _flds[fid] = fname # { ..., B.f1 : f1_A }
@@ -428,7 +429,7 @@ def to_v_struct(cls):
         if fld.is_static: _s_flds[fid] = fname
         else: _flds[fid] = fname # { ..., B.f2 : f2_B }
 
-      upd_flds(cls.name)
+      upd_flds(cname)
       if aux_name: upd_flds(aux_name)
 
     map(cp_fld, cls.flds)
@@ -469,7 +470,7 @@ def to_struct(cls):
       logging.debug("{} => {}".format(fid, fname))
       _s_flds[fid] = fname
 
-  cname = cls.name
+  cname = util.sanitize_ty(cls.name)
   global _ty
   # if this is an interface, merge this into another family of classes
   # as long as classes that implement this interface are in the same family
