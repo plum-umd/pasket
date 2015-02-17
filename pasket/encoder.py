@@ -20,7 +20,9 @@ from meta.clazz import Clazz, find_fld, find_mtd_by_name, find_mtd_by_sig, find_
 from meta.method import Method, sig_match
 from meta.field import Field
 from meta.statement import Statement
+import meta.statement as st
 from meta.expression import Expression, typ_of_e
+import meta.expression as exp
 
 # constants regarding sketch
 C.SK = util.enum(z=u"bit", self=u"self")
@@ -450,7 +452,8 @@ def to_v_struct(cls):
 def trans_fld(fld):
   buf = cStringIO.StringIO()
   buf.write(' '.join([trans_ty(fld.typ), fld.name]))
-  if fld.init and fld.is_static:
+  if fld.is_static and fld.init and \
+      not fld.init.has_call and not fld.is_aliasing:
     buf.write(" = " + trans_e(None, fld.init))
   buf.write(';')
   return buf.getvalue()
@@ -1012,11 +1015,10 @@ def gen_type_sk(sk_dir, bases):
 @returns(optional(unicode))
 def gen_cls_sk(sk_dir, smpls, cls):
   mtds = collect_decls(cls, "mtds")
-  inits, non_inits = util.partition(op.attrgetter("is_init"), mtds)
   flds = collect_decls(cls, "flds")
   s_flds = filter(op.attrgetter("is_static"), flds)
   if cls.is_class:
-    if not inits and not non_inits and not s_flds: return None
+    if not mtds and not s_flds: return None
   else: # cls.is_itf or cls.is_enum
     if not s_flds: return None
 
@@ -1028,17 +1030,27 @@ def gen_cls_sk(sk_dir, smpls, cls):
   buf.write('\n'.join(map(trans_fld, s_flds)))
   if len(s_flds) > 0: buf.write('\n')
 
+  # migrating static fields' initialization to <clinit>
+  for fld in ifilter(op.attrgetter("init"), s_flds):
+    if not fld.init.has_call and not fld.is_aliasing: continue
+    # retrieve (or declare) <clinit>
+    clinit = fld.clazz.get_or_declare_clinit()
+    if clinit not in mtds: mtds.append(clinit)
+    # add assignment
+    assign = st.gen_S_assign(exp.gen_E_id(fld.name), fld.init)
+    clinit.body.append(assign)
+
   # accessors for static fields
   for fld in ifilterfalse(op.attrgetter("is_private"), s_flds):
-    accessor = trans_fname(fld.clazz.name, fld.name, True)
+    fname = fld.name
+    accessor = trans_fname(fld.clazz.name, fname, True)
     buf.write("""
-      {} {accessor}() {{ return {fld.name}; }}
-    """.format(trans_ty(fld.typ), **locals()))
+      {0} {1}() {{ return {2}; }}
+    """.format(trans_ty(fld.typ), accessor, fname))
 
   # methods
   if not cls.is_itf: # interface won't have method bodies
-    buf.write('\n'.join(map(partial(to_func, smpls), inits)))
-    buf.write('\n'.join(map(partial(to_func, smpls), non_inits)))
+    buf.write('\n'.join(map(partial(to_func, smpls), mtds)))
 
   cls_sk = cls.name + ".sk"
   with open(os.path.join(sk_dir, cls_sk), 'w') as f:

@@ -494,15 +494,21 @@ class Clazz(v.BaseNode):
         return init_e
     return None
 
+  # declare <clinit> if not exists
+  @takes("Clazz")
+  @returns("Method")
+  def get_or_declare_clinit(self):
+    if hasattr(self, C.J.CLINIT): return getattr(self, C.J.CLINIT)
+    clinit = method.Method(clazz=self, mods=[C.mod.ST], name=C.J.CLINIT)
+    self._mtds.append(clinit)
+    setattr(self, C.J.CLINIT, clinit)
+    return clinit
+
   # add static initializer for the given static field
   @takes("Clazz", "Field", list_of("Statement"))
   @returns(nothing)
   def clinit_fld(self, fld, init_ss=[]):
-    # declare <clinit> if not exists
-    if not hasattr(self, "clinit"):
-      clinit = method.Method(clazz=self, mods=[C.mod.ST], name=C.J.CLINIT)
-      self._mtds.append(clinit)
-      setattr(self, "clinit", clinit)
+    clinit = self.get_or_declare_clinit()
 
     # make initializing statements 
     if not init_ss and not fld.is_final:

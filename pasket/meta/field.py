@@ -12,6 +12,7 @@ from .. import util
 
 from . import field_nonce, register_field
 import expression as exp
+import clazz
 
 class Field(v.BaseNode):
 
@@ -58,6 +59,18 @@ class Field(v.BaseNode):
   @property
   def is_final(self):
     return C.mod.FN in self._mods
+
+  @property
+  def is_aliasing(self):
+    if not self._init: return False
+    if not self.is_static or not self.is_final: return False
+    fld_a = None
+    if self._init.kind == C.E.DOT:
+      rcv_ty = exp.typ_of_e(None, self._init.le)
+      fld_a = clazz.find_fld(rcv_ty, self._init.re.id)
+    elif self._init.kind == C.E.ID:
+      fld_a = clazz.find_fld(self._clazz.name, self._init.id)
+    return fld_a != None
 
   @property
   def typ(self):

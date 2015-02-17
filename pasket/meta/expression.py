@@ -166,9 +166,14 @@ class Expression(v.BaseNode):
 
   def accept(self, visitor):
     f = op.methodcaller("accept", visitor)
-    if self._kind in [C.E.BOP, C.E.DOT]:
+    if self._kind == C.E.GEN:
+      self.consts = map(f, self.consts)
+    elif self._kind in [C.E.BOP, C.E.DOT]:
       self.le = f(self.le)
       self.re = f(self.re)
+    elif self._kind == C.E.IDX:
+      self.e = f(self.e)
+      self.idx = f(self.idx)
     elif self._kind in [C.E.UOP, C.E.NEW]:
       self.e = f(self.e)
     elif self._kind == C.E.CALL:
@@ -178,6 +183,29 @@ class Expression(v.BaseNode):
       self.ty = f(self.ty)
       self.e = f(self.e)
     return visitor.visit(self)
+
+  def exists(self, pred):
+    if pred(self): return True
+    f = op.methodcaller("exists", pred)
+    if self._kind == C.E.GEN:
+      return util.exists(f, self.consts)
+    elif self._kind in [C.E.BOP, C.E.DOT]:
+      return f(self.le) or f(self.re)
+    elif self._kind == C.E.IDX:
+      return f(self.e) or f(self.idx)
+    elif self._kind in [C.E.UOP, C.E.NEW]:
+      return f(self.e)
+    elif self._kind == C.E.CALL:
+      return f(self.f) or util.exists(f, self.a)
+    elif self._kind == C.E.CAST:
+      return f(self.ty) or f(self.e)
+    else:
+      return False
+
+  @property
+  def has_call(self):
+    f = lambda e: e.kind == C.E.CALL
+    return self.exists(f)
 
 
 # for easier currying
