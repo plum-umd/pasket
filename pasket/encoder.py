@@ -482,7 +482,8 @@ def to_struct(cls):
   if cls.is_itf:
     # interface may have static constants
     gen_s_flds_accessors(cls)
-    bases = util.rm_dup(map(lambda sub: find_base(sub), cls.subs))
+    subss = util.flatten_classes(cls.subs, "subs")
+    bases = util.rm_dup(map(lambda sub: find_base(sub), subss))
     # filter out interfaces that extend other interfaces, e.g., Action
     base_clss, _ = util.partition(op.attrgetter("is_class"), bases)
     if not base_clss:
