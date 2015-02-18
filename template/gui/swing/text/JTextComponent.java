@@ -16,4 +16,7 @@ public abstract class JTextComponent extends JComponent {
 
   public Insets getMargin();
   public void setMargin(Insets m);
+
+  public Highlighter getHighlighter();
+  public void setHighlighter(Highlighter h);
 }

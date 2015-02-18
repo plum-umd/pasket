@@ -8,4 +8,7 @@ public class Container extends Component {
   // TODO: method overloading
   //public void add(Component comp, Object constraints); // TODO: casting
   //public void add(Component comp, String constraints);
+
+  public LayoutManager getLayout();
+  public void setLayout(LayoutManager mgr);
 }

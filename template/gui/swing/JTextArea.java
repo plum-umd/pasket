@@ -11,4 +11,17 @@ public class JTextArea extends JTextComponent {
     // setText(getText() + str); // TODO: String concatenation
     setText(str);
   }
+
+  public int getRows();
+  public void setRows(int rows);
+
+  public int getColumns();
+  public void setColumns(int columns);
+
+  public boolean getLineWrap();
+  public void setLineWrap(boolean wrap);
+
+  public boolean getWrapStyleWord();
+  public void setWrapStyleWord(boolean word);
+
 }

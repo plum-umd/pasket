@@ -10,4 +10,7 @@ public class Component {
 
   public boolean isVisible();
   public void setVisible(boolean b);
+
+  public Color getBackground();
+  public void setBackground(Color c);
 }
