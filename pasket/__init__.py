@@ -50,7 +50,7 @@ C.typ_arrays = [C.typ.argNum, C.typ.argType, C.typ.retType] \
 
 # design patterns
 C.P = util.enum(BLD="builder", FAC="factory", OBS="observer", PRX="proxy", \
-    SNG="singleton", STA="state", ACC="accessor")
+    SNG="singleton", STA="state", ACC="accessor", NACC="new_accessor")
 
 # role variables for the accessor pattern
 C.ACC = util.enum(AUX=u"AuxAccessor", \
@@ -157,7 +157,7 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
   if cmd == "pattern":
     _patterns = patterns[:]
   else: ## android or gui
-    _patterns = ["factory", "observer", "proxy", "singleton", "state", "accessor"]
+    _patterns = [C.P.ACC, C.P.NACC, C.P.BLD, C.P.FAC, C.P.SNG, C.P.PRX, C.P.OBS, C.P.STA]
 
   opts = [] ## sketch options
   if conf["verbose"]: opts.extend(["-V", "10"])
