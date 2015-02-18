@@ -37,9 +37,19 @@ C.acc_default = [ \
 def visit(cmd, smpls, tmpl, patterns):
   p2v = {}
 
+  ## structural patterns
+
   p2v[C.P.BLD] = Builder(smpls)
 
   p2v[C.P.FAC] = Factory(smpls)
+
+  p2v[C.P.SNG] = Singleton(smpls)
+
+  p2v[C.P.ACC] = Accessor(smpls)
+
+  p2v[C.P.NACC] = NewAccessor(smpls)
+
+  ## behavioral patterns
 
   if cmd == "android": pass
   elif cmd == "gui":
@@ -51,8 +61,6 @@ def visit(cmd, smpls, tmpl, patterns):
 
   p2v[C.P.PRX] = Proxy(smpls)
 
-  p2v[C.P.SNG] = Singleton(smpls)
-
   p2v[C.P.STA] = State(smpls)
 
   keys = p2v.keys()
@@ -63,14 +71,6 @@ def visit(cmd, smpls, tmpl, patterns):
   patterns = util.intersection(patterns, keys)
   # sort so that visitors can be visited in the order of generation
   patterns.sort()
-
-  accessr = "accessor"
-  p2v[accessr] = Accessor(smpls)
-  patterns.insert(0, accessr) # run Accessor first by default
-
-  new_accessr = "new_accessor"
-  p2v[new_accessr] = NewAccessor(smpls)
-  patterns.insert(1, new_accessr) # run NewAccessor first by default
 
   for p in patterns:
     logging.info("rewriting {} pattern".format(p))
