@@ -219,18 +219,25 @@ class Observer(object):
     """.format(**locals()))
     aux.add_mtds([rule])
 
-  # assume methods that participate will be neither <init> nor static
-  @staticmethod
-  def is_candidate_mtd(mtd):
-    return not mtd.is_init and not mtd.is_static
+  # assume candidate methods will be neither <init> nor static
+  #   and have at least one parameter whose type is of interest (if any)
+  def is_candidate_mtd(self, aux, mtd):
+    if mtd.is_init or mtd.is_static: return False
+    for (ty, _) in mtd.params:
+      cls_ty = class_lookup(ty)
+      if not cls_ty: continue
+      for cls in aux.subs + [aux.evt]:
+        if cls_ty <= cls: return True
+      # events are allowed to be downcasted
+      if aux.evt <= cls_ty: return True
+    return False
 
   # retrieve candidate methods
-  @staticmethod
-  def get_candidate_mtds(cls):
+  def get_candidate_mtds(self, aux, cls):
     mtds = cls.mtds
     if cls.is_itf and cls.subs:
-      mtds = util.flatten(map(Observer.get_candidate_mtds, cls.subs))
-    return filter(Observer.is_candidate_mtd, mtds)
+      mtds = util.flatten(map(partial(self.get_candidate_mtds, aux), cls.subs))
+    return filter(partial(self.is_candidate_mtd, aux), mtds)
 
   # common params for methods in Aux...
   @staticmethod
@@ -260,7 +267,7 @@ class Observer(object):
     params = [(C.J.i, u"mtd_id")] + Observer.mtd_params(aux)
     reflect = Method(clazz=aux, mods=C.PBST, params=params, name=u"reflect")
     def switch( (cls, other) ):
-      mtds = Observer.get_candidate_mtds(cls)
+      mtds = self.get_candidate_mtds(aux, cls)
       for mtd in mtds: util.mk_or_append(self._subj_mtds, repr(mtd), aux)
       logging.debug("{}.{}, {}, {}, {}".format(aux.name, reflect.name, repr(cls), repr(other), mtds))
       def invoke(mtd):
@@ -404,7 +411,7 @@ class Observer(object):
 
     # range check for methods
     mtd_vars = [C.OBS.A, C.OBS.D, C.OBS.H, C.OBS.U]
-    mtds = util.flatten(map(Observer.get_candidate_mtds, clss))
+    mtds = util.flatten(map(partial(self.get_candidate_mtds, aux), clss))
     mtd_ids = map(get_id, mtds)
     mtd_init = gen_range(mtd_ids)
     aux_int_mtd = partial(aux_fld, mtd_init, C.J.i)
@@ -541,7 +548,6 @@ class Observer(object):
 
     # for methods that are candidates of @Attach/@Detach/@Handle
     if self._cur_cls.is_itf: return
-    if not Observer.is_candidate_mtd(node): return
     if repr(node) in self._subj_mtds:
       cname = node.clazz.name
       evt_passed = None
