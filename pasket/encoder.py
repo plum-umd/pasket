@@ -80,7 +80,7 @@ def trans_ty(tname):
   if _tname == C.J.z: r_ty = C.SK.z
   elif _tname in [C.J.b, C.J.s, C.J.j]: r_ty = C.J.i
   # TODO: parameterize len?
-  elif _tname in [C.J.c+"[]", C.J.STR]: r_ty = u"{}[51]".format(C.J.c)
+  elif _tname in [C.J.c+"[]"]: r_ty = u"{}[51]".format(C.J.c)
   elif _tname in [C.J.INT]: r_ty = C.J.i
   # array bounds
   elif m:
@@ -91,12 +91,7 @@ def trans_ty(tname):
   # convert Java collections into an appropriate struct name
   # Map<K,V> / List<T> / ... -> Map_K_V / List_T / ...
   elif util.is_collection(_tname):
-    # to avoid strange names, e.g., Map_char[41]_V
-    def trans_except(excludes, t):
-      if t in excludes: return t
-      else: return trans_ty(t)
-    trans_except_String = partial(trans_except, [C.J.STR])
-    r_ty = '_'.join(map(trans_except_String, util.of_collection(_tname)))
+    r_ty = '_'.join(util.of_collection(_tname))
     logging.debug("{} => {}".format(_tname, r_ty))
     _ty[_tname] = r_ty
 
@@ -147,61 +142,11 @@ def trans_mname(cname, mname, arg_typs=[]):
   return r_mtd
 
 
-# basic Java libraries, such as String.equals()
+# basic Java libraries
 @takes(nothing)
 @returns(unicode)
 def trans_lib():
-  buf = cStringIO.StringIO()
-
-  # String.equals -> equals_String
-  cname = C.J.STR
-  sname = trans_ty(cname)
-  buf.write("""
-    bit {0} ({1} s1, {1} s2) {{
-      return s1 == s2;
-    }}
-  """.format(trans_mname(cname, u"equals"), sname))
-
-  # String.length -> length_String
-  buf.write("""
-    int {0} ({1} s) {{
-      int len = 0;
-      while (s[len] != 0) len++;
-      return len;
-    }}
-  """.format(trans_mname(cname, u"length"), sname))
-
-  # String.indexOf(String, int) -> indexOf_String
-  buf.write("""
-    int {0} ({1} source, {1} target, int fromIndex) {{
-      int source_len = 0;
-      while (source[source_len] != 0) source_len++;
-      int target_len = 0;
-      while (target[target_len] != 0) target_len++;
-
-      if (fromIndex >= source_len) {{
-        if (target_len == 0) return source_len;
-        else return -1;
-      }}
-      if (target_len == 0) return fromIndex;
-
-      int index = fromIndex;
-      while (index <= source_len - target_len) {{
-        bit mismatch = 0;
-        int j;
-        for (j = 0; j < target_len; j++) {{
-          if (source[index + j] != target[j]) {{
-            mismatch = 1; break;
-          }}
-        }}
-        if (!mismatch) return index;
-        index++;
-      }}
-      return -1;
-    }}
-  """.format(trans_mname(cname, u"indexOf"), sname))
-
-  return unicode(buf.getvalue())
+  return u''
 
 
 # to avoid duplicate structs for collections
@@ -453,7 +398,7 @@ def trans_fld(fld):
   buf = cStringIO.StringIO()
   buf.write(' '.join([trans_ty(fld.typ), fld.name]))
   if fld.is_static and fld.init and \
-      not fld.init.has_call and not fld.is_aliasing:
+      not fld.init.has_call and not fld.init.has_str and not fld.is_aliasing:
     buf.write(" = " + trans_e(None, fld.init))
   buf.write(';')
   return buf.getvalue()
@@ -646,6 +591,9 @@ def trans_e(mtd, e):
         else: buf.write(new_fname + "()")
       else: buf.write('.'.join([C.SK.self, new_fname]))
     elif e.id == C.J.THIS: buf.write(C.SK.self)
+    elif util.is_str(e.id): # constant string, such as "Hello, World"
+      str_init = trans_mname(C.J.STR, C.J.STR, [u"char[]"])
+      buf.write("{}(new Object(), {})".format(str_init, e.id))
     else: buf.write(e.id)
 
   elif e.kind == C.E.UOP:
@@ -1033,7 +981,7 @@ def gen_cls_sk(sk_dir, smpls, cls):
 
   # migrating static fields' initialization to <clinit>
   for fld in ifilter(op.attrgetter("init"), s_flds):
-    if not fld.init.has_call and not fld.is_aliasing: continue
+    if not fld.init.has_call and not fld.init.has_str and not fld.is_aliasing: continue
     # retrieve (or declare) <clinit>
     clinit = fld.clazz.get_or_declare_clinit()
     if clinit not in mtds: mtds.append(clinit)

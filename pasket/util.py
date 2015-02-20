@@ -122,6 +122,13 @@ def sanitize_ty(tname):
   return tname.replace('$','_').replace('.','_')
 
 
+# check it is quoted
+@takes(unicode)
+@returns(bool)
+def is_str(x):
+  return len(x) >= 2 and (x[0] == '"' and x[-1] == '"')
+
+
 # capitalize the first character only
 # e.g., applicationContext -> ApplicationContext
 @takes(unicode)

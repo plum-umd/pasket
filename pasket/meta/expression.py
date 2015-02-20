@@ -207,6 +207,11 @@ class Expression(v.BaseNode):
     f = lambda e: e.kind == C.E.CALL
     return self.exists(f)
 
+  @property
+  def has_str(self):
+    f = lambda e: e.kind == C.E.ID and util.is_str(e.id)
+    return self.exists(f)
+
 
 # for easier currying
 @takes(optional("Method"), Expression)

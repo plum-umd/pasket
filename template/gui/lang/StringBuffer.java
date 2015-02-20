@@ -4,15 +4,15 @@ public class StringBuffer {
   char[] value;
   int count;
 
-  StringBuffer(String str) {
+  public StringBuffer(String str) {
     value = str;
   }
 
-  void setCharAt(int i, char c) {
+  public void setCharAt(int i, char c) {
     value[i] = c;
   }
 
-  String toString() {
+  public String toString() {
     return value;
   }
 

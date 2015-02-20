@@ -234,7 +234,7 @@ class NewAccessor(object):
   
   @staticmethod
   def sgetter_in_one(aux, nums, fld_g, g_cnt):
-    NewAccessor.__getter_in_one(aux, nums, fld_g, g_cnt, C.J.STR, C.J.F)
+    NewAccessor.__getter_in_one(aux, nums, fld_g, g_cnt, C.J.STR, u"\"\"")
   
   # setter will be invoked here
   @staticmethod
@@ -558,8 +558,8 @@ class NewAccessor(object):
   def visit(self, node):
     self._cur_mtd = node
 
+    if node.clazz.pkg in ["java.lang"]: return
     if node.clazz.name in C.acc_default: return
-
     if node.clazz.client: return
  
     # constructors
