@@ -17,9 +17,9 @@ from expression import Expression, parse_e, gen_E_id
 
 # s ::= e | assert e | return e? | e := e | if e s s?
 #     | while e s | repeat e s # syntactic sugar borrowed from sketch
-#     | for e e s | try s (catch e s)* (finally s)?
+#     | for e e s | break | try s (catch e s)* (finally s)?
 #     | s; s # represented as a list
-C.S = util.enum("EXP", "ASSERT", "RETURN", "ASSIGN", "IF", "WHILE", "REPEAT", "FOR", "TRY")
+C.S = util.enum("EXP", "ASSERT", "RETURN", "ASSIGN", "IF", "WHILE", "REPEAT", "FOR", "BREAK", "TRY")
 
 
 class Statement(v.BaseNode):
@@ -72,6 +72,9 @@ class Statement(v.BaseNode):
       e_iter = e_printer(self.init)
       b = '\n'.join(map(curried, self.b))
       buf.write("for (" + e_def + " : " + e_iter + ") {\n" + b + "\n}")
+
+    elif self._kind == C.S.BREAK:
+      buf.write("break;")
 
     elif self._kind == C.S.TRY:
       b = '\n'.join(map(curried, self.b))
@@ -173,6 +176,13 @@ def gen_S_for(e_def, e_init, ss):
   return Statement(C.S.FOR, i=e_def, init=e_init, b=ss)
 
 
+# () -> S(BREAK)
+@takes(nothing)
+@returns(Statement)
+def gen_S_break():
+  return Statement(C.S.BREAK)
+
+
 # ss, catches, fs -> S(TRY, ss, catches, fs)
 @takes(list_of(Statement), list_of(anything), list_of(Statement))
 @returns(Statement)
@@ -266,6 +276,11 @@ def parse_s(mtd, node):
     ss = _nodes[2:] # exclude first two nodes: for (... )
     b = map(curried_s, rm_braces(ss))
     s = gen_S_for(e_def, e_iter, b)
+
+  # (S... break Id? ';')
+  elif kind == "break":
+    # TODO: break identifier
+    s = gen_S_break()
 
   # (S... try { (S... ) }
   #   (catch (PARAMS typ var) { (S... ) })*

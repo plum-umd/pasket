@@ -544,6 +544,7 @@ statement
     ->  ^(STAT 'return' expression? ';')
     |   'throw' expression ';'
     |   'break' Identifier? ';'
+    ->  ^(STAT 'break' Identifier? ';')
     |   'continue' Identifier? ';'
     |   ';'
     |   statementExpression ';'
