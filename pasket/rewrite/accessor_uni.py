@@ -20,7 +20,6 @@ from ..meta.expression import Expression, to_expression, gen_E_gen
 def to_shorty(ty):
   if ty == C.J.i: return u'i'
   elif ty == C.J.z: return u'b'
-  elif ty == C.J.STR: return u's'
   else: return u""
 
 
@@ -152,10 +151,6 @@ class AccessorUni(object):
   def bgetter(aux):
     AccessorUni.__getter(aux, C.J.z)
   
-  @staticmethod
-  def sgetter(aux):
-    AccessorUni.__getter(aux, C.J.STR)
-  
   # code for setting a field
   @staticmethod
   def __setter(aux, ty):
@@ -179,10 +174,6 @@ class AccessorUni(object):
   def bsetter(aux):
     AccessorUni.__setter(aux, C.J.z)
   
-  @staticmethod
-  def ssetter(aux):
-    AccessorUni.__setter(aux, C.J.STR)
- 
   @staticmethod
   def check_getter_param(aux, nums, c):
     rule = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"check"+c+u"GetterParam")
@@ -232,10 +223,6 @@ class AccessorUni(object):
   def bgetter_in_one(aux, nums, fld_g, g_cnt):
     AccessorUni.__getter_in_one(aux, nums, fld_g, g_cnt, C.J.z, C.J.F)
   
-  @staticmethod
-  def sgetter_in_one(aux, nums, fld_g, g_cnt):
-    AccessorUni.__getter_in_one(aux, nums, fld_g, g_cnt, C.J.STR, u"\"\"")
-  
   # setter will be invoked here
   @staticmethod
   def __setter_in_one(aux, nums, fld_s, s_cnt, ty):
@@ -268,10 +255,6 @@ class AccessorUni(object):
   def bsetter_in_one(aux, nums, fld_s, s_cnt):
     AccessorUni.__setter_in_one(aux, nums, fld_s, s_cnt, C.J.z)
   
-  @staticmethod
-  def ssetter_in_one(aux, nums, fld_s, s_cnt):
-    AccessorUni.__setter_in_one(aux, nums, fld_s, s_cnt, C.J.STR)
-
   # initializer will be invoked here
   @staticmethod
   def __constructor_in_one(aux, nums, fld_c, c_cnt, ty):
@@ -301,10 +284,6 @@ class AccessorUni(object):
   def bconstructor_in_one(aux, nums, fld_c, c_cnt):
     AccessorUni.__constructor_in_one(aux, nums, fld_c, c_cnt, C.J.z)
 
-  @staticmethod
-  def sconstructor_in_one(aux, nums, fld_c, c_cnt):
-    AccessorUni.__constructor_in_one(aux, nums, fld_c, c_cnt, C.J.STR)
-  
   @staticmethod
   def add_fld(cls, ty, nm):
     logging.debug("adding field {}.{} of type {}".format(cls.name, nm, ty))
@@ -496,28 +475,24 @@ class AccessorUni(object):
     AccessorUni.getter(aux)
     AccessorUni.igetter(aux)
     AccessorUni.bgetter(aux)
-    AccessorUni.sgetter(aux)
 
     fld_g = AccessorUni.add_global_counter(aux, u"getter_cnt")
 
     AccessorUni.getter_in_one(aux, nums, fld_g, g_cnt)
     AccessorUni.igetter_in_one(aux, nums, fld_g, g_cnt)
     AccessorUni.bgetter_in_one(aux, nums, fld_g, g_cnt)
-    AccessorUni.sgetter_in_one(aux, nums, fld_g, g_cnt)
 
     # setter pattern
 
     AccessorUni.setter(aux)
     AccessorUni.isetter(aux)
     AccessorUni.bsetter(aux)
-    AccessorUni.ssetter(aux)
 
     fld_s = AccessorUni.add_global_counter(aux, u"setter_cnt")
 
     AccessorUni.setter_in_one(aux, nums, fld_s, s_cnt)
     AccessorUni.isetter_in_one(aux, nums, fld_s, s_cnt)
     AccessorUni.bsetter_in_one(aux, nums, fld_s, s_cnt)
-    AccessorUni.ssetter_in_one(aux, nums, fld_s, s_cnt)
 
     # constructor pattern
 
@@ -526,7 +501,6 @@ class AccessorUni(object):
     AccessorUni.constructor_in_one(aux, nums, fld_c, c_cnt)
     AccessorUni.iconstructor_in_one(aux, nums, fld_c, c_cnt)
     AccessorUni.bconstructor_in_one(aux, nums, fld_c, c_cnt)
-    AccessorUni.sconstructor_in_one(aux, nums, fld_c, c_cnt)
 
     add_artifacts([aux.name])
     return aux
@@ -542,12 +516,11 @@ class AccessorUni(object):
 
   @v.when(Clazz)
   def visit(self, node):
-    if (node.name == C.J.OBJ):
+    if node.name == C.J.OBJ:
       def add_private_fld(n):
         AccessorUni.add_fld(node, AccessorUni.get_aux().name+u"[]", u"_prvt_fld")
         AccessorUni.add_fld(node, C.J.i+u"[]", u"_prvt_ifld")
         AccessorUni.add_fld(node, C.J.z+u"[]", u"_prvt_bfld")
-        AccessorUni.add_fld(node, C.J.STR+u"[]", u"_prvt_sfld")
       map(add_private_fld, range(1))
     self._cur_cls = node
 
