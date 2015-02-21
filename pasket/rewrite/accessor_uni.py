@@ -24,7 +24,7 @@ def to_shorty(ty):
   else: return u""
 
 
-class NewAccessor(object):
+class AccessorUni(object):
   # to build unique aux class names
   __cnt = 0
 
@@ -34,11 +34,11 @@ class NewAccessor(object):
 
   @staticmethod
   def get_aux():
-    return NewAccessor.aux
+    return AccessorUni.aux
   
   @staticmethod
   def set_aux(c):
-    NewAccessor.aux = c
+    AccessorUni.aux = c
   
   @classmethod
   def new_aux(cls):
@@ -85,7 +85,7 @@ class NewAccessor(object):
     mtds = cls.mtds
     if cls.is_itf and cls.subs:
       mtds = util.flatten(map(op.attrgetter("mtds"), cls.subs))
-    return filter(NewAccessor.is_candidate_mtd, mtds)
+    return filter(AccessorUni.is_candidate_mtd, mtds)
 
   # retrieve constructors
   @staticmethod
@@ -104,7 +104,7 @@ class NewAccessor(object):
   @staticmethod
   def limit_depth(aux, mtd, depth):
     fname = mtd.name + "_depth"
-    NewAccessor.add_global_counter(aux, fname)
+    AccessorUni.add_global_counter(aux, fname)
     prologue = to_statements(mtd, u"""
       if ({fname} > {depth}) return;
       {fname} = {fname} + 1;
@@ -133,7 +133,7 @@ class NewAccessor(object):
   @staticmethod
   def __getter(aux, ty):
     shorty = to_shorty(ty)
-    params = NewAccessor.getter_params()
+    params = AccessorUni.getter_params()
     getr = Method(clazz=aux, mods=C.PBST, typ=ty, params=params, name=shorty+u"get")
     rtn = u"return callee._prvt_{}fld[fld_id];".format(shorty)
     getr.body = to_statements(getr, rtn)
@@ -142,25 +142,25 @@ class NewAccessor(object):
 
   @staticmethod
   def getter(aux):
-    NewAccessor.__getter(aux, C.J.OBJ)
+    AccessorUni.__getter(aux, C.J.OBJ)
   
   @staticmethod
   def igetter(aux):
-    NewAccessor.__getter(aux, C.J.i)
+    AccessorUni.__getter(aux, C.J.i)
   
   @staticmethod
   def bgetter(aux):
-    NewAccessor.__getter(aux, C.J.z)
+    AccessorUni.__getter(aux, C.J.z)
   
   @staticmethod
   def sgetter(aux):
-    NewAccessor.__getter(aux, C.J.STR)
+    AccessorUni.__getter(aux, C.J.STR)
   
   # code for setting a field
   @staticmethod
   def __setter(aux, ty):
     shorty = to_shorty(ty)
-    params = NewAccessor.getter_params() + [(ty, u"val")]
+    params = AccessorUni.getter_params() + [(ty, u"val")]
     setr = Method(clazz=aux, mods=C.PBST, params=params, name=shorty+u"set")
     assign = u"callee._prvt_{}fld[fld_id] = val;".format(shorty)
     setr.body = to_statements(setr, assign)
@@ -169,19 +169,19 @@ class NewAccessor(object):
 
   @staticmethod
   def setter(aux):
-    NewAccessor.__setter(aux, C.J.OBJ)
+    AccessorUni.__setter(aux, C.J.OBJ)
   
   @staticmethod
   def isetter(aux):
-    NewAccessor.__setter(aux, C.J.i)
+    AccessorUni.__setter(aux, C.J.i)
   
   @staticmethod
   def bsetter(aux):
-    NewAccessor.__setter(aux, C.J.z)
+    AccessorUni.__setter(aux, C.J.z)
   
   @staticmethod
   def ssetter(aux):
-    NewAccessor.__setter(aux, C.J.STR)
+    AccessorUni.__setter(aux, C.J.STR)
  
   @staticmethod
   def check_getter_param(aux, nums, c):
@@ -217,24 +217,24 @@ class NewAccessor(object):
       roles = map(str, range(nums[cl][1]))
       return "\nelse ".join(map(getter_switch, roles))
     one.body = to_statements(one, "\nelse ".join(map(getter_switch_whole, filter(lambda x: nums[x][1] > 0, nums.iterkeys()))))
-    NewAccessor.limit_number(one, fld_g, g_cnt, default)
+    AccessorUni.limit_number(one, fld_g, g_cnt, default)
     aux.add_mtds([one])
 
   @staticmethod
   def getter_in_one(aux, nums, fld_g, g_cnt):
-    NewAccessor.__getter_in_one(aux, nums, fld_g, g_cnt, C.J.OBJ, C.J.N)
+    AccessorUni.__getter_in_one(aux, nums, fld_g, g_cnt, C.J.OBJ, C.J.N)
   
   @staticmethod
   def igetter_in_one(aux, nums, fld_g, g_cnt):
-    NewAccessor.__getter_in_one(aux, nums, fld_g, g_cnt, C.J.i, u"-1")
+    AccessorUni.__getter_in_one(aux, nums, fld_g, g_cnt, C.J.i, u"-1")
   
   @staticmethod
   def bgetter_in_one(aux, nums, fld_g, g_cnt):
-    NewAccessor.__getter_in_one(aux, nums, fld_g, g_cnt, C.J.z, C.J.F)
+    AccessorUni.__getter_in_one(aux, nums, fld_g, g_cnt, C.J.z, C.J.F)
   
   @staticmethod
   def sgetter_in_one(aux, nums, fld_g, g_cnt):
-    NewAccessor.__getter_in_one(aux, nums, fld_g, g_cnt, C.J.STR, u"\"\"")
+    AccessorUni.__getter_in_one(aux, nums, fld_g, g_cnt, C.J.STR, u"\"\"")
   
   # setter will be invoked here
   @staticmethod
@@ -253,24 +253,24 @@ class NewAccessor(object):
       roles = map(str, range(nums[cl][2]))
       return "\nelse ".join(map(setter_switch, roles))
     one.body = to_statements(one, "\nelse ".join(map(setter_switch_whole, filter(lambda x: nums[x][2] > 0, nums.iterkeys()))))
-    NewAccessor.limit_number(one, fld_s, s_cnt)
+    AccessorUni.limit_number(one, fld_s, s_cnt)
     aux.add_mtds([one])
 
   @staticmethod
   def setter_in_one(aux, nums, fld_s, s_cnt):
-    NewAccessor.__setter_in_one(aux, nums, fld_s, s_cnt, C.J.OBJ)
+    AccessorUni.__setter_in_one(aux, nums, fld_s, s_cnt, C.J.OBJ)
   
   @staticmethod
   def isetter_in_one(aux, nums, fld_s, s_cnt):
-    NewAccessor.__setter_in_one(aux, nums, fld_s, s_cnt, C.J.i)
+    AccessorUni.__setter_in_one(aux, nums, fld_s, s_cnt, C.J.i)
   
   @staticmethod
   def bsetter_in_one(aux, nums, fld_s, s_cnt):
-    NewAccessor.__setter_in_one(aux, nums, fld_s, s_cnt, C.J.z)
+    AccessorUni.__setter_in_one(aux, nums, fld_s, s_cnt, C.J.z)
   
   @staticmethod
   def ssetter_in_one(aux, nums, fld_s, s_cnt):
-    NewAccessor.__setter_in_one(aux, nums, fld_s, s_cnt, C.J.STR)
+    AccessorUni.__setter_in_one(aux, nums, fld_s, s_cnt, C.J.STR)
 
   # initializer will be invoked here
   @staticmethod
@@ -282,28 +282,28 @@ class NewAccessor(object):
       aname = aux.name
       v = getattr(aux, '_'.join([C.ACC.CONS, cl]))
       f = getattr(aux, shorty + "sttr").name
-      argpairs = NewAccessor.getter_params() + [(ty, u"val")]
+      argpairs = AccessorUni.getter_params() + [(ty, u"val")]
       args = ", ".join(map(lambda (ty, nm): nm, argpairs))
       return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
     one.body = to_statements(one, "\nelse ".join(map(constructor_switch_whole, filter(lambda n: nums[n][0]>=0, nums.iterkeys()))))
-    NewAccessor.limit_number(one, fld_c, c_cnt)
+    AccessorUni.limit_number(one, fld_c, c_cnt)
     aux.add_mtds([one])
 
   @staticmethod
   def constructor_in_one(aux, nums, fld_c, c_cnt):
-    NewAccessor.__constructor_in_one(aux, nums, fld_c, c_cnt, C.J.OBJ)
+    AccessorUni.__constructor_in_one(aux, nums, fld_c, c_cnt, C.J.OBJ)
   
   @staticmethod
   def iconstructor_in_one(aux, nums, fld_c, c_cnt):
-    NewAccessor.__constructor_in_one(aux, nums, fld_c, c_cnt, C.J.i)
+    AccessorUni.__constructor_in_one(aux, nums, fld_c, c_cnt, C.J.i)
 
   @staticmethod
   def bconstructor_in_one(aux, nums, fld_c, c_cnt):
-    NewAccessor.__constructor_in_one(aux, nums, fld_c, c_cnt, C.J.z)
+    AccessorUni.__constructor_in_one(aux, nums, fld_c, c_cnt, C.J.z)
 
   @staticmethod
   def sconstructor_in_one(aux, nums, fld_c, c_cnt):
-    NewAccessor.__constructor_in_one(aux, nums, fld_c, c_cnt, C.J.STR)
+    AccessorUni.__constructor_in_one(aux, nums, fld_c, c_cnt, C.J.STR)
   
   @staticmethod
   def add_fld(cls, ty, nm):
@@ -321,7 +321,7 @@ class NewAccessor(object):
     params = [(C.J.i, u"mtd_id"), (aux.name, callee)]
     reflect = Method(clazz=aux, mods=C.PBST, params=params, name=u"call_adaptee")
     def switch( cls ):
-      mtds = NewAccessor.get_candidate_mtds(cls)
+      mtds = AccessorUni.get_candidate_mtds(cls)
       def invoke(mtd):
         cls = mtd.clazz
         # if there is no implementer for this method in interface, ignore it
@@ -335,7 +335,7 @@ class NewAccessor(object):
     tests = filter(None, map(switch, clss))
     prefix = u"if (" + getattr(aux, C.ACC.ADPT) + u" == mtd_id) {\n"
     reflect.body = to_statements(reflect, prefix + u"\nelse ".join(tests) + u"\n}")
-    NewAccessor.limit_depth(aux, reflect, 2)
+    AccessorUni.limit_depth(aux, reflect, 2)
     aux.add_mtds([reflect])
     setattr(aux, "call_adaptee", reflect)
 
@@ -343,10 +343,10 @@ class NewAccessor(object):
   ## generate an aux type for getter/setter
   ##
   def gen_aux_cls(self, nums, tmpl):
-    self.aux_name = NewAccessor.new_aux()
+    self.aux_name = AccessorUni.new_aux()
     tmpl.acc_auxs.append(self.aux_name)
     aux = Clazz(name=self.aux_name, mods=[C.mod.PB], subs=self._clss)
-    NewAccessor.set_aux(aux)
+    AccessorUni.set_aux(aux)
 
     rv_cons = []
     for c in nums:
@@ -395,13 +395,13 @@ class NewAccessor(object):
     get_id = op.attrgetter("id")
 
     # range check for accessors
-    cls_ids = map(get_id, filter(NewAccessor.is_candidate_cls, self._clss))
+    cls_ids = map(get_id, filter(AccessorUni.is_candidate_cls, self._clss))
     cls_init = gen_range(cls_ids)
     aux_int_cls = partial(aux_fld, cls_init, C.J.i)
     aux.add_flds(map(aux_int_cls, rv_accs))
 
     # range check for getter/setter
-    mtds = util.flatten(map(NewAccessor.get_candidate_mtds, self._clss))
+    mtds = util.flatten(map(AccessorUni.get_candidate_mtds, self._clss))
 
     def aux_range(rl, c, nm, mtds, num_args, is_void):
       ids = map(get_id, filter(lambda m: len(m.params) == num_args and (m.typ == C.J.v) == is_void, mtds))
@@ -415,7 +415,7 @@ class NewAccessor(object):
     map(mtd_range, nums.iterkeys())
 
     # range check for constructors
-    inits = util.flatten(map(NewAccessor.get_candidate_inits, self._clss))
+    inits = util.flatten(map(AccessorUni.get_candidate_inits, self._clss))
     cons_ids = map(get_id, inits)
     cons_init = gen_range(cons_ids)
     aux_int_cons = partial(aux_fld, cons_init, C.J.i)
@@ -459,7 +459,7 @@ class NewAccessor(object):
     adapter_roles = [C.ACC.ADPT, C.ACC.ADPE]
     adapter_flds = map(aux_int_adap, adapter_roles)
     aux.add_flds(adapter_flds + [aux_int(C.ACC.FLD)])
-    NewAccessor.call_adaptee(aux, self._clss)
+    AccessorUni.call_adaptee(aux, self._clss)
 
     #checkers.append(u"assert (argNum(" + getattr(aux, C.ACC.ADPT) + ")) == 0 && (argNum(" + getattr(aux, C.ACC.ADPT) + ")) == 0;")
     #checkers.append(u"assert (retType(" + getattr(aux, C.ACC.ADPT) + ")) == -1 && (retType(" + getattr(aux, C.ACC.FLD) + ")) == -1;")
@@ -469,9 +469,9 @@ class NewAccessor(object):
     
     for c in nums.iterkeys():
       if nums[c][1] > 0:
-        NewAccessor.check_getter_param(aux, nums, c)
+        AccessorUni.check_getter_param(aux, nums, c)
       if nums[c][2] > 0:
-        NewAccessor.check_setter_param(aux, nums, c)
+        AccessorUni.check_setter_param(aux, nums, c)
 
     ## global counters
 
@@ -493,40 +493,40 @@ class NewAccessor(object):
 
     # getter pattern
 
-    NewAccessor.getter(aux)
-    NewAccessor.igetter(aux)
-    NewAccessor.bgetter(aux)
-    NewAccessor.sgetter(aux)
+    AccessorUni.getter(aux)
+    AccessorUni.igetter(aux)
+    AccessorUni.bgetter(aux)
+    AccessorUni.sgetter(aux)
 
-    fld_g = NewAccessor.add_global_counter(aux, u"getter_cnt")
+    fld_g = AccessorUni.add_global_counter(aux, u"getter_cnt")
 
-    NewAccessor.getter_in_one(aux, nums, fld_g, g_cnt)
-    NewAccessor.igetter_in_one(aux, nums, fld_g, g_cnt)
-    NewAccessor.bgetter_in_one(aux, nums, fld_g, g_cnt)
-    NewAccessor.sgetter_in_one(aux, nums, fld_g, g_cnt)
+    AccessorUni.getter_in_one(aux, nums, fld_g, g_cnt)
+    AccessorUni.igetter_in_one(aux, nums, fld_g, g_cnt)
+    AccessorUni.bgetter_in_one(aux, nums, fld_g, g_cnt)
+    AccessorUni.sgetter_in_one(aux, nums, fld_g, g_cnt)
 
     # setter pattern
 
-    NewAccessor.setter(aux)
-    NewAccessor.isetter(aux)
-    NewAccessor.bsetter(aux)
-    NewAccessor.ssetter(aux)
+    AccessorUni.setter(aux)
+    AccessorUni.isetter(aux)
+    AccessorUni.bsetter(aux)
+    AccessorUni.ssetter(aux)
 
-    fld_s = NewAccessor.add_global_counter(aux, u"setter_cnt")
+    fld_s = AccessorUni.add_global_counter(aux, u"setter_cnt")
 
-    NewAccessor.setter_in_one(aux, nums, fld_s, s_cnt)
-    NewAccessor.isetter_in_one(aux, nums, fld_s, s_cnt)
-    NewAccessor.bsetter_in_one(aux, nums, fld_s, s_cnt)
-    NewAccessor.ssetter_in_one(aux, nums, fld_s, s_cnt)
+    AccessorUni.setter_in_one(aux, nums, fld_s, s_cnt)
+    AccessorUni.isetter_in_one(aux, nums, fld_s, s_cnt)
+    AccessorUni.bsetter_in_one(aux, nums, fld_s, s_cnt)
+    AccessorUni.ssetter_in_one(aux, nums, fld_s, s_cnt)
 
     # constructor pattern
 
-    fld_c = NewAccessor.add_global_counter(aux, "constructor_cnt")
+    fld_c = AccessorUni.add_global_counter(aux, "constructor_cnt")
 
-    NewAccessor.constructor_in_one(aux, nums, fld_c, c_cnt)
-    NewAccessor.iconstructor_in_one(aux, nums, fld_c, c_cnt)
-    NewAccessor.bconstructor_in_one(aux, nums, fld_c, c_cnt)
-    NewAccessor.sconstructor_in_one(aux, nums, fld_c, c_cnt)
+    AccessorUni.constructor_in_one(aux, nums, fld_c, c_cnt)
+    AccessorUni.iconstructor_in_one(aux, nums, fld_c, c_cnt)
+    AccessorUni.bconstructor_in_one(aux, nums, fld_c, c_cnt)
+    AccessorUni.sconstructor_in_one(aux, nums, fld_c, c_cnt)
 
     add_artifacts([aux.name])
     return aux
@@ -544,10 +544,10 @@ class NewAccessor(object):
   def visit(self, node):
     if (node.name == C.J.OBJ):
       def add_private_fld(n):
-        NewAccessor.add_fld(node, NewAccessor.get_aux().name+u"[]", u"_prvt_fld")
-        NewAccessor.add_fld(node, C.J.i+u"[]", u"_prvt_ifld")
-        NewAccessor.add_fld(node, C.J.z+u"[]", u"_prvt_bfld")
-        NewAccessor.add_fld(node, C.J.STR+u"[]", u"_prvt_sfld")
+        AccessorUni.add_fld(node, AccessorUni.get_aux().name+u"[]", u"_prvt_fld")
+        AccessorUni.add_fld(node, C.J.i+u"[]", u"_prvt_ifld")
+        AccessorUni.add_fld(node, C.J.z+u"[]", u"_prvt_bfld")
+        AccessorUni.add_fld(node, C.J.STR+u"[]", u"_prvt_sfld")
       map(add_private_fld, range(1))
     self._cur_cls = node
 
@@ -588,7 +588,7 @@ class NewAccessor(object):
 
     # adapter candidate
     if len(node.params) == 0 and node.typ == C.J.v and not node.is_static:
-      aux = NewAccessor.get_aux()
+      aux = AccessorUni.get_aux()
       #fname = u"_prvt_fld"
       #callee = C.J.THIS+u"."+fname+u"["+getattr(aux, C.ACC.ADPT)+u"]"
       node.body += to_statements(node, self.aux_name + u".call_adaptee(" + unicode(node.id) + u", " + unicode(C.J.THIS) + u");")

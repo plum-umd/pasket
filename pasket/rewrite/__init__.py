@@ -5,8 +5,8 @@ import lib.const as C
 
 from .. import util
 
-from accessor import Accessor
-from new_accessor import NewAccessor
+from accessor_adhoc import AccessorAdHoc
+from accessor_uni import AccessorUni
 from builder import Builder
 from factory import Factory
 from proxy import Proxy
@@ -45,9 +45,9 @@ def visit(cmd, smpls, tmpl, patterns):
 
   p2v[C.P.SNG] = Singleton(smpls)
 
-  p2v[C.P.ACC] = Accessor(smpls)
+  p2v[C.P.ACCA] = AccessorAdHoc(smpls)
 
-  p2v[C.P.NACC] = NewAccessor(smpls)
+  p2v[C.P.ACCU] = AccessorUni(smpls)
 
   ## behavioral patterns
 

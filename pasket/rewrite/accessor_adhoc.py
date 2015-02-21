@@ -14,7 +14,7 @@ from ..meta.field import Field
 from ..meta.statement import Statement, to_statements
 from ..meta.expression import Expression
 
-class Accessor(object):
+class AccessorAdHoc(object):
   def __init__(self, smpls):
     self._smpls = smpls
 
@@ -57,14 +57,14 @@ class Accessor(object):
 
   @staticmethod
   def is_accessor(mname):
-    for v in Accessor.verbs:
+    for v in AccessorAdHoc.verbs:
       if mname.startswith(v): return True
     return False
 
   @staticmethod
   def get_fname(mname):
     def rm_verb(acc, v): return acc.replace(v, '')
-    fname = reduce(lambda acc, v: rm_verb(acc, v), Accessor.verbs, mname)
+    fname = reduce(lambda acc, v: rm_verb(acc, v), AccessorAdHoc.verbs, mname)
     return '_' + fname.lower()
 
   @staticmethod
@@ -114,10 +114,10 @@ class Accessor(object):
       logging.debug("filling {}({})".format(cls.name, sig))
       flds = []
       for ty, nm in node.params:
-        fname = Accessor.get_fname(nm)
+        fname = AccessorAdHoc.get_fname(nm)
         if cls.fld_by_name(fname): continue
         if not cls.sup or not class_lookup(cls.sup).fld_by_name(fname):
-          fld = Accessor.add_fld(cls, ty, fname)
+          fld = AccessorAdHoc.add_fld(cls, ty, fname)
           flds.append(fld)
 
       def to_virtual_param(fld): return (fld.typ, fld.name)
@@ -129,10 +129,10 @@ class Accessor(object):
     ##
     ## getters and setters
     ##
-    elif not node.is_static and Accessor.is_accessor(mname) and \
+    elif not node.is_static and AccessorAdHoc.is_accessor(mname) and \
         cls.name in C.acc_default:
 
-      fname = Accessor.get_fname(mname)
+      fname = AccessorAdHoc.get_fname(mname)
 
       ## getters
       ##
@@ -142,7 +142,7 @@ class Accessor(object):
       if mname.startswith("get") or mname.startswith("is"):
         logging.debug("filling getter: {}.{}".format(cls.name, mname))
         fld = cls.fld_by_name(fname)
-        if not fld: fld = Accessor.add_fld(cls, node.typ, fname)
+        if not fld: fld = AccessorAdHoc.add_fld(cls, node.typ, fname)
         setattr(fld, "getter", node)
         body.append(u"return {};".format(fname))
 
@@ -157,7 +157,7 @@ class Accessor(object):
         logging.debug("filling setter: {}.{}".format(cls.name, mname))
         ty, nm = node.params[0]
         fld = cls.fld_by_name(fname)
-        if not fld: fld = Accessor.add_fld(cls, ty, fname)
+        if not fld: fld = AccessorAdHoc.add_fld(cls, ty, fname)
         setattr(fld, "setter", node)
         body.append(u"{} = {};".format(fname, nm))
 
