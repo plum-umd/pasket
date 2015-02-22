@@ -19,3 +19,8 @@ acc_conf_uni = {
   "JButton": (2, 1, 1), # (get|set)ActionCommand
 }
 
+# configuration for the accessor pattern (of Map<K,V> type)
+acc_conf_map = {
+  "JCompoment": (0, 1, 1), # (get|set)InputMap
+}
+
