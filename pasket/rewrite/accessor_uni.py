@@ -17,12 +17,6 @@ from ..meta.field import Field
 from ..meta.statement import Statement, to_statements
 from ..meta.expression import Expression, to_expression, gen_E_gen
 
-def to_shorty(ty):
-  if ty == C.J.i: return u'i'
-  elif ty == C.J.z: return u'b'
-  else: return u""
-
-
 class AccessorUni(object):
   # to build unique aux class names
   __cnt = 0
@@ -46,8 +40,6 @@ class AccessorUni(object):
 
   def __init__(self, smpls, acc_default, acc_conf):
     self._smpls = smpls
-    self._cur_cls = None
-    self._cur_mtd = None
     self._clss = []
     self._acc_default = acc_default
     self._acc_conf = acc_conf
@@ -133,7 +125,7 @@ class AccessorUni(object):
   # code for getting a field
   @staticmethod
   def __getter(aux, ty):
-    shorty = to_shorty(ty)
+    shorty = util.to_shorty_sk(ty)
     params = AccessorUni.getter_params()
     getr = Method(clazz=aux, mods=C.PBST, typ=ty, params=params, name=shorty+u"get")
     rtn = u"return callee._prvt_{}fld[fld_id];".format(shorty)
@@ -150,13 +142,13 @@ class AccessorUni(object):
     AccessorUni.__getter(aux, C.J.i)
   
   @staticmethod
-  def bgetter(aux):
+  def zgetter(aux):
     AccessorUni.__getter(aux, C.J.z)
   
   # code for setting a field
   @staticmethod
   def __setter(aux, ty):
-    shorty = to_shorty(ty)
+    shorty = util.to_shorty_sk(ty)
     params = AccessorUni.getter_params() + [(ty, u"val")]
     setr = Method(clazz=aux, mods=C.PBST, params=params, name=shorty+u"set")
     assign = u"callee._prvt_{}fld[fld_id] = val;".format(shorty)
@@ -173,7 +165,7 @@ class AccessorUni(object):
     AccessorUni.__setter(aux, C.J.i)
   
   @staticmethod
-  def bsetter(aux):
+  def zsetter(aux):
     AccessorUni.__setter(aux, C.J.z)
   
   @staticmethod
@@ -196,7 +188,7 @@ class AccessorUni(object):
   # getter will be invoked here
   @staticmethod
   def __getter_in_one(aux, nums, fld_g, g_cnt, ty, default):
-    shorty = to_shorty(ty)
+    shorty = util.to_shorty_sk(ty)
     params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee")]
     one = Method(clazz=aux, mods=C.PBST, typ=ty, params=params, name=shorty+u"getterInOne")
     def getter_switch_whole(cl):
@@ -222,13 +214,13 @@ class AccessorUni(object):
     AccessorUni.__getter_in_one(aux, nums, fld_g, g_cnt, C.J.i, u"-1")
   
   @staticmethod
-  def bgetter_in_one(aux, nums, fld_g, g_cnt):
+  def zgetter_in_one(aux, nums, fld_g, g_cnt):
     AccessorUni.__getter_in_one(aux, nums, fld_g, g_cnt, C.J.z, C.J.F)
   
   # setter will be invoked here
   @staticmethod
   def __setter_in_one(aux, nums, fld_s, s_cnt, ty):
-    shorty = to_shorty(ty)
+    shorty = util.to_shorty_sk(ty)
     params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (ty, u"val")]
     one = Method(clazz=aux, mods=C.PBST, params=params, name=shorty+u"setterInOne")
     def setter_switch_whole(cl):
@@ -254,13 +246,13 @@ class AccessorUni(object):
     AccessorUni.__setter_in_one(aux, nums, fld_s, s_cnt, C.J.i)
   
   @staticmethod
-  def bsetter_in_one(aux, nums, fld_s, s_cnt):
+  def zsetter_in_one(aux, nums, fld_s, s_cnt):
     AccessorUni.__setter_in_one(aux, nums, fld_s, s_cnt, C.J.z)
   
   # initializer will be invoked here
   @staticmethod
   def __constructor_in_one(aux, nums, fld_c, c_cnt, ty):
-    shorty = to_shorty(ty)
+    shorty = util.to_shorty_sk(ty)
     params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (ty, u"val"), (C.J.i, u"fld_id")]
     one = Method(clazz=aux, mods=C.PBST, params=params, name=shorty+u"constructorInOne")
     def constructor_switch_whole(cl):
@@ -283,7 +275,7 @@ class AccessorUni(object):
     AccessorUni.__constructor_in_one(aux, nums, fld_c, c_cnt, C.J.i)
 
   @staticmethod
-  def bconstructor_in_one(aux, nums, fld_c, c_cnt):
+  def zconstructor_in_one(aux, nums, fld_c, c_cnt):
     AccessorUni.__constructor_in_one(aux, nums, fld_c, c_cnt, C.J.z)
 
   @staticmethod
@@ -476,25 +468,25 @@ class AccessorUni(object):
 
     AccessorUni.getter(aux)
     AccessorUni.igetter(aux)
-    AccessorUni.bgetter(aux)
+    AccessorUni.zgetter(aux)
 
     fld_g = AccessorUni.add_global_counter(aux, u"getter_cnt")
 
     AccessorUni.getter_in_one(aux, nums, fld_g, g_cnt)
     AccessorUni.igetter_in_one(aux, nums, fld_g, g_cnt)
-    AccessorUni.bgetter_in_one(aux, nums, fld_g, g_cnt)
+    AccessorUni.zgetter_in_one(aux, nums, fld_g, g_cnt)
 
     # setter pattern
 
     AccessorUni.setter(aux)
     AccessorUni.isetter(aux)
-    AccessorUni.bsetter(aux)
+    AccessorUni.zsetter(aux)
 
     fld_s = AccessorUni.add_global_counter(aux, u"setter_cnt")
 
     AccessorUni.setter_in_one(aux, nums, fld_s, s_cnt)
     AccessorUni.isetter_in_one(aux, nums, fld_s, s_cnt)
-    AccessorUni.bsetter_in_one(aux, nums, fld_s, s_cnt)
+    AccessorUni.zsetter_in_one(aux, nums, fld_s, s_cnt)
 
     # constructor pattern
 
@@ -502,7 +494,7 @@ class AccessorUni(object):
 
     AccessorUni.constructor_in_one(aux, nums, fld_c, c_cnt)
     AccessorUni.iconstructor_in_one(aux, nums, fld_c, c_cnt)
-    AccessorUni.bconstructor_in_one(aux, nums, fld_c, c_cnt)
+    AccessorUni.zconstructor_in_one(aux, nums, fld_c, c_cnt)
 
     add_artifacts([aux.name])
     return aux
@@ -520,51 +512,54 @@ class AccessorUni(object):
       def add_private_fld(n):
         AccessorUni.add_fld(node, AccessorUni.get_aux().name+u"[]", u"_prvt_fld")
         AccessorUni.add_fld(node, C.J.i+u"[]", u"_prvt_ifld")
-        AccessorUni.add_fld(node, C.J.z+u"[]", u"_prvt_bfld")
+        AccessorUni.add_fld(node, C.J.z+u"[]", u"_prvt_zfld")
       map(add_private_fld, range(1))
-    self._cur_cls = node
 
   @v.when(Field)
   def visit(self, node): pass
 
   @v.when(Method)
   def visit(self, node):
-    self._cur_mtd = node
-
     if node.clazz.pkg in ["java.lang"]: return
-    if node.clazz.name in self._acc_default: return
     if node.clazz.client: return
+    cname = node.clazz.name
+    if cname in self._acc_default: return
  
     # constructors
     if node.is_init:
       for i in xrange(len(node.params)):
-        shorty = to_shorty(node.params[i][0])
+        shorty = util.to_shorty_sk(node.params[i][0])
         mname = shorty + u"constructorInOne"
         fid = unicode(i)
         args = ", ".join([unicode(node.id), C.J.THIS, unicode(node.params[i][1]), fid])
         node.body += to_statements(node, u"{}.{}({});".format(self.aux_name, mname, args))
+        logging.debug("{}.{} => {}.{}".format(cname, node.name, self.aux_name, mname))
       return
     
     # getter candidate
     if len(node.params) == 0 and node.typ != C.J.v:
-      shorty = to_shorty(node.typ)
+      shorty = util.to_shorty_sk(node.typ)
       mname = shorty + u"getterInOne"
       callee = u"null" if node.is_static else C.J.THIS
       node.body += to_statements(node, u"return " + self.aux_name + u"." + mname + u"(" + unicode(node.id) + u", " + callee + u");")
+      logging.debug("{}.{} => {}.{}".format(cname, node.name, self.aux_name, mname))
 
     # setter candidate
     if len(node.params) == 1 and node.typ == C.J.v:
-      shorty = to_shorty(node.params[0][0])
+      shorty = util.to_shorty_sk(node.params[0][0])
       mname = shorty + u"setterInOne"
       callee = u"null" if node.is_static else C.J.THIS
       node.body += to_statements(node, self.aux_name + u"." + mname + u"(" + unicode(node.id) + u", " + callee + u", " + unicode(node.params[0][1]) + u");")
+      logging.debug("{}.{} => {}.{}".format(cname, node.name, self.aux_name, mname))
 
     # adapter candidate
     if len(node.params) == 0 and node.typ == C.J.v and not node.is_static:
       aux = AccessorUni.get_aux()
       #fname = u"_prvt_fld"
       #callee = C.J.THIS+u"."+fname+u"["+getattr(aux, C.ACC.ADPT)+u"]"
-      node.body += to_statements(node, self.aux_name + u".call_adaptee(" + unicode(node.id) + u", " + unicode(C.J.THIS) + u");")
+      mname = u"call_adaptee"
+      node.body += to_statements(node, self.aux_name + u"." + mname + u"(" + unicode(node.id) + u", " + unicode(C.J.THIS) + u");")
+      logging.debug("{}.{} => {}.{}".format(cname, node.name, self.aux_name, mname))
 
   @v.when(Statement)
   def visit(self, node): return [node]

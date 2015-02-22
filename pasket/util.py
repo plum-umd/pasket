@@ -122,6 +122,30 @@ def sanitize_ty(tname):
   return tname.replace('$','_').replace('.','_')
 
 
+# short form representation of type name
+@takes(unicode)
+@returns(optional(unicode))
+def to_shorty(tname):
+  # TODO: (multi-dimensional) array
+  if tname in C.primitives:
+    for key, value in C.J.__dict__.items():
+      if tname == value: return unicode(key)
+  elif is_class_name(tname):
+    return u'L'
+  else: # erroneous
+    return None
+
+
+# Sketch-ish short form representation of type name
+@takes(unicode)
+@returns(unicode)
+def to_shorty_sk(tname):
+  shorty = to_shorty(tname)
+  if shorty in [u'b', u's', u'i', u'j']: return u'i'
+  elif shorty == u'z': return u'z'
+  else: return u''
+
+
 # check it is quoted
 @takes(unicode)
 @returns(bool)
