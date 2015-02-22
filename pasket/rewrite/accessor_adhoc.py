@@ -15,8 +15,9 @@ from ..meta.statement import Statement, to_statements
 from ..meta.expression import Expression
 
 class AccessorAdHoc(object):
-  def __init__(self, smpls):
+  def __init__(self, smpls, acc_default=[]):
     self._smpls = smpls
+    self._acc_default = acc_default
 
   @v.on("node")
   def visit(self, node):
@@ -130,7 +131,7 @@ class AccessorAdHoc(object):
     ## getters and setters
     ##
     elif not node.is_static and AccessorAdHoc.is_accessor(mname) and \
-        cls.name in C.acc_default:
+        (not self._acc_default or cls.name in self._acc_default):
 
       fname = AccessorAdHoc.get_fname(mname)
 

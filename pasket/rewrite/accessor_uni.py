@@ -44,11 +44,13 @@ class AccessorUni(object):
     cls.__cnt = cls.__cnt + 1
     return u"{}{}".format(C.ACC.AUX, cls.__cnt)
 
-  def __init__(self, smpls):
+  def __init__(self, smpls, acc_default, acc_conf):
     self._smpls = smpls
     self._cur_cls = None
     self._cur_mtd = None
     self._clss = []
+    self._acc_default = acc_default
+    self._acc_conf = acc_conf
 
   @v.on("node")
   def visit(self, node):
@@ -457,16 +459,16 @@ class AccessorUni(object):
     # assumption: # of objects and events could be instantiated
     obj_cnt = sample.max_objs(self._smpls)
     evt_cnt = sample.max_evts(self._smpls)
-    arg_cnt = sum(map(lambda (c, g, s): c, C.acc_conf.values()))
+    arg_cnt = sum(map(lambda (c, g, s): c, self._acc_conf.values()))
     # +1 : counting InvocationEvent
-    c_cnt = (obj_cnt + evt_cnt + 1) * (arg_cnt + 1) / len(C.acc_conf.keys())
+    c_cnt = (obj_cnt + evt_cnt + 1) * (arg_cnt + 1) / len(self._acc_conf.keys())
 
     # assumption: each getter could be invoked per event
-    g_cnt = sum(map(lambda (c, g, s): g, C.acc_conf.values()))
+    g_cnt = sum(map(lambda (c, g, s): g, self._acc_conf.values()))
     g_cnt = g_cnt * evt_cnt
 
     # assumption: setter could be invoked once, excluding constructor
-    s_cnt = sum(map(lambda (c, g, s): s, C.acc_conf.values()))
+    s_cnt = sum(map(lambda (c, g, s): s, self._acc_conf.values()))
     s_cnt = s_cnt * evt_cnt
     s_cnt = s_cnt + c_cnt # as constructor can call setter
 
@@ -508,10 +510,8 @@ class AccessorUni(object):
 
   @v.when(Template)
   def visit(self, node):
-    nums = C.acc_conf
-    
     self.find_clss_involved(node)
-    aux = self.gen_aux_cls(nums, node)
+    aux = self.gen_aux_cls(self._acc_conf, node)
     node.add_classes([aux])
 
   @v.when(Clazz)
@@ -532,7 +532,7 @@ class AccessorUni(object):
     self._cur_mtd = node
 
     if node.clazz.pkg in ["java.lang"]: return
-    if node.clazz.name in C.acc_default: return
+    if node.clazz.name in self._acc_default: return
     if node.clazz.client: return
  
     # constructors

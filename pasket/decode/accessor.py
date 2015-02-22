@@ -67,9 +67,10 @@ class Accessor(object):
     self._role[v] = n
 
   # initializer
-  def __init__(self, output_path):
+  def __init__(self, output_path, acc_conf):
     self._output = output_path
     self._demo = util.pure_base(output_path)
+    self._acc_conf = acc_conf
 
     self._cur_mtd = None
     self._role = {} # { v : n }
@@ -184,26 +185,26 @@ class Accessor(object):
       Accessor.def_adapter(adpt, adpe, adpf)
       
       cons = {}
-      for key in C.acc_conf.iterkeys():
+      for key in self._acc_conf.iterkeys():
         cons[key] = find_mtd_role('_'.join([C.ACC.CONS, key]))
       #cons_params = []
-      #for key in C.acc_conf.iterkeys():
-      #  if C.acc_conf[key][0] >= 0:
-      #    cons_params += map(find_mtd_role, map(lambda x: '_'.join([C.ACC.CONS, key, x]), range(C.acc_conf[key][0])))
+      #for key in self._acc_conf.iterkeys():
+      #  if self._acc_conf[key][0] >= 0:
+      #    cons_params += map(find_mtd_role, map(lambda x: '_'.join([C.ACC.CONS, key, x]), range(self._acc_conf[key][0])))
       getters = {}
-      for key in C.acc_conf.iterkeys():
+      for key in self._acc_conf.iterkeys():
         getters[key] = {}
-        for x in xrange(C.acc_conf[key][1]):
+        for x in xrange(self._acc_conf[key][1]):
           getters[key][x] = find_mtd_role('_'.join([C.ACC.GET, key, str(x)]))
       setters = {}
-      for key in C.acc_conf.iterkeys():
+      for key in self._acc_conf.iterkeys():
         setters[key] = {}
-        for x in xrange(C.acc_conf[key][2]):
+        for x in xrange(self._acc_conf[key][2]):
           setters[key][x] = find_mtd_role('_'.join([C.ACC.SET, key, str(x)]))
       gs = {}
-      for key in C.acc_conf.iterkeys():
+      for key in self._acc_conf.iterkeys():
         gs[key] = {}
-        for x in xrange(max(C.acc_conf[key][1], C.acc_conf[key][2])):
+        for x in xrange(max(self._acc_conf[key][1], self._acc_conf[key][2])):
           gs[key][x] = self._role['_'.join([C.ACC.GS, key, str(x), aux_name])]
 
       self._cons[aux.name] = cons

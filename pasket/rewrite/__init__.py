@@ -13,25 +13,6 @@ from proxy import Proxy
 from singleton import Singleton
 from state import State
 
-# configuration for the accessor pattern
-C.acc_conf = { \
-  "EventObject": (1, 1, 0), # getSource
-  "InvocationEvent": (2, 0, 0), # to set Runnable
-
-  "ActionEvent": (3, 1, 0), # getActionCommand
-  "ItemEvent": (4, 2, 0), # getItemSelectable/getStateChange
-
-  "JButton": (2, 1, 1), # (get|set)ActionCommand
-}
-
-# special cases for the accessor pattern
-C.acc_default = [ \
-    C.GUI.TOOL,
-    "JColorChooser", # ColorSelectionModel
-    "JTextComponent", # Document
-    "JMenuItem", "JMenu" # AccessibleContext
-]
-
 @takes(str, list_of("Sample"), "Template", list_of(str))
 @returns(nothing)
 def visit(cmd, smpls, tmpl, patterns):
@@ -45,9 +26,13 @@ def visit(cmd, smpls, tmpl, patterns):
 
   p2v[C.P.SNG] = Singleton(smpls)
 
-  p2v[C.P.ACCA] = AccessorAdHoc(smpls)
-
-  p2v[C.P.ACCU] = AccessorUni(smpls)
+  if cmd == "android": pass
+  elif cmd == "gui":
+    from gui import acc_default, acc_conf_uni
+    p2v[C.P.ACCA] = AccessorAdHoc(smpls, acc_default)
+    p2v[C.P.ACCU] = AccessorUni(smpls, acc_default, acc_conf_uni)
+  else:
+    p2v[C.P.ACCA] = AccessorAdHoc(smpls)
 
   ## behavioral patterns
 
