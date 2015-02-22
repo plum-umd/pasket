@@ -5,7 +5,6 @@ import lib.const as C
 import lib.visit as v
 
 from .. import util
-from .. import sample
 from ..meta import class_lookup
 from ..meta.template import Template
 from ..meta.clazz import Clazz, find_mtd_by_sig

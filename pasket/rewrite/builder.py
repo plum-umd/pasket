@@ -4,7 +4,6 @@ import lib.const as C
 import lib.visit as v
 
 from .. import util
-from .. import sample
 from ..meta.template import Template
 from ..meta.clazz import Clazz
 from ..meta.method import Method
