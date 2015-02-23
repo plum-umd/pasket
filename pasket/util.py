@@ -96,6 +96,15 @@ def is_collection(tname):
   return any(of_collection(tname))
 
 
+# extrace base type out of array
+# e.g., X[] -> X
+@takes(unicode)
+@returns(optional(unicode))
+def componentType(tname):
+  if tname.endswith("[]"): return tname[:-2]
+  else: return None
+
+
 # check whether the given type name is kind of array
 @takes(unicode)
 @returns(bool)

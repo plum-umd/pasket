@@ -220,12 +220,15 @@ class Template(v.BaseNode):
     def add_decl(tname):
       # (not) to handle primitive types, such as int
       # if not util.is_class_name(tname): return
-      if tname in decls: return
+      if is_defined(tname): return
+      logging.debug("adding virtual declaration {}".format(tname))
       cls = Clazz(name=tname)
-      decls[tname] = cls
-      # add declarations in nested generics
+      decls[repr(cls)] = cls
+      # add declarations in nested generics or arrays
       if util.is_collection(tname):
         map(add_decl, util.of_collection(tname)[1:])
+      elif util.is_array(tname):
+        add_decl(util.componentType(tname))
 
     # finding types that occur at field/method declarations
     for cls in clss:
