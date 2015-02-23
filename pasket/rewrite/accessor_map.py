@@ -14,6 +14,21 @@ class AccessorMap(object):
     self._acc_default = acc_default
     self._acc_conf = acc_conf
 
+    self._aux_name = C.ACC.AUX+"Map"
+    self._aux = None
+
+  @property
+  def aux_name(self):
+    return self._aux_name
+
+  @property
+  def aux(self):
+    return self._aux
+
+  @aux.setter
+  def aux(self, v):
+    self._aux = v
+
   @v.on("node")
   def visit(self, node):
     """

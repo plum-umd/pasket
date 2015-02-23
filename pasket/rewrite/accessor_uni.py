@@ -18,31 +18,27 @@ from ..meta.statement import Statement, to_statements
 from ..meta.expression import Expression, to_expression, gen_E_gen
 
 class AccessorUni(object):
-  # to build unique aux class names
-  __cnt = 0
-
-  aux_name = ""
-
-  aux = Clazz()
-
-  @staticmethod
-  def get_aux():
-    return AccessorUni.aux
-  
-  @staticmethod
-  def set_aux(c):
-    AccessorUni.aux = c
-  
-  @classmethod
-  def new_aux(cls):
-    cls.__cnt = cls.__cnt + 1
-    return u"{}{}".format(C.ACC.AUX, cls.__cnt)
 
   def __init__(self, smpls, acc_default, acc_conf):
     self._smpls = smpls
-    self._clss = []
     self._acc_default = acc_default
     self._acc_conf = acc_conf
+
+    self._clss = []
+    self._aux_name = C.ACC.AUX+"Uni"
+    self._aux = None
+
+  @property
+  def aux_name(self):
+    return self._aux_name
+
+  @property
+  def aux(self):
+    return self._aux
+
+  @aux.setter
+  def aux(self, v):
+    self._aux = v
 
   @v.on("node")
   def visit(self, node):
@@ -316,10 +312,9 @@ class AccessorUni(object):
   ## generate an aux type for getter/setter
   ##
   def gen_aux_cls(self, nums, tmpl):
-    self.aux_name = AccessorUni.new_aux()
     tmpl.acc_auxs.append(self.aux_name)
     aux = Clazz(name=self.aux_name, mods=[C.mod.PB], subs=self._clss)
-    AccessorUni.set_aux(aux)
+    self.aux = aux
 
     rv_cons = []
     for c in nums:
@@ -510,7 +505,7 @@ class AccessorUni(object):
   def visit(self, node):
     if node.name == C.J.OBJ:
       def add_private_fld(n):
-        AccessorUni.add_fld(node, AccessorUni.get_aux().name+u"[]", u"_prvt_fld")
+        AccessorUni.add_fld(node, self.aux.name+u"[]", u"_prvt_fld")
         AccessorUni.add_fld(node, C.J.i+u"[]", u"_prvt_ifld")
         AccessorUni.add_fld(node, C.J.z+u"[]", u"_prvt_zfld")
       map(add_private_fld, range(1))
@@ -554,9 +549,8 @@ class AccessorUni(object):
 
     # adapter candidate
     if len(node.params) == 0 and node.typ == C.J.v and not node.is_static:
-      aux = AccessorUni.get_aux()
       #fname = u"_prvt_fld"
-      #callee = C.J.THIS+u"."+fname+u"["+getattr(aux, C.ACC.ADPT)+u"]"
+      #callee = C.J.THIS+u"."+fname+u"["+getattr(self.aux, C.ACC.ADPT)+u"]"
       mname = u"call_adaptee"
       node.body += to_statements(node, self.aux_name + u"." + mname + u"(" + unicode(node.id) + u", " + unicode(C.J.THIS) + u");")
       logging.debug("{}.{} => {}.{}".format(cname, node.name, self.aux_name, mname))

@@ -29,9 +29,11 @@ class Observer(object):
   __cnt = 0
 
   @classmethod
-  def new_aux(cls):
-    cls.__cnt = cls.__cnt + 1
-    return u"{}{}".format(C.OBS.AUX, cls.__cnt)
+  def new_aux(cls, suffix=None):
+    if not suffix:
+      cls.__cnt = cls.__cnt + 1
+      suffix = str(cls.__cnt)
+    return u"{}{}".format(C.OBS.AUX, suffix)
 
   def __init__(self, smpls):
     self._smpls = smpls
@@ -78,7 +80,7 @@ class Observer(object):
         del tmpl.events[event]
         continue
 
-      aux_name = Observer.new_aux()
+      aux_name = Observer.new_aux(event)
       tmpl.obs_auxs[aux_name] = self._clss[event]
       self._evts[event] = aux_name
       logging.debug("{}: {} {}".format(event, aux_name, self._clss[event]))
@@ -116,7 +118,7 @@ class Observer(object):
         del tmpl.events[event]
         continue
     
-      aux_name = Observer.new_aux()
+      aux_name = Observer.new_aux(event)
       tmpl.obs_auxs[aux_name] = self._clss[event]
       self._evts[event] = aux_name
       logging.debug("{}: {} {}".format(event, aux_name, self._clss[event]))
@@ -144,7 +146,7 @@ class Observer(object):
       if e != event:
         del tmpl.events[e]
 
-    aux_name = Observer.new_aux()
+    aux_name = Observer.new_aux(event)
     tmpl.obs_auxs[aux_name] = self._clss[event]
     self._evts[event] = aux_name
     logging.debug("{}: {} {}".format(event, aux_name, self._clss[event]))
