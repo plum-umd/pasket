@@ -332,8 +332,8 @@ class AccessorUni(object):
       return map(lambda n: '_'.join([name, c, str(n)]), range(conf[c][2]))
 
     rv_gtts = util.flatten(map(partial(get_g_roles, C.ACC.GET), conf.iterkeys()))
-    gs_vars = util.flatten(map(partial(get_g_roles, C.ACC.GS), conf.iterkeys()))
     rv_stts = util.flatten(map(partial(get_s_roles, C.ACC.SET), conf.iterkeys()))
+    gs_vars = util.flatten(map(partial(get_g_roles, C.ACC.GS), conf.iterkeys()))
 
     # set role variables
     def set_role(role):
@@ -342,8 +342,8 @@ class AccessorUni(object):
     #map(set_role, constructor_args)
     map(set_role, rv_accs)
     map(set_role, rv_gtts)
-    map(set_role, gs_vars)
     map(set_role, rv_stts)
+    map(set_role, gs_vars)
     
     # add fields that stand for non-deterministic rule choices
     def aux_fld(init, ty, nm):
