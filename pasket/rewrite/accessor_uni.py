@@ -393,7 +393,9 @@ class AccessorUni(object):
       if conf[c][0] >= 0:
         checkers.append("assert (argNum(" + getattr(aux, '_'.join([C.ACC.CONS, c])) + ")) == " + str(conf[c][0]) + ";")
         checkers.append("assert (belongsTo(" + getattr(aux, '_'.join([C.ACC.CONS, c])) + ")) == " + getattr(aux, '_'.join([C.ACC.ACC, c])) + ";")
-    
+
+    # other semantics checks
+    # such as ownership, bundle getter/setter, and signature types
     def owner_range(rl, c, ids):
       return map(lambda i: "assert subcls("+getattr(aux, '_'.join([C.ACC.ACC, c]))+", belongsTo("+getattr(aux, '_'.join([rl, c, str(i)]))+"));", ids)
     for c in conf.iterkeys():
