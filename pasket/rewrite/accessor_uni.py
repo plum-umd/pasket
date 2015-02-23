@@ -345,7 +345,7 @@ class AccessorUni(object):
     map(set_role, rv_stts)
     map(set_role, gs_vars)
     
-    # add fields that stand for non-deterministic rule choices
+    # add fields that stand for non-deterministic role choices
     def aux_fld(init, ty, nm):
       if hasattr(aux, nm): nm = getattr(aux, nm)
       return Field(clazz=aux, mods=[C.mod.ST], typ=ty, name=nm, init=init)
