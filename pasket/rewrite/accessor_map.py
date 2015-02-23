@@ -76,6 +76,66 @@ class AccessorMap(object):
       mtds = util.flatten(map(AccessorMap.get_candidate_mtds, cls.subs))
     return filter(AccessorMap.is_candidate_mtd, mtds)
 
+  # common params for getter methods (and part of setter methods)
+  @staticmethod
+  def getter_params():
+    return [ (C.J.i, u"mtd_id"), (C.J.OBJ, u"callee",), (C.J.i, u"fld_id") ]
+
+  # TODO: value type is currently fixed to C.J.OBJ
+  # code for getting a map
+  @staticmethod
+  def __getter(aux, ty):
+    shorty = util.to_shorty_sk(ty)
+    params = AccessorMap.getter_params() + [ (ty, u"key") ]
+    getr = Method(clazz=aux, mods=C.PBST, typ=C.J.OBJ, params=params, name=shorty+u"get")
+    rtn = u"""
+      Map<{0}, {1}> map = callee._prvt_{2}fld[fld_id];
+      // intentionally not checking/calling contains to raise a semantic error
+      return map.get(key);
+    """.format(ty, C.J.OBJ, shorty)
+    getr.body = to_statements(getr, rtn)
+    aux.add_mtds([getr])
+    setattr(aux, shorty + "gttr", getr)
+
+  @staticmethod
+  def getter(aux):
+    AccessorMap.__getter(aux, C.J.OBJ)
+
+  @staticmethod
+  def igetter(aux):
+    AccessorMap.__getter(aux, C.J.i)
+
+  # TODO: value type is currently fixed to C.J.OBJ
+  # code for setting a map
+  @staticmethod
+  def __setter(aux, ty):
+    shorty = util.to_shorty_sk(ty)
+    params = AccessorMap.getter_params() + [ (ty, u"key"), (C.J.OBJ, u"v") ]
+    setr = Method(clazz=aux, mods=C.PBST, params=params, name=shorty+u"set")
+    assign = u"""
+      Map<{0}, {1}> map = callee._prvt_{2}fld[fld_id];
+      map.set(key, v);
+    """.format(ty, C.J.OBJ, shorty)
+    setr.body = to_statements(setr, assign)
+    aux.add_mtds([setr])
+    setattr(aux, shorty + "sttr", setr)
+
+  @staticmethod
+  def setter(aux):
+    AccessorMap.__setter(aux, C.J.OBJ)
+
+  @staticmethod
+  def isetter(aux):
+    AccessorMap.__setter(aux, C.J.i)
+
+  @staticmethod
+  def add_fld(cls, ty, nm):
+    logging.debug("adding field {}.{} of type {}".format(cls.name, nm, ty))
+    fld = Field(clazz=cls, typ=ty, name=nm)
+    cls.add_flds([fld])
+    cls.init_fld(fld)
+    return fld
+
   ##
   ## generate an aux type for getter/setter
   ##
@@ -83,6 +143,9 @@ class AccessorMap(object):
     aux = Clazz(name=self.aux_name, mods=[C.mod.PB], subs=self._clss)
     self.aux = aux
     tmpl.acc_auxs.append(self.aux_name)
+
+    AccessorMap.add_fld(aux, u"Map<{},{}>[]".format(C.J.OBJ, C.J.OBJ), u"_prvt_fld")
+    AccessorMap.add_fld(aux, u"Map<{},{}>[]".format(C.J.i, C.J.OBJ), u"_prvt_ifld")
 
     rv_accs = map(lambda c: '_'.join([C.ACC.ACC, c]), conf.iterkeys())
 
@@ -165,6 +228,14 @@ class AccessorMap(object):
 
     rg_chk.body += to_statements(rg_chk, '\n'.join(checkers))
     aux.add_mtds([rg_chk])
+
+    # getter pattern
+    AccessorMap.getter(aux)
+    AccessorMap.igetter(aux)
+
+    # setter pattern
+    AccessorMap.setter(aux)
+    AccessorMap.isetter(aux)
 
     add_artifacts([aux.name])
     return aux
