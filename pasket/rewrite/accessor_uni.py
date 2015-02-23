@@ -164,23 +164,6 @@ class AccessorUni(object):
   def zsetter(aux):
     AccessorUni.__setter(aux, C.J.z)
   
-  @staticmethod
-  def check_getter_param(aux, conf, c):
-    rule = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"check"+c+u"GetterParam")
-    def check_single_getter(n):
-      return u"assert 0 == (argNum(" + getattr(aux, '_'.join([C.ACC.GET, c, str(n)])) + "));"
-    rule.body = to_statements(rule, "\n".join(map(check_single_getter, range(conf[c][1]))))
-    aux.add_mtds([rule])
-  
-  @staticmethod
-  def check_setter_param(aux, conf, c):
-    rule = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"check"+c+u"SetterParam")
-    def check_single_setter(n):
-      return u"assert 1 == (argNum(" + getattr(aux, '_'.join([C.ACC.SET, c, str(n)])) + "));"
-    if (conf[c][2] > 0):
-      rule.body = to_statements(rule, "\n".join(map(check_single_setter, range(conf[c][2]))))
-      aux.add_mtds([rule])
-
   # getter will be invoked here
   @staticmethod
   def __getter_in_one(aux, conf, fld_g, g_cnt, ty, default):
@@ -437,12 +420,6 @@ class AccessorUni(object):
     rg_chk.body += to_statements(rg_chk, '\n'.join(checkers))
     aux.add_mtds([rg_chk])
     
-    for c in conf.iterkeys():
-      if conf[c][1] > 0:
-        AccessorUni.check_getter_param(aux, conf, c)
-      if conf[c][2] > 0:
-        AccessorUni.check_setter_param(aux, conf, c)
-
     ## global counters
 
     # assumption: # of objects and events could be instantiated
