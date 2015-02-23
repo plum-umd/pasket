@@ -971,8 +971,10 @@ def gen_cls_sk(sk_dir, smpls, cls):
   else: # cls.is_itf or cls.is_enum
     if not s_flds: return None
 
+  cname = util.sanitize_ty(cls.name)
+
   buf = cStringIO.StringIO()
-  buf.write("package {};\n".format(cls.name))
+  buf.write("package {};\n".format(cname))
   buf.write(_const)
 
   # static fields
@@ -1001,7 +1003,7 @@ def gen_cls_sk(sk_dir, smpls, cls):
   if not cls.is_itf: # interface won't have method bodies
     buf.write('\n'.join(map(partial(to_func, smpls), mtds)))
 
-  cls_sk = cls.name + ".sk"
+  cls_sk = cname + ".sk"
   with open(os.path.join(sk_dir, cls_sk), 'w') as f:
     f.write(buf.getvalue())
     logging.info("encoding " + f.name)
