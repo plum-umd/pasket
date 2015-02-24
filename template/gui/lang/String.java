@@ -36,6 +36,7 @@ public class String {
             if (tgt_len == 0) return src_len;
             else return -1;
         }
+        if (fromIndex < 0) fromIndex = 0;
         if (tgt_len == 0) return fromIndex;
 
         int index = fromIndex;
@@ -43,9 +44,9 @@ public class String {
         while (index <= gap) {
             boolean mismatch = false;
             int i = 0;
-            while (i < tgt_len) {
+            while (i < tgt_len && !mismatch) {
                 if (value[index + i] != str.value[i]) {
-                    mismatch = true; break;
+                    mismatch = true;
                 }
                 i = i + 1;
             }
