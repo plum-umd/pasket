@@ -126,7 +126,7 @@ class AccessorUni(object):
   # common params for getter methods (and part of setter methods)
   @staticmethod
   def getter_params():
-    return [ (C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (C.J.i, u"fld_id") ]
+    return [ (C.J.i, u"fld_id"), (C.J.i, u"mtd_id"), (C.J.OBJ, u"callee") ]
 
   # code for getting a field
   @staticmethod
@@ -185,7 +185,7 @@ class AccessorUni(object):
         aname = aux.name
         v = getattr(aux, '_'.join([C.ACC.GET, cl, role]))
         f = getattr(aux, shorty + "gttr").name
-        argpairs = params+[(C.J.i, getattr(aux, '_'.join([C.ACC.GS, cl, role])))]
+        argpairs = [(C.J.i, getattr(aux, '_'.join([C.ACC.GS, cl, role])))] + params
         args = ", ".join(map(lambda (ty, nm): nm, argpairs))
         return u"if (mtd_id == {v}) return {aname}.{f}({args});".format(**locals())
       roles = map(str, range(conf[cl][1]))
@@ -217,7 +217,7 @@ class AccessorUni(object):
         aname = aux.name
         v = getattr(aux, '_'.join([C.ACC.SET, cl, role]))
         f = getattr(aux, shorty + "sttr").name
-        argpairs = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (C.J.i, getattr(aux, '_'.join([C.ACC.GS, cl, role]))), (ty, u"val")]
+        argpairs = [(C.J.i, getattr(aux, '_'.join([C.ACC.GS, cl, role])))] + params
         args = ", ".join(map(lambda (ty, nm): nm, argpairs))
         return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
       roles = map(str, range(conf[cl][2]))
@@ -242,13 +242,13 @@ class AccessorUni(object):
   @staticmethod
   def __constructor_in_one(aux, conf, fld_c, c_cnt, ty):
     shorty = util.to_shorty_sk(ty)
-    params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (ty, u"val"), (C.J.i, u"fld_id")]
+    params = AccessorUni.getter_params() + [(ty, u"val")]
     one = Method(clazz=aux, mods=C.PBST, params=params, name=shorty+u"constructorInOne")
     def constructor_switch_whole(cl):
       aname = aux.name
       v = getattr(aux, '_'.join([C.ACC.CONS, cl]))
       f = getattr(aux, shorty + "sttr").name
-      argpairs = AccessorUni.getter_params() + [(ty, u"val")]
+      argpairs = params
       args = ", ".join(map(lambda (ty, nm): nm, argpairs))
       return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
     one.body = to_statements(one, "\nelse ".join(map(constructor_switch_whole, filter(lambda n: conf[n][0]>=0, conf.iterkeys()))))
@@ -493,11 +493,9 @@ class AccessorUni(object):
   @v.when(Clazz)
   def visit(self, node):
     if node.name == C.J.OBJ:
-      def add_private_fld(n):
-        AccessorUni.add_fld(node, self.aux.name+u"[]", u"_prvt_fld")
-        AccessorUni.add_fld(node, C.J.i+u"[]", u"_prvt_ifld")
-        AccessorUni.add_fld(node, C.J.z+u"[]", u"_prvt_zfld")
-      map(add_private_fld, range(1))
+      AccessorUni.add_fld(node, self.aux.name+u"[]", u"_prvt_fld")
+      AccessorUni.add_fld(node, C.J.i+u"[]", u"_prvt_ifld")
+      AccessorUni.add_fld(node, C.J.z+u"[]", u"_prvt_zfld")
 
   @v.when(Field)
   def visit(self, node): pass
@@ -515,7 +513,7 @@ class AccessorUni(object):
         shorty = util.to_shorty_sk(node.params[i][0])
         mname = shorty + u"constructorInOne"
         fid = unicode(i)
-        args = ", ".join([unicode(node.id), C.J.THIS, unicode(node.params[i][1]), fid])
+        args = ", ".join([fid, unicode(node.id), C.J.THIS, unicode(node.params[i][1])])
         node.body += to_statements(node, u"{}.{}({});".format(self.aux_name, mname, args))
         logging.debug("{}.{} => {}.{}".format(cname, node.name, self.aux_name, mname))
       return
@@ -524,16 +522,20 @@ class AccessorUni(object):
     if AccessorUni.is_candidate_getter(node):
       shorty = util.to_shorty_sk(node.typ)
       mname = shorty + u"getterInOne"
-      callee = u"null" if node.is_static else C.J.THIS
-      node.body += to_statements(node, u"return " + self.aux_name + u"." + mname + u"(" + unicode(node.id) + u", " + callee + u");")
+      callee = C.J.N if node.is_static else C.J.THIS
+      args = u", ".join([unicode(node.id), callee])
+      call = u"return {}({});".format(u".".join([self.aux_name, mname]), args)
+      node.body += to_statements(node, call)
       logging.debug("{}.{} => {}.{}".format(cname, node.name, self.aux_name, mname))
 
     # setter candidate
     if AccessorUni.is_candidate_setter(node):
-      shorty = util.to_shorty_sk(node.params[0][0])
+      shorty = util.to_shorty_sk(node.param_typs[0])
       mname = shorty + u"setterInOne"
-      callee = u"null" if node.is_static else C.J.THIS
-      node.body += to_statements(node, self.aux_name + u"." + mname + u"(" + unicode(node.id) + u", " + callee + u", " + unicode(node.params[0][1]) + u");")
+      callee = C.J.N if node.is_static else C.J.THIS
+      args = u", ".join([unicode(node.id), callee, node.params[0][1]])
+      call = u"{}({});".format(u".".join([self.aux_name, mname]), args)
+      node.body += to_statements(node, call)
       logging.debug("{}.{} => {}.{}".format(cname, node.name, self.aux_name, mname))
 
     # adapter candidate
@@ -541,7 +543,9 @@ class AccessorUni(object):
       #fname = u"_prvt_fld"
       #callee = C.J.THIS+u"."+fname+u"["+getattr(self.aux, C.ACC.ADPT)+u"]"
       mname = u"call_adaptee"
-      node.body += to_statements(node, self.aux_name + u"." + mname + u"(" + unicode(node.id) + u", " + unicode(C.J.THIS) + u");")
+      args = u", ".join([unicode(node.id), C.J.THIS])
+      call = u"{}({});".format(u".".join([self.aux_name, mname]), args)
+      node.body += to_statements(node, call)
       logging.debug("{}.{} => {}.{}".format(cname, node.name, self.aux_name, mname))
 
   @v.when(Statement)
