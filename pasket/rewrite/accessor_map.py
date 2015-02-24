@@ -57,13 +57,12 @@ class AccessorMap(object):
 
   @staticmethod
   def is_candidate_getter(mtd):
-    return not mtd.is_init and not mtd.is_static and \
-        len(mtd.params) == 1 and mtd.typ != C.J.v
+    return not mtd.is_init and len(mtd.params) == 1 and mtd.typ != C.J.v
 
   @staticmethod
   def is_candidate_setter(mtd):
-    return not mtd.is_init and not mtd.is_static and \
-        len(mtd.params) == 2 and mtd.typ == C.J.v
+    return not mtd.is_init and len(mtd.params) == 2 and mtd.typ == C.J.v \
+        and util.is_class_name(mtd.param_typs[1]) # assume subtype of Object
 
   @staticmethod
   def is_candidate_mtd(mtd):
@@ -79,7 +78,7 @@ class AccessorMap(object):
   # common params for getter methods (and part of setter methods)
   @staticmethod
   def getter_params():
-    return [ (C.J.i, u"mtd_id"), (C.J.OBJ, u"callee",), (C.J.i, u"fld_id") ]
+    return [ (C.J.i, u"map_id"), (C.J.i, u"mtd_id"), (C.J.OBJ, u"callee") ]
 
   # TODO: value type is currently fixed to C.J.OBJ
   # code for getting a map
@@ -89,7 +88,7 @@ class AccessorMap(object):
     params = AccessorMap.getter_params() + [ (ty, u"key") ]
     getr = Method(clazz=aux, mods=C.PBST, typ=C.J.OBJ, params=params, name=shorty+u"get")
     rtn = u"""
-      Map<{0}, {1}> map = callee._prvt_{2}fld[fld_id];
+      Map<{0}, {1}> map = callee._prvt_{2}map[map_id];
       // intentionally not checking/calling contains to raise a semantic error
       return map.get(key);
     """.format(ty, C.J.OBJ, shorty)
@@ -110,11 +109,11 @@ class AccessorMap(object):
   @staticmethod
   def __setter(aux, ty):
     shorty = util.to_shorty_sk(ty)
-    params = AccessorMap.getter_params() + [ (ty, u"key"), (C.J.OBJ, u"v") ]
+    params = AccessorMap.getter_params() + [ (ty, u"key"), (C.J.OBJ, u"val") ]
     setr = Method(clazz=aux, mods=C.PBST, params=params, name=shorty+u"set")
     assign = u"""
-      Map<{0}, {1}> map = callee._prvt_{2}fld[fld_id];
-      map.set(key, v);
+      Map<{0}, {1}> map = callee._prvt_{2}map[map_id];
+      map.put(key, val);
     """.format(ty, C.J.OBJ, shorty)
     setr.body = to_statements(setr, assign)
     aux.add_mtds([setr])
@@ -127,6 +126,60 @@ class AccessorMap(object):
   @staticmethod
   def isetter(aux):
     AccessorMap.__setter(aux, C.J.i)
+
+  # getter will be invoked here
+  @staticmethod
+  def __getter_in_one(aux, conf, ty):
+    shorty = util.to_shorty_sk(ty)
+    params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (ty, u"key")]
+    one = Method(clazz=aux, mods=C.PBST, typ=C.J.OBJ, params=params, name=shorty+u"getterInOne")
+    def getter_switch_whole(cl):
+      def getter_switch(role):
+        aname = aux.name
+        v = getattr(aux, '_'.join([C.ACC.GET, cl, role]))
+        f = getattr(aux, shorty + "gttr").name
+        argpairs = [(C.J.i, getattr(aux, '_'.join([C.ACC.GS, cl, role])))] + params
+        args = ", ".join(map(lambda (ty, nm): nm, argpairs))
+        return u"if (mtd_id == {v}) return {aname}.{f}({args});".format(**locals())
+      roles = map(str, range(conf[cl][1]))
+      return "\nelse ".join(map(getter_switch, roles))
+    one.body = to_statements(one, "\nelse ".join(map(getter_switch_whole, filter(lambda x: conf[x][1] > 0, conf.iterkeys()))))
+    aux.add_mtds([one])
+
+  @staticmethod
+  def getter_in_one(aux, conf):
+    AccessorMap.__getter_in_one(aux, conf, C.J.OBJ)
+
+  @staticmethod
+  def igetter_in_one(aux, conf):
+    AccessorMap.__getter_in_one(aux, conf, C.J.i)
+
+  # setter will be invoked here
+  @staticmethod
+  def __setter_in_one(aux, conf, ty):
+    shorty = util.to_shorty_sk(ty)
+    params = [(C.J.i, u"mtd_id"), (C.J.OBJ, u"callee"), (ty, u"key"), (C.J.OBJ, u"val")]
+    one = Method(clazz=aux, mods=C.PBST, params=params, name=shorty+u"setterInOne")
+    def setter_switch_whole(cl):
+      def setter_switch(role):
+        aname = aux.name
+        v = getattr(aux, '_'.join([C.ACC.SET, cl, role]))
+        f = getattr(aux, shorty + "sttr").name
+        argpairs = [(C.J.i, getattr(aux, '_'.join([C.ACC.GS, cl, role])))]+params
+        args = ", ".join(map(lambda (ty, nm): nm, argpairs))
+        return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
+      roles = map(str, range(conf[cl][2]))
+      return "\nelse ".join(map(setter_switch, roles))
+    one.body = to_statements(one, "\nelse ".join(map(setter_switch_whole, filter(lambda x: conf[x][2] > 0, conf.iterkeys()))))
+    aux.add_mtds([one])
+
+  @staticmethod
+  def setter_in_one(aux, conf):
+    AccessorMap.__setter_in_one(aux, conf, C.J.OBJ)
+
+  @staticmethod
+  def isetter_in_one(aux, conf):
+    AccessorMap.__setter_in_one(aux, conf, C.J.i)
 
   @staticmethod
   def add_fld(cls, ty, nm):
@@ -143,9 +196,6 @@ class AccessorMap(object):
     aux = Clazz(name=self.aux_name, mods=[C.mod.PB], subs=self._clss)
     self.aux = aux
     tmpl.acc_auxs.append(self.aux_name)
-
-    AccessorMap.add_fld(aux, u"Map<{},{}>[]".format(C.J.OBJ, C.J.OBJ), u"_prvt_fld")
-    AccessorMap.add_fld(aux, u"Map<{},{}>[]".format(C.J.i, C.J.OBJ), u"_prvt_ifld")
 
     rv_accs = map(lambda c: '_'.join([C.ACC.ACC, c]), conf.iterkeys())
 
@@ -233,9 +283,15 @@ class AccessorMap(object):
     AccessorMap.getter(aux)
     AccessorMap.igetter(aux)
 
+    AccessorMap.getter_in_one(aux, conf)
+    AccessorMap.igetter_in_one(aux, conf)
+
     # setter pattern
     AccessorMap.setter(aux)
     AccessorMap.isetter(aux)
+
+    AccessorMap.setter_in_one(aux, conf)
+    AccessorMap.isetter_in_one(aux, conf)
 
     add_artifacts([aux.name])
     return aux
@@ -248,13 +304,39 @@ class AccessorMap(object):
     node.add_classes([aux])
 
   @v.when(Clazz)
-  def visit(self, node): pass
+  def visit(self, node):
+    if node.name == C.J.OBJ:
+      AccessorMap.add_fld(node, u"Map<{},{}>[]".format(C.J.OBJ, C.J.OBJ), u"_prvt_map")
+      AccessorMap.add_fld(node, u"Map<{},{}>[]".format(C.J.i, C.J.OBJ), u"_prvt_imap")
 
   @v.when(Field)
   def visit(self, node): pass
 
   @v.when(Method)
-  def visit(self, node): pass
+  def visit(self, node):
+    if node.clazz.client: return
+    cname = node.clazz.name
+    if cname in self._acc_default: return
+
+    # getter candidate
+    if AccessorMap.is_candidate_getter(node):
+      shorty = util.to_shorty_sk(node.param_typs[0])
+      mname = shorty + u"getterInOne"
+      callee = C.J.N if node.is_static else C.J.THIS
+      args = u", ".join([unicode(node.id), callee, node.params[0][1]])
+      call = u"return {}({});".format(u".".join([self.aux_name, mname]), args)
+      node.body += to_statements(node, call)
+      logging.debug("{}.{} => {}.{}".format(cname, node.name, self.aux_name, mname))
+
+    # setter candidate
+    if AccessorMap.is_candidate_setter(node):
+      shorty = util.to_shorty_sk(node.param_typs[0])
+      mname = shorty + u"setterInOne"
+      callee = C.J.N if node.is_static else C.J.THIS
+      args = u", ".join([unicode(node.id), callee, node.params[0][1], node.params[1][1]])
+      call = u"{}({});".format(u".".join([self.aux_name, mname]), args)
+      node.body += to_statements(node, call)
+      logging.debug("{}.{} => {}.{}".format(cname, node.name, self.aux_name, mname))
 
   @v.when(Statement)
   def visit(self, node): return [node]
