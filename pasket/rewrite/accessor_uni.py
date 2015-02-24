@@ -59,9 +59,19 @@ class AccessorUni(object):
   @staticmethod
   def is_candidate_cls(cls):
     mtds = cls.mtds
-    getter_mtds = filter(lambda m: len(m.params) == 0 and m.typ != C.J.v, mtds)
-    cons_mtds = filter(lambda m: m.is_init, mtds)
+    getter_mtds = filter(AccessorUni.is_candidate_getter, mtds)
+    cons_mtds = AccessorUni.get_candidate_inits(cls)
     return cls.is_class and (any(getter_mtds) or any(cons_mtds))
+
+  @staticmethod
+  def is_candidate_getter(mtd):
+    return not mtd.is_init and not mtd.is_static and \
+        len(mtd.params) == 0 and mtd.typ != C.J.v
+
+  @staticmethod
+  def is_candidate_setter(mtd):
+    return not mtd.is_init and not mtd.is_static and \
+        len(mtd.params) == 1 and mtd.typ == C.J.v
 
   # assume methods that participate will be neither <init> nor static
   @staticmethod
@@ -511,7 +521,7 @@ class AccessorUni(object):
       return
     
     # getter candidate
-    if len(node.params) == 0 and node.typ != C.J.v:
+    if AccessorUni.is_candidate_getter(node):
       shorty = util.to_shorty_sk(node.typ)
       mname = shorty + u"getterInOne"
       callee = u"null" if node.is_static else C.J.THIS
@@ -519,7 +529,7 @@ class AccessorUni(object):
       logging.debug("{}.{} => {}.{}".format(cname, node.name, self.aux_name, mname))
 
     # setter candidate
-    if len(node.params) == 1 and node.typ == C.J.v:
+    if AccessorUni.is_candidate_setter(node):
       shorty = util.to_shorty_sk(node.params[0][0])
       mname = shorty + u"setterInOne"
       callee = u"null" if node.is_static else C.J.THIS
