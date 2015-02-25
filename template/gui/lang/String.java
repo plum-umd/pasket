@@ -1,27 +1,26 @@
 package java.lang;
 
 public class String {
-    char[] value;
-    int count;
+    char[] _value;
+    int _count;
 
-    public String(char[] ca) {
-        count = 0;
-        while (ca[count] != 0) {
-            value[count] = ca[count];
-            count = count + 1;
-        }
+    // use this constructor as it includes "count"
+    // ignore offset at the moment
+    public String(char[] ca, int offset, int count) {
+        _value = ca;
+        _count = count;
     }
 
     public String toString() {
-        return value;
+        return _value;
     }
 
     public boolean equals(String s) {
-        return value == s.value;
+        return _value == s._value;
     }
 
     public int length() {
-        return count;
+        return _count;
     }
 
     public int indexOf(String str) {
@@ -29,8 +28,8 @@ public class String {
     }
 
     public int indexOf(String str, int fromIndex) {
-        int src_len = count;
-        int tgt_len = str.count;
+        int src_len = _count;
+        int tgt_len = str._count;
 
         if (fromIndex >= src_len) {
             if (tgt_len == 0) return src_len;
@@ -45,7 +44,7 @@ public class String {
             boolean mismatch = false;
             int i = 0;
             while (i < tgt_len && !mismatch) {
-                if (value[index + i] != str.value[i]) {
+                if (_value[index + i] != str._value[i]) {
                     mismatch = true;
                 }
                 i = i + 1;

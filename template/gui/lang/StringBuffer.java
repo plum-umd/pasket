@@ -1,19 +1,19 @@
 package java.lang;
 
 public class StringBuffer {
-  char[] value;
-  int count;
+  char[] _value;
+  int _count;
 
   public StringBuffer(String str) {
-    value = str;
+    _value = str;
   }
 
   public void setCharAt(int i, char c) {
-    value[i] = c;
+    _value[i] = c;
   }
 
   public String toString() {
-    return value;
+    return _value;
   }
 
 }

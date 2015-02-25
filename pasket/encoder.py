@@ -592,8 +592,8 @@ def trans_e(mtd, e):
       else: buf.write('.'.join([C.SK.self, new_fname]))
     elif e.id == C.J.THIS: buf.write(C.SK.self)
     elif util.is_str(e.id): # constant string, such as "Hello, World"
-      str_init = trans_mname(C.J.STR, C.J.STR, [u"char[]"])
-      buf.write("{}(new Object(), {})".format(str_init, e.id))
+      str_init = trans_mname(C.J.STR, C.J.STR, [u"char[]", C.J.i, C.J.i])
+      buf.write("{}(new Object(), {}, 0, {})".format(str_init, e.id, len(e.id)))
     else: buf.write(e.id)
 
   elif e.kind == C.E.UOP:
