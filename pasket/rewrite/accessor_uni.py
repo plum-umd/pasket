@@ -65,13 +65,11 @@ class AccessorUni(object):
 
   @staticmethod
   def is_candidate_getter(mtd):
-    return not mtd.is_init and not mtd.is_static and \
-        len(mtd.params) == 0 and mtd.typ != C.J.v
+    return not mtd.is_init and len(mtd.params) == 0 and mtd.typ != C.J.v
 
   @staticmethod
   def is_candidate_setter(mtd):
-    return not mtd.is_init and not mtd.is_static and \
-        len(mtd.params) == 1 and mtd.typ == C.J.v
+    return not mtd.is_init and len(mtd.params) == 1 and mtd.typ == C.J.v
 
   # assume methods that participate will be neither <init> nor static
   @staticmethod
