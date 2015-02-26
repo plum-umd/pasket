@@ -115,6 +115,10 @@ class Method(v.BaseNode):
   def body(self, v):
     self._body = v
 
+  @property
+  def has_return(self):
+    return self.body and self.body[-1].kind == C.S.RETURN
+
   def __repr__(self):
     mname, cname = self._name, util.sanitize_ty(self._clazz.name)
     params = map(util.sanitize_ty, self.param_typs)

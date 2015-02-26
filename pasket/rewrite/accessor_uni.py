@@ -500,6 +500,7 @@ class AccessorUni(object):
 
   @v.when(Method)
   def visit(self, node):
+    if node.annos: return
     if node.clazz.pkg in ["java.lang"]: return
     if node.clazz.client: return
     cname = node.clazz.name
@@ -517,7 +518,7 @@ class AccessorUni(object):
       return
     
     # getter candidate
-    if AccessorUni.is_candidate_getter(node):
+    if AccessorUni.is_candidate_getter(node) and not node.has_return:
       shorty = util.to_shorty_sk(node.typ)
       mname = shorty + u"getterInOne"
       callee = C.J.N if node.is_static else C.J.THIS

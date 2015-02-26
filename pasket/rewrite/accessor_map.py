@@ -314,12 +314,14 @@ class AccessorMap(object):
 
   @v.when(Method)
   def visit(self, node):
+    if node.annos: return
+    if node.clazz.pkg in ["java.lang"]: return
     if node.clazz.client: return
     cname = node.clazz.name
     if cname in self._acc_default: return
 
     # getter candidate
-    if AccessorMap.is_candidate_getter(node):
+    if AccessorMap.is_candidate_getter(node) and not node.has_return:
       shorty = util.to_shorty_sk(node.param_typs[0])
       mname = shorty + u"getterInOne"
       callee = C.J.N if node.is_static else C.J.THIS
