@@ -1,2 +1,0 @@
-$Next.doClick()
-$Previous.doClick()

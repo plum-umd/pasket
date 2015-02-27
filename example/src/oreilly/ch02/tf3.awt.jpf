@@ -1,8 +1,0 @@
-@include=../oreilly.jpf
-
-target = oreilly.ch02.ToolbarFrame3
-symbolic.method = oreilly.ch02.ToolbarFrame3.main(sym)
-
-@using jpf-awt
-event.class = oreilly.ch02.ToolbarFrame3Test
-

@@ -1,2 +1,0 @@
-$Disable.doClick()
-$Enable.doClick()

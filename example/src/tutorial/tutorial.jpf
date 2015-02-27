@@ -1,5 +1,0 @@
-target = tutorial.${xmpl}.Test
-symbolic.method = tutorial.${xmpl}.Test.main(sym)
-
-@include=../../example.jpf
-

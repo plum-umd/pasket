@@ -1,8 +1,0 @@
-@include=../oreilly.jpf
-
-target = oreilly.ch12.SimpleFileChooser
-symbolic.method = oreilly.ch12.SimpleFileChooser.main(sym)
-
-@using jpf-awt
-event.class = oreilly.ch12.SimpleFileChooserTest
-

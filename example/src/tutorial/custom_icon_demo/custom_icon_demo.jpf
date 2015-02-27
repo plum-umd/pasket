@@ -1,3 +1,0 @@
-# run ${jpf-symbc}/bin/jpf with this config
-xmpl = custom_icon_demo
-@include=../tutorial.jpf

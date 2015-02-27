@@ -1,4 +1,0 @@
-target = pattern.${pattern}.Test
-symbolic.method = pattern.${pattern}.Test.main(sym)
-
-@include=../../example.jpf

@@ -1,5 +1,0 @@
-# run ${jpf-symbc}/bin/jpf with this config
-pattern = proxy 
-@include=../pattern.jpf
-
-# NOTE: jpf can't run this pattern due to the lack of java...reflect.Proxy
