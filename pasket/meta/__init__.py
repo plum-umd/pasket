@@ -2,7 +2,8 @@ import lib.const as C
 
 from .. import util
 
-C.mod = util.enum(PR=u"private", PB=u"public", ST=u"static", FN=u"final", \
+C.mod = util.enum(PR=u"private", PB=u"public", \
+    AB=u"abstract", ST=u"static", FN=u"final", \
     GN=u"generator", HN=u"harness")
 C.PBST = [C.mod.PB, C.mod.ST]
 C.PRST = [C.mod.PR, C.mod.ST]

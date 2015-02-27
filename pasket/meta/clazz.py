@@ -94,6 +94,10 @@ class Clazz(v.BaseNode):
     self._mods = v
 
   @property
+  def is_abstract(self):
+    return C.mod.AB in self._mods
+
+  @property
   def kind(self):
     return self._kind
 
@@ -458,7 +462,7 @@ class Clazz(v.BaseNode):
     if util.is_array(tname): return False
     # if an existing Clazz, it should be neither an interface nor an enum
     cls = class_lookup(tname)
-    return not cls or (not cls.is_itf and not cls.is_enum)
+    return not cls or (not cls.is_itf and not cls.is_abstract and not cls.is_enum)
 
   # generate a statement that instantiates the given type
   @staticmethod
@@ -484,10 +488,10 @@ class Clazz(v.BaseNode):
       return init_e
     else:
       cls = class_lookup(tname)
-      if cls and cls.is_itf: # try to find implementers
-        subs = util.flatten_classes(cls.subs, "subs")
+      if cls and (cls.is_itf or cls.is_abstract): # try to find implementers
+        subss = util.flatten_classes(cls.subs, "subs")
         init_e, args = None, []
-        for impl in ifilterfalse(op.attrgetter("is_itf"), subs):
+        for impl in ifilterfalse(lambda c: c.is_itf or c.is_abstract, subss):
           _e, _args = Clazz.call_init(impl.name, params)
           # try to find best matched one
           if len(args) <= len(_args): init_e, args = _e, _args
@@ -571,7 +575,7 @@ def __find_mtd(cname, f):
   if not cls: return []
 
   # try to concretize a call to interface
-  if cls.is_itf and cls.subs:
+  if (cls.is_itf or cls.is_abstract) and cls.subs:
     for sub in cls.subs:
       mtds = __find_mtd(sub.name, f)
       if mtds: return mtds
