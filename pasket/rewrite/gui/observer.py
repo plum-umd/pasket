@@ -237,8 +237,14 @@ class Observer(object):
   # retrieve candidate methods
   def get_candidate_mtds(self, aux, cls):
     mtds = cls.mtds
+    # if it's an interface with implementers
     if cls.is_itf and cls.subs:
-      mtds = util.flatten(map(partial(self.get_candidate_mtds, aux), cls.subs))
+      # collect all sub-classes
+      subss = util.flatten_classes(cls.subs, "subs")
+      # filter out sub-interfaces (e.g., Action < ActionListener)
+      subss, _ = util.partition(lambda c: c.is_class, subss)
+      # then collect actual methods from those sub-classes
+      mtds = util.flatten(map(op.attrgetter("mtds"), subss))
     return filter(partial(self.is_candidate_mtd, aux), mtds)
 
   # common params for methods in Aux...
