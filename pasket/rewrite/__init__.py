@@ -38,7 +38,9 @@ def visit(cmd, smpls, tmpl, patterns):
 
   ## behavioral patterns
 
-  if cmd == "android": pass
+  if cmd == "android":
+    from android.observer import Observer
+    p2v[C.P.OBS] = Observer(smpls)
   elif cmd == "gui":
     from gui.observer import Observer
     p2v[C.P.OBS] = Observer(smpls)
