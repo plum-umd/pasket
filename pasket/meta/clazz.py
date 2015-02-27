@@ -401,14 +401,16 @@ class Clazz(v.BaseNode):
           # aux type is allowed to be downcasted: a) formal parameter
           elif cls_f.is_aux:
             aux_subtyped = False
-            for cls_s in cls_f.subs:
+            cls_f_subss = util.flatten_classes(cls_f.subs, "subs")
+            for cls_s in cls_f_subss:
               aux_subtyped = aux_subtyped or cls_a <= cls_s
             if aux_subtyped: continue
 
           # aux type is allowed to be downcasted: b) actual argument
           elif cls_a.is_aux:
             aux_subtyped = False
-            for cls_s in cls_a.subs:
+            cls_a_subss = util.flatten_classes(cls_a.subs, "subs")
+            for cls_s in cls_a_subss:
               aux_subtyped = aux_subtyped or cls_s <= cls_f
             if aux_subtyped: continue
 
