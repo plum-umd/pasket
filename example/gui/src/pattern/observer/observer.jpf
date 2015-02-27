@@ -1,0 +1,3 @@
+# run ${jpf-symbc}/bin/jpf with this config
+pattern = observer 
+@include=../pattern.jpf

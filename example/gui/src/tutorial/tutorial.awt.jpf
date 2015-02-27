@@ -1,0 +1,10 @@
+target = tutorial.${xmpl}.Test
+symbolic.method = tutorial.${xmpl}.Test.main(sym)
+
+@include=../../example.jpf
+
+@using jpf-awt
+#awt.script = ${config_path}/${xmpl}/${xmpl}.es
+
+event.class = tutorial.${xmpl}.TestEvent
+

@@ -1,0 +1,19 @@
+example.home = ${config_path}
+# where to find the event generator
+native_classpath = ${example.home}/build;${native_classpath}
+# where to find example classfiles
+classpath = ${example.home}/build;${classpath}
+# where to find example sources
+sourcepath = ${example.home}/src;${sourcepath}
+
+#choice.class = .awt.UIActionGenerator
+choice.class = .util.event.EventChoiceGenerator
+
+# listener to print information (PCs, test cases) about symbolic run
+listener = gov.nasa.jpf.symbc.SymbolicListener
+
+# listener to print test sequences
+listener = gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener
+
+# instruct jpf to not stop at first error
+search.multiple_errors=true

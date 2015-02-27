@@ -1,0 +1,3 @@
+# run ${jpf-symbc}/bin/jpf with this config
+xmpl = splitpane_divider_demo
+@include=../tutorial.jpf

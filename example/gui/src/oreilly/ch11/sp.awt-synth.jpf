@@ -1,0 +1,8 @@
+@include=../oreilly.jpf
+
+target = oreilly.ch11.SimpleSplitPane
+symbolic.method = oreilly.ch11.SimpleSplitPane.main(sym)
+
+@using jpf-awt-synth
+event.class = oreilly.ch11.SimpleSplitPaneTest
+

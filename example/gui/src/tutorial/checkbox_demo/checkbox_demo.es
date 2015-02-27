@@ -1,0 +1,2 @@
+$Glasses.doClick()
+$Teeth.doClick()
