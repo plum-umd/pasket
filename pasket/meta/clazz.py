@@ -554,6 +554,11 @@ def find_fld(cname, fname, visited=[]):
   fld = cls.fld_by_name(fname)
   if fld: return fld
 
+  # try the outer class if exists
+  if cls.outer:
+    fld = cls.outer.fld_by_name(fname)
+    if fld: return fld
+
   # search constants in interfaces
   for iname in cls.itfs:
     itf = class_lookup(iname)
@@ -585,6 +590,11 @@ def __find_mtd(cname, f):
   # try the current class and super classes in the hierarchy
   if cls.is_class:
     mtds = f(cls)
+    if mtds: return mtds
+
+  # try the outer class if exists
+  if cls.outer:
+    mtds = f(cls.outer)
     if mtds: return mtds
 
   # aux type is allowed to move down to actual classes, like downcast

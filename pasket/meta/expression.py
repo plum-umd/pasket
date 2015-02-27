@@ -103,11 +103,10 @@ class Expression(v.BaseNode):
     elif self.kind == C.E.ID:
       if hasattr(self, "ty"): return self.ty
       v = self.id
-
       try: return mtd.vars[v]
       except (AttributeError, KeyError):
         if util.is_class_name(v): return v
-        elif type(v) in [str, unicode]: return C.J.STR
+        elif util.is_str(v): return C.J.STR
         else: return C.J.OBJ
 
     elif self.kind == C.E.UOP:
@@ -370,7 +369,7 @@ def parse_e(node, cls=None):
             break
         c = curried_e(c_node)
         name = clazz.anony_name(cls)
-        anony = clazz.Clazz(name=name, sup=cls.name, itfs=[c.f.id], outer=cls)
+        anony = clazz.Clazz(name=name, itfs=[c.f.id], outer=cls)
         map(partial(clazz.parse_decl, anony), decl_nodes)
         cls.inners.append(anony)
         c.f.id = name
