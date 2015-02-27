@@ -217,6 +217,8 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
 
     ## pattern rewriting
     rewrite.visit(cmd, smpls, tmpl, _patterns)
+    java_sk_dir = os.path.join(out_dir, '_'.join(["java_sk", p]))
+    decode.dump(cmd, java_sk_dir, tmpl)
 
     ## clean up templates
     #reducer.reduce_anno(smpls, tmpl)

@@ -230,6 +230,15 @@ def to_java(cmd, java_dir, tmpls, output_paths, patterns):
   f = globals()["trim_model_" + cmd]
   f(tmpl)
 
+  dump(cmd, java_dir, tmpl, "decoding")
+
+
+# dump out the given template, which might be
+# either an intermediate AST or the final model
+@takes(str, str, Template, optional(str))
+@returns(nothing)
+def dump(cmd, dst_dir, tmpl, msg=None):
+
   def write_imports(imports):
     def write_import(i): return "import {};".format(i)
     return '\n'.join(map(write_import, imports)) + '\n'
@@ -247,10 +256,10 @@ def to_java(cmd, java_dir, tmpls, output_paths, patterns):
     ## generate folders according to package hierarchy
     fname = cls.name + ".java"
     if cls.pkg:
-      build_pkg_folders(java_dir, cls.pkg)
-      folders = [java_dir] + cls.pkg.split('.') + [fname]
+      build_pkg_folders(dst_dir, cls.pkg)
+      folders = [dst_dir] + cls.pkg.split('.') + [fname]
       java_path = os.path.join(*folders)
-    else: java_path = os.path.join(java_dir, fname)
+    else: java_path = os.path.join(dst_dir, fname)
 
     ## figure out import statements
     imports = []
@@ -271,5 +280,6 @@ def to_java(cmd, java_dir, tmpls, output_paths, patterns):
       if cls.pkg: f.write(C.T.PKG + ' ' + cls.pkg + ";\n")
       f.write(write_imports(imports))
       f.write(cls_body)
-      logging.info("decoding " + f.name)
+      if msg: logging.info(" ".join([msg, f.name]))
+      else: logging.debug("dumping " + f.name)
 
