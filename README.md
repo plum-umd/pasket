@@ -200,9 +200,10 @@ Structure
     + build.xml -- for ant builder
     + clean.sh -- a script to clean result files
     + java/ -- final synthesis results will be placed here
+    + java\_sk/ -- intermediate Java sketch files will be placed here
     + output/ -- sketch output files
     + rename.sh -- a script to rename packages in synthesized Java files
-    + sk/ -- intermediate sketch files will be placed here
+    + sk/ -- sketch files will be placed here
         * type.sk -- containing all the class declarations
         * log.sk -- a logging module, along with class and method ids
         * class\_x.sk -- corresponding to a single class and its methods
