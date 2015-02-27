@@ -107,7 +107,11 @@ class Expression(v.BaseNode):
       except (AttributeError, KeyError):
         if util.is_class_name(v): return v
         elif util.is_str(v): return C.J.STR
-        else: return C.J.OBJ
+        else:
+          fld = None
+          if mtd: fld = clazz.find_fld(mtd.clazz.name, v)
+          if fld: return fld.typ
+          else: return C.J.OBJ
 
     elif self.kind == C.E.UOP:
       return C.J.i
