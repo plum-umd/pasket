@@ -120,7 +120,7 @@ public class Spinner1 extends Activity {
     tv.setText("Planet:");
     topLayout.addView(tv, 2, mpwc);
 
-    s = new Spinner(this);
+    s = new Spinner(this, Spinner.MODE_DROPDOWN);
     s.setId(R.id.spinner2);
     s.setPrompt("Choose a planet");
     topLayout.addView(s, 3, mpwc);
