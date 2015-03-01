@@ -1,1 +1,1 @@
-../../../../example/src/tutorial/button_demo/ButtonDemo.java
+../../../../example/gui/src/tutorial/button_demo/ButtonDemo.java

@@ -1,1 +1,1 @@
-../../../../example/src/tutorial/filechooser_demo/FileChooserDemo.java
+../../../../example/gui/src/tutorial/filechooser_demo/FileChooserDemo.java

@@ -1,1 +1,1 @@
-../../../../example/src/tutorial/splitpane_divider_demo/SplitPaneDividerDemo.java
+../../../../example/gui/src/tutorial/splitpane_divider_demo/SplitPaneDividerDemo.java

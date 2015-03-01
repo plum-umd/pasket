@@ -1,1 +1,1 @@
-../../../../example/src/tutorial/toolbar_demo/ToolBarDemo.java
+../../../../example/gui/src/tutorial/toolbar_demo/ToolBarDemo.java
