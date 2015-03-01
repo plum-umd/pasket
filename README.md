@@ -168,6 +168,8 @@ Structure
         * CSV.java -- printing expressions in a csv format
 - example/ -- example code
     + android -- Android examples/apps
+        * README.md -- explaining how to use sample/android/trim.py
+        * trim.py -- a script to capture adb logcats
     + gui -- Swing examples/apps
         * apps.json -- application descriptions
         * build.xml -- for ant builder
@@ -212,8 +214,6 @@ Structure
 - run.py -- the main script to run the tool
 - sample/ -- samples
     + android/ -- samples by running some Android apps
-        * README.md -- explaining how to use sample/android/trim.py
-        * trim.py -- a script to capture adb logcats
         * \*.txt -- a sample representing a single run
     + gui/ -- samples by running Swing apps
     + pattern/ -- samples by running examples in pattern/ folder
@@ -263,7 +263,6 @@ Structure
     + app/ -- templates for applications
         * android/ -- Android apps
             - hierarchy.py -- a script to extract class hierarchy from the app
-            - \*.java -- the class hierarchy for apps under test
         * gui/ -- Java GUI apps
     + gui/ -- Swing modelings
     + pattern/ -- templates for examples in example/gui/src/pattern/ folder
