@@ -262,7 +262,7 @@ Structure
     + android/ -- Android platform modelings
     + app/ -- templates for applications
         * android/ -- Android apps
-            - hierarchy.py -- a script to extract class hierarchy from the app
+            - hierarchy.py -- a script to extract class hierarchy from the apk
         * gui/ -- Java GUI apps
     + gui/ -- Swing modelings
     + pattern/ -- templates for examples in example/gui/src/pattern/ folder
