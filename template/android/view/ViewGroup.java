@@ -11,6 +11,7 @@ public class ViewGroup extends View {
   }
 
   public void addView(View child, int index, ViewGroup.LayoutParams params);
+  public void addView(View child, ViewGroup.LayoutParams params);
   public void addView(View child);
 
   public static class MarginLayoutParams extends ViewGroup.LayoutParams {
