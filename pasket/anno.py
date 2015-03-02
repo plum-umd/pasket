@@ -10,7 +10,8 @@ import util
 # to avoid circular import (TODO: do we really need those annotations?)
 #from meta.expression import parse_e
 
-C.A = util.enum(OVERRIDE="Override", HARNESS="Harness", \
+C.A = util.enum(OVERRIDE="Override", SUPWARN="SuppressWarnings", \
+  HARNESS="Harness", \
   EVENT="Event", REACT="React", OBS="ObserverPattern", \
   OBSS="Observers", ATTACH="Attach", DETACH="Detach", NOTI="Notified", \
   STATE="State", ERR="Error", UPDATE="Update", \
@@ -74,6 +75,7 @@ def parse_anno(node):
   ## Java annotations
   ##
   if _anno.name == C.A.OVERRIDE: pass
+  elif _anno.name == C.A.SUPWARN: pass
 
   ##
   ## Observer
