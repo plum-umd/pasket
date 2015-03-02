@@ -293,10 +293,10 @@ class Clazz(v.BaseNode):
     if self._sup and self._sup == other.name: return True
     if other.name in self._itfs: return True
 
-    # transitive: c < x and x < d
+    # transitive: c < x and x <= d
     def check_sup(sname):
       sup = class_lookup(sname)
-      return sup and sup < other
+      return sup and sup <= other
     return util.exists(check_sup, util.ffilter([self._sup] + self._itfs))
 
   def __le__(self, other):
