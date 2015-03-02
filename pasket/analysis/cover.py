@@ -35,14 +35,12 @@ def covered(tmpl_files, demo_files):
     mtd = find_mtd_by_sig(cname, mname, arg_typs)
     if mtd: return True, [mtd]
 
+    cls = class_lookup(cname)
     candidates = []
     for mtd in methods():
       if mtd.name == mname:
-        if mtd.clazz.name == cname:
+        if cls and cls <= mtd.clazz:
           candidates.append(mtd)
-        else:
-          sup = mtd.clazz.in_hierarchy(lambda cls: cls.name == cname)
-          if sup: candidates.append(mtd)
 
     return False, candidates
 
