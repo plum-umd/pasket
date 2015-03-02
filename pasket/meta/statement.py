@@ -341,20 +341,22 @@ def parse_s(mtd, node):
     s = gen_S_try(b, catches, fs)
 
   # (S... typ var (= (E... )) ';')
-  elif node.getChildren()[-2].getText() == '=':
-    var = node.getChildren()[-3].getText()
+  elif _nodes[-2].getText() == '=':
+    var = _nodes[-3].getText()
     # type can be a list of nodes, e.g., List < T >
-    ty_node = util.mk_v_node_w_children(node.getChildren()[:-3])
+    ty_node = util.mk_v_node_w_children(_nodes[:-3])
     ty = util.implode_id(ty_node)
     mtd.locals[var] = ty
     le = gen_E_id(var, ty)
-    re = curried_e(node.getChildren()[-2].getChild(0))
+    re = curried_e(_nodes[-2].getChild(0))
     s = gen_S_assign(le, re)
 
   # (DECL typ var ';') # local variable declaration
   elif node.getText() == C.T.DECL:
-    ty = node.getChild(0).getText()
-    var = node.getChild(1).getText()
+    # type can be a list of nodes, e.g., Class < ? extends Activity >
+    ty_node = util.mk_v_node_w_children(_nodes[:-2])
+    ty = util.implode_id(ty_node)
+    var = _nodes[-2].getText()
     mtd.locals[var] = ty
     e_decl = gen_E_id(var, ty)
     s = gen_S_e(e_decl)
