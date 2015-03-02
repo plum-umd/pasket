@@ -1256,7 +1256,10 @@ def to_sk(smpls, tmpl, sk_dir):
     clss = util.flatten_classes([mtd.clazz], "subs")
     return sample.mtd_appears(smpls, clss, mtd.name)
   mtds = filter(logged, methods())
-  n_params = 2 + max(map(len, map(op.attrgetter("params"), mtds)))
+  if mtds:
+    n_params = 2 + max(map(len, map(op.attrgetter("params"), mtds)))
+  else: # no meaningful logs in the sample?
+    n_params = 2
   n_evts = sample.max_evts(smpls)
   n_ios = sample.max_IOs(smpls)
 
