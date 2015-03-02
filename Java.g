@@ -539,6 +539,7 @@ statement
     |   'try' block catches? ('finally' block)?
     ->  ^(STAT 'try' block catches? ^('finally' block)?)
     |   'switch' parExpression '{' switchBlockStatementGroups '}'
+    ->  ^(STAT 'switch' parExpression '{' switchBlockStatementGroups '}')
     |   'synchronized' parExpression block
     |   'return' expression? ';'
     ->  ^(STAT 'return' expression? ';')
@@ -570,13 +571,10 @@ switchBlockStatementGroups
     ;
 
 switchBlockStatementGroup
-    :   switchLabel blockStatement*
-    ;
-
-switchLabel
-    :   'case' constantExpression ':'
-    |   'case' enumConstantName ':'
-    |   'default' ':'
+    :   'case' expression ':' blockStatement*
+    -> ^('case' expression blockStatement*)
+    |   'default' ':' blockStatement*
+    -> ^('default' blockStatement*)
     ;
 
 moreStatementExpressions
