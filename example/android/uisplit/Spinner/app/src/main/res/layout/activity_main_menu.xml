@@ -1,0 +1,37 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                tools:context="symdroid.sample.spinner.MainMenu">
+
+    <Button
+        android:id="@+id/startVisibility1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:onClick="startMiniApp"
+        android:text="@string/title_activity_visibility1" />
+
+    <Button
+        android:id="@+id/startSpinner1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/startVisibility1"
+        android:onClick="startMiniApp"
+        android:text="@string/title_activity_spinner1" />
+
+    <Button
+        android:id="@+id/startRadioGroup1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/startSpinner1"
+        android:onClick="startMiniApp"
+        android:text="@string/title_activity_radio_group1" />
+
+</RelativeLayout>

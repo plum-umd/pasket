@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">Spinner</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_visibility1">Visibility</string>
+    <string name="title_activity_spinner1">Spinner</string>
+    <string name="title_activity_radio_group1">Radio Group</string>
+    <string name="title_activity_main_menu">MainMenu</string>
+    <string name="visibility_1_view_1">View A</string>
+    <string name="visibility_1_view_2">View B</string>
+    <string name="visibility_1_view_3">View C</string>
+    <string name="visibility_1_vis">Vis</string>
+    <string name="visibility_1_invis">Invis</string>
+    <string name="visibility_1_gone">Gone</string>
+    <string name="spinner_1_color">Color:</string>
+    <string name="spinner_1_planet">Planet:</string>
+    <string name="spinner_1_color_prompt">Choose a color</string>
+    <string name="spinner_1_planet_prompt">Choose a planet</string>
+    <string name="radio_group_1_breakfast">Breakfast</string>
+    <string name="radio_group_1_lunch">Lunch</string>
+    <string name="radio_group_1_dinner">Dinner</string>
+    <string name="radio_group_1_all">All of them</string>
+    <string name="radio_group_1_selection">You have selected: (none)</string>
+    <string name="radio_group_1_clear">Clear</string>
+    <string name="radio_group_snack">Snack</string>
+    <string name="radio_group_selection">"You have selected: "</string>
+    <string name="radio_group_none">(none)</string>
+</resources>
