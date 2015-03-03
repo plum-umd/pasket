@@ -247,7 +247,7 @@ def parse(cls, node, annos, mods):
     s_params = map(op.methodcaller("getText"), __params)
     ty = u''
     for p in s_params:
-      if p in ['.', '[', ']']: ty += p
+      if p in ['.', '[', ']', '<', '>', '?']: ty += p
       elif ty.endswith('.'): ty += p
       elif not ty: ty = p
       else:

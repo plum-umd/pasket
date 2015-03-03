@@ -9,7 +9,7 @@ from lib.typecheck import *
 from .. import util
 from ..meta import class_lookup, methods
 from ..meta.template import Template
-from ..meta.clazz import find_mtd
+from ..meta.clazz import find_mtd_by_sig
 from ..meta.method import find_formals
 
 from api import APICollector
@@ -32,17 +32,15 @@ def covered(tmpl_files, demo_files):
   tmpl.accept(collector)
 
   def find_api(cname, mname, arg_typs):
-    mtd = find_mtd(cname, mname, arg_typs)
+    mtd = find_mtd_by_sig(cname, mname, arg_typs)
     if mtd: return True, [mtd]
 
+    cls = class_lookup(cname)
     candidates = []
     for mtd in methods():
       if mtd.name == mname:
-        if mtd.clazz.name == cname:
+        if cls and cls <= mtd.clazz:
           candidates.append(mtd)
-        else:
-          sup = mtd.clazz.in_hierarchy(lambda cls: cls.name == cname)
-          if sup: candidates.append(mtd)
 
     return False, candidates
 

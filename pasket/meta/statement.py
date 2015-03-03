@@ -13,7 +13,7 @@ import lib.visit as v
 
 from .. import util
 
-from expression import Expression, parse_e, gen_E_id
+from expression import Expression, parse_e, gen_E_id, gen_E_bop
 
 # s ::= e | assert e | return e? | e := e | if e s s?
 #     | while e s | repeat e s # syntactic sugar borrowed from sketch
@@ -251,6 +251,39 @@ def parse_s(mtd, node):
     fs = map(curried_s, f_s)
     s = gen_S_if(e, ts, fs)
 
+  # (S... switch (E cond) { (case (E case1) (S1...)) ... (default Sd) }
+  #   => # desugaring at this parsing phase
+  # if (cond == case1) { S1 } else if ... else { Sd }
+  elif kind == "switch":
+    def parse_cases(case_node):
+      _case_nodes = case_node.getChildren()
+      label = case_node.getText()
+      if label == "case":
+        e_case = curried_e(_case_nodes[0])
+        ss_case = map(curried_s, _case_nodes[1:])
+      elif label == "default":
+        e_case = None
+        ss_case = map(curried_s, _case_nodes)
+      else:
+        raise Exception("illegular grammar", node.toStringTree())
+      return (label, e_case, ss_case)
+
+    e_cond = curried_e(node.getChild(1))
+    ss = _nodes[2:] # exclude first two nodes: S... switch
+    cases = map(parse_cases, rm_braces(ss))
+    _cases, _default = util.partition(lambda (l,c,ss): l == "case", cases)
+
+    def rm_break(ss):
+      return filter(lambda s: s.kind != C.S.BREAK, ss)
+
+    def desugar(acc, (label, e_case, ss)):
+      if label != "case": return acc # double-check
+      e = gen_E_bop(u"==", e_cond, e_case)
+      return [gen_S_if(e, rm_break(ss), acc)]
+
+    default_ss = rm_break(_default[0][2]) if _default else []
+    s = reduce(desugar, _cases, default_ss)[0]
+
   # (S... while (E... ) { (S... ) })
   elif kind == "while":
     e = curried_e(node.getChild(1))
@@ -308,20 +341,22 @@ def parse_s(mtd, node):
     s = gen_S_try(b, catches, fs)
 
   # (S... typ var (= (E... )) ';')
-  elif node.getChildren()[-2].getText() == '=':
-    var = node.getChildren()[-3].getText()
+  elif _nodes[-2].getText() == '=':
+    var = _nodes[-3].getText()
     # type can be a list of nodes, e.g., List < T >
-    ty_node = util.mk_v_node_w_children(node.getChildren()[:-3])
+    ty_node = util.mk_v_node_w_children(_nodes[:-3])
     ty = util.implode_id(ty_node)
     mtd.locals[var] = ty
     le = gen_E_id(var, ty)
-    re = curried_e(node.getChildren()[-2].getChild(0))
+    re = curried_e(_nodes[-2].getChild(0))
     s = gen_S_assign(le, re)
 
   # (DECL typ var ';') # local variable declaration
   elif node.getText() == C.T.DECL:
-    ty = node.getChild(0).getText()
-    var = node.getChild(1).getText()
+    # type can be a list of nodes, e.g., Class < ? extends Activity >
+    ty_node = util.mk_v_node_w_children(_nodes[:-2])
+    ty = util.implode_id(ty_node)
+    var = _nodes[-2].getText()
     mtd.locals[var] = ty
     e_decl = gen_E_id(var, ty)
     s = gen_S_e(e_decl)

@@ -373,7 +373,7 @@ def parse_e(node, cls=None):
             break
         c = curried_e(c_node)
         name = clazz.anony_name(cls)
-        anony = clazz.Clazz(name=name, itfs=[c.f.id], outer=cls)
+        anony = clazz.Clazz(name=name, itfs=[unicode(c.f)], outer=cls)
         map(partial(clazz.parse_decl, anony), decl_nodes)
         cls.inners.append(anony)
         c.f.id = name

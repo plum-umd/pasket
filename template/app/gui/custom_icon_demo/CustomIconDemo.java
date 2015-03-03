@@ -1,1 +1,1 @@
-../../../../example/src/tutorial/custom_icon_demo/CustomIconDemo.java
+../../../../example/gui/src/tutorial/custom_icon_demo/CustomIconDemo.java

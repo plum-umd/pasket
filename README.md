@@ -16,8 +16,19 @@ Download the tar ball and follow the instruction in it.
 You may need to set your environment variables as follows:
 
     export SKETCH_HOME=/path/to/sketch/runtime
-    PATH=$PATH:$SKETCH_HOME/..
-    export PATH
+    export PATH=$PATH:$SKETCH_HOME/..
+
+A harder way is to install it from source code:
+[front-end][sk-front]/[back-end][sk-back].
+In that case, build architecture-independent version of [front-end][sk-front]
+via:
+
+    <sketch-frontend> $ make assemble-noarch
+
+and then set your environment variables as follows:
+
+    export SKETCH_HOME=/path/to/sketch-frontend
+    export PATH=$PATH:$SKETCH_HOME/target/sketch-1.6.8-noarch-launchers.dir
 
 * Apache Ant
 
@@ -29,6 +40,8 @@ efficiently, your system needs to have [Apache Ant][ant] installed.
 This tool is tested under [Python 2.7.1][py271].
 
 [sk167]: http://people.csail.mit.edu/asolar/sketch-1.6.7.tar.gz
+[sk-front]: https://bitbucket.org/gatoatigrado/sketch-frontend
+[sk-back]: https://bitbucket.org/gatoatigrado/sketch-backend
 [ant]: http://ant.apache.org
 [py271]: http://www.python.org/download/releases/2.7/
 
@@ -54,12 +67,14 @@ You can also use the following commands, if preferred:
 
     $ cd codegen; ant; cd ..
 
-Then, synthesize a model of Android platform:
+Then, synthesize a framework model:
 
-    $ ./run.py [-c android] [-s sample] [-t template] [-p pattern] [-o result]
+    $ ./run.py -c (android|gui) [-s sample] [-t template] [-p pattern] [-o result]
 
-Inputs for synthesis are samples and templates.  The default path for
-sample is sample/android/ folder.  You can pass a single file, e.g.,
+Inputs for synthesis are samples and templates.  The default paths for
+samples and templates depend on the command.  For example, if the command
+is "android", the default path for sample is sample/android/ folder.
+You can pass a single file, e.g.,
 
     $ ./run.py -s sample/android/remotedroid.txt
 
@@ -68,11 +83,10 @@ e.g., sample/android/*/*.txt.  (sample/android/README.md explains
 how to use sample/android/trim.py in order to obtain such samples
 from apps instrumented by [redexer][redexer].)
 
-The default paths for template are template/android/ and
+Similarly, the default paths for template are template/android/ and
 template/app/android/ folders.  The former includes platform modelings,
-while the latter has class hierarchies of the apps under test.
-(Running template/app/hierarchy.py will extract such class hierarchy from
-the app of interest.)  You can pass multitple templates, e.g.,
+while the latter has client code, i.e., tutorials.
+You can pass multiple templates, e.g.,
 
     $ ./run.py -t template/android -t template/app/android
 
@@ -88,6 +102,10 @@ The final synthesized code will be placed at result/java/ folder.
 To synthesize Java GUI model, run the following command:
 
     $ ./run.py -c gui -p button_demo -p checkbox_demo ... [opts]
+
+For Android model, run the following command:
+
+    $ ./run.py -c android -p radio_group -p spinner ... [opts]
 
 Notice that you need -p option for every demo you pass.
 
@@ -168,6 +186,8 @@ Structure
         * CSV.java -- printing expressions in a csv format
 - example/ -- example code
     + android -- Android examples/apps
+        * README.md -- explaining how to use sample/android/trim.py
+        * trim.py -- a script to capture adb logcats
     + gui -- Swing examples/apps
         * apps.json -- application descriptions
         * build.xml -- for ant builder
@@ -212,8 +232,6 @@ Structure
 - run.py -- the main script to run the tool
 - sample/ -- samples
     + android/ -- samples by running some Android apps
-        * README.md -- explaining how to use sample/android/trim.py
-        * trim.py -- a script to capture adb logcats
         * \*.txt -- a sample representing a single run
     + gui/ -- samples by running Swing apps
     + pattern/ -- samples by running examples in pattern/ folder
@@ -262,8 +280,7 @@ Structure
     + android/ -- Android platform modelings
     + app/ -- templates for applications
         * android/ -- Android apps
-            - hierarchy.py -- a script to extract class hierarchy from the app
-            - \*.java -- the class hierarchy for apps under test
+            - hierarchy.py -- a script to extract class hierarchy from the apk
         * gui/ -- Java GUI apps
     + gui/ -- Swing modelings
     + pattern/ -- templates for examples in example/gui/src/pattern/ folder
