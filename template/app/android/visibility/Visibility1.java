@@ -1,1 +1,1 @@
-../../../../example/android/UITutorials/app/src/main/java/symdroid/sample/uitutorials/Visibility1.java
+../../../../example/android/uisplit/Visibility/app/src/main/java/symdroid/sample/visibility/Visibility1.java

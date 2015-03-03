@@ -1,1 +1,1 @@
-../../../../example/android/UITutorials/app/src/main/java/symdroid/sample/uitutorials/RadioGroup1.java
+../../../../example/android/uisplit/RadioGroup/app/src/main/java/symdroid/sample/radiogroup/RadioGroup1.java

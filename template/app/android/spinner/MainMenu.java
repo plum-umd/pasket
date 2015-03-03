@@ -1,1 +1,0 @@
-../../../../example/android/UITutorials/app/src/main/java/symdroid/sample/uitutorials/MainMenu.java
