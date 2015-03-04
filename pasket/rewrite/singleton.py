@@ -62,6 +62,13 @@ class Singleton(object):
       mtds = util.flatten(map(Singleton.get_candidate_mtds, cls.subs))
     return filter(Singleton.is_candidate_mtd, mtds)
 
+  @staticmethod
+  def add_fld(cls, ty, nm):
+    logging.debug("adding field {}.{} of type {}".format(cls.name, nm, ty))
+    fld = Field(clazz=cls, typ=ty, name=nm)
+    cls.add_flds([fld])
+    return fld
+
   ##
   ## generate an aux type
   ##
@@ -80,7 +87,9 @@ class Singleton(object):
     node.add_classes([aux])
 
   @v.when(Clazz)
-  def visit(self, node): pass
+  def visit(self, node):
+    if node.name == C.J.OBJ:
+      Singleton.add_fld(node, C.J.OBJ, C.SNG.INS)
 
   @v.when(Field)
   def visit(self, node): pass
