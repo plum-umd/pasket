@@ -18,6 +18,8 @@ public class View {
   public void setVisibility(int visibility);
   public int getVisibility();
 
+  public static final int NO_ID = -1;
+
   public void setId(int id);
   public int getId();
   public final View findViewById(int id);
