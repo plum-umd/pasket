@@ -24,3 +24,7 @@ acc_conf_map = {
   "JCompoment": (0, 1, 1), # (get|set)InputMap
 }
 
+# configuration for the singleton pattern
+sng_conf = [
+    C.GUI.TOOL
+]
