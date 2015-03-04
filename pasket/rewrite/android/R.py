@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 
+from lib.typecheck import *
 import lib.const as C
 import lib.visit as v
 
@@ -14,7 +15,7 @@ from ...meta.clazz import Clazz
 from ...meta.method import Method
 from ...meta.field import Field
 from ...meta.statement import Statement
-from ...meta.expression import Expression
+from ...meta.expression import Expression, gen_E_hole
 
 class R(object):
 
@@ -91,6 +92,38 @@ class R(object):
         self._raw_Rs.add(_id)
 
     return node
+
+
+# generate R class
+# which will have all R.* appearances in the given template
+@takes(Template)
+@returns(nothing)
+def generate_R(tmpl):
+  collector = R()
+  tmpl.accept(collector)
+  collector.build_R()
+
+  cls_R = Clazz(name=u"R", mods=C.PBST)
+
+  def dfs(cursor):
+    if type(cursor) is dict:
+      for elt in cursor:
+        # the trick here is that the field's type is R itself
+        # so that R can be used as receiver type again
+        fld_elt = Field(clazz=cls_R, mods=C.PBST, name=unicode(elt), typ=cls_R.name)
+        cls_R.add_flds([fld_elt])
+        dfs(cursor[elt])
+
+    elif type(cursor) is list: # 2nd-to-last level
+      def leaf_hole(elt):
+        hole = gen_E_hole()
+        fld_elt = Field(clazz=cls_R, mods=C.PBST, name=unicode(elt), typ=C.J.i, init=hole)
+        return fld_elt
+      cls_R.add_flds(map(leaf_hole, cursor))
+
+  dfs(collector.Rs)
+
+  tmpl.add_classes([cls_R])
 
 
 """

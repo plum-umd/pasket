@@ -17,6 +17,12 @@ from state import State
 @takes(str, list_of("Sample"), "Template", list_of(str))
 @returns(nothing)
 def visit(cmd, smpls, tmpl, patterns):
+
+  ## non-trivial, framework-specific rewriting
+  if cmd == "android":
+    from android import R
+    R.generate_R(tmpl)
+
   p2v = {}
 
   ## structural patterns
