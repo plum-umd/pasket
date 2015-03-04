@@ -62,9 +62,22 @@ class Singleton(object):
       mtds = util.flatten(map(Singleton.get_candidate_mtds, cls.subs))
     return filter(Singleton.is_candidate_mtd, mtds)
 
+  ##
+  ## generate an aux type
+  ##
+  def gen_aux_cls(self, tmpl):
+    aux = Clazz(name=self._aux_name, mods=[C.mod.PB], subs=self._clss)
+    self.aux = aux
+    tmpl.sng_auxs.append(self.aux_name)
+
+    add_artifacts([aux.name])
+    return aux
+
   @v.when(Template)
   def visit(self, node):
     self.find_clss_involved(node)
+    aux = self.gen_aux_cls(node)
+    node.add_classes([aux])
 
   @v.when(Clazz)
   def visit(self, node): pass

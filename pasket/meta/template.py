@@ -43,6 +43,8 @@ class Template(v.BaseNode):
     self._obs_auxs = {} # { Aux...1 : [ C1, D1 ], ... }
     # aux types for accessor patterns
     self._acc_auxs = [] # [ Aux...1, ... ]
+    # aux types for singleton pattern
+    self._sng_auxs = [] # [ Aux...1, ... ]
 
     # primitive classes
     cls_obj = Clazz(pkg=u"java.lang", name=C.J.OBJ)
@@ -167,6 +169,14 @@ class Template(v.BaseNode):
   @acc_auxs.setter
   def acc_auxs(self, v):
     self._acc_auxs = v
+
+  @property
+  def sng_auxs(self):
+    return self._sng_auxs
+
+  @sng_auxs.setter
+  def sng_auxs(self, v):
+    self._sng_auxs = v
 
   def __str__(self):
     return '\n'.join(map(str, self._classes))
