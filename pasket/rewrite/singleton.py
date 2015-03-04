@@ -65,10 +65,10 @@ class Singleton(object):
       mtds = util.flatten(map(Singleton.get_candidate_mtds, cls.subs))
     return filter(Singleton.is_candidate_mtd, mtds)
 
-  def getter(self, aux):
-    params = [ (C.J.i, u"mtd_id") ]
+  @staticmethod
+  def getter(aux):
+    params = [ (C.J.i, u"cls_id") ]
     getr = Method(clazz=aux, mods=C.PBST, typ=C.J.OBJ, params=params, name=u"getInstance")
-    # TODO: need to call candidate class's <init> nondeterministically
     rtn = u"""
       if ({0} == null) {{
         {0} = new Object();
@@ -78,6 +78,20 @@ class Singleton(object):
     getr.body = to_statements(getr, rtn)
     aux.add_mtds([getr])
     setattr(aux, "gttr", getr)
+
+  # getter will be invoked here
+  @staticmethod
+  def getter_in_one(aux, conf):
+    params = [ (C.J.i, u"mtd_id") ]
+    one = Method(clazz=aux, mods=C.PBST, typ=C.J.OBJ, params=params, name=u"getterInOne")
+    def getter_switch(c):
+      aname = aux.name
+      v = getattr(aux, '_'.join([C.SNG.GET, c]))
+      f = getattr(aux, "gttr").name
+      args = getattr(aux, '_'.join([C.SNG.SNG, c]))
+      return u"if (mtd_id == {v}) return {aname}.{f}({args});".format(**locals())
+    one.body = to_statements(one, "\nelse ".join(map(getter_switch, conf)))
+    aux.add_mtds([one])
 
   @staticmethod
   def add_fld(cls, ty, nm):
@@ -149,7 +163,8 @@ class Singleton(object):
     Singleton.add_fld(aux, C.J.OBJ, C.SNG.INS)
 
     ## getter
-    self.getter(aux)
+    Singleton.getter(aux)
+    Singleton.getter_in_one(aux, conf)
 
     add_artifacts([aux.name])
     return aux
@@ -167,7 +182,19 @@ class Singleton(object):
   def visit(self, node): pass
 
   @v.when(Method)
-  def visit(self, node): pass
+  def visit(self, node):
+    if node.annos: return
+    if node.clazz.pkg in ["java.lang"]: return
+    if node.clazz.client: return
+    cname = node.clazz.name
+
+    # getter candidate
+    if Singleton.is_candidate_mtd(node):
+      mname = u"getterInOne"
+      args = u", ".join([unicode(node.id)])
+      call = u"return {}({});".format(u".".join([self._aux_name, mname]), args)
+      node.body += to_statements(node, call)
+      logging.debug("{}.{} => {}.{}".format(cname, node.name, self._aux_name, mname))
 
   @v.when(Statement)
   def visit(self, node): return [node]
