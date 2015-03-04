@@ -43,7 +43,12 @@ def visit(cmd, smpls, tmpl, patterns):
 
   p2v[C.P.FAC] = Factory(smpls)
 
-  p2v[C.P.SNG] = Singleton(smpls)
+  if cmd == "android": pass
+  elif cmd == "gui":
+    from gui import sng_conf
+    p2v[C.P.SNG] = Singleton(smpls, sng_conf)
+  else:
+    p2v[C.P.SNG] = Singleton(smpls)
 
   p2v[C.P.ACC] = Accessor(smpls)
 

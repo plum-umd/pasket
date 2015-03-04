@@ -1,3 +1,5 @@
+import operator as op
+from functools import partial
 import logging
 
 import lib.const as C
@@ -10,12 +12,13 @@ from ..meta.clazz import Clazz
 from ..meta.method import Method
 from ..meta.field import Field
 from ..meta.statement import Statement, to_statements
-from ..meta.expression import Expression
+from ..meta.expression import Expression, to_expression, gen_E_gen
 
 class Singleton(object):
 
-  def __init__(self, smpls):
+  def __init__(self, smpls, sng_conf=[]):
     self._smpls = smpls
+    self._sng_conf = sng_conf
 
     self._clss = []
     self._aux_name = C.SNG.AUX
@@ -64,7 +67,7 @@ class Singleton(object):
 
   def getter(self, aux):
     params = [ (C.J.i, u"mtd_id") ]
-    getr = Method(clazz=aux, mods=C.PBST, typ=C.J.OBJ, params=params, name=u"get")
+    getr = Method(clazz=aux, mods=C.PBST, typ=C.J.OBJ, params=params, name=u"getInstance")
     # TODO: need to call candidate class's <init> nondeterministically
     rtn = u"""
       if ({0} == null) {{
@@ -86,10 +89,61 @@ class Singleton(object):
   ##
   ## generate an aux type
   ##
-  def gen_aux_cls(self, tmpl):
+  def gen_aux_cls(self, conf, tmpl):
     aux = Clazz(name=self._aux_name, mods=[C.mod.PB], subs=self._clss)
     self.aux = aux
     tmpl.sng_auxs.append(self.aux_name)
+
+    rv_sngs = map(lambda c: '_'.join([C.SNG.SNG, c]), conf)
+    rv_gtts = map(lambda c: '_'.join([C.SNG.GET, c]), conf)
+
+    # set role variables
+    def set_role(role):
+      setattr(aux, role, '_'.join([role, aux.name]))
+    map(set_role, rv_sngs)
+    map(set_role, rv_gtts)
+
+    # add fields that stand for non-deterministic role choices
+    def aux_fld(init, ty, nm):
+      if hasattr(aux, nm): nm = getattr(aux, nm)
+      return Field(clazz=aux, mods=[C.mod.ST], typ=ty, name=nm, init=init)
+    hole = to_expression(C.T.HOLE)
+    aux_int = partial(aux_fld, hole, C.J.i)
+
+    c_to_e = lambda c: to_expression(unicode(c))
+
+    ## range check
+    rg_chk = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"checkRange")
+    checkers = []
+    gen_range = lambda ids: gen_E_gen(map(c_to_e, ids))
+    get_id = op.attrgetter("id")
+
+    # range check for singleton classes
+    cls_ids = map(get_id, self._clss)
+    cls_init = gen_range(cls_ids)
+    aux_int_cls = partial(aux_fld, cls_init, C.J.i)
+    aux.add_flds(map(aux_int_cls, rv_sngs))
+
+    # range check for getter
+    mtds = util.flatten(map(Singleton.get_candidate_mtds, self._clss))
+
+    mtd_ids = map(get_id, mtds)
+    mtd_init = gen_range(mtd_ids)
+    aux_int_mtd = partial(aux_fld, mtd_init, C.J.i)
+    aux.add_flds(map(aux_int_mtd, rv_gtts))
+
+    # other semantics checks
+    # such as ownership and signature types
+    def owner_range(c):
+      return u"assert subcls("+getattr(aux, '_'.join([C.SNG.SNG, c]))+", belongsTo("+getattr(aux, '_'.join([C.SNG.GET, c]))+"));"
+    checkers.extend(map(owner_range, conf))
+
+    def getter_sig(c):
+      return u"assert (argNum("+getattr(aux, '_'.join([C.SNG.GET, c]))+")) == 0;"
+    checkers.extend(map(getter_sig, conf))
+
+    rg_chk.body += to_statements(rg_chk, u'\n'.join(checkers))
+    aux.add_mtds([rg_chk])
 
     ## a singleton holder
     Singleton.add_fld(aux, C.J.OBJ, C.SNG.INS)
@@ -103,7 +157,7 @@ class Singleton(object):
   @v.when(Template)
   def visit(self, node):
     self.find_clss_involved(node)
-    aux = self.gen_aux_cls(node)
+    aux = self.gen_aux_cls(self._sng_conf, node)
     node.add_classes([aux])
 
   @v.when(Clazz)

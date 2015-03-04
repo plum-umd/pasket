@@ -73,7 +73,7 @@ C.obs_roles = [C.OBS.OBSR, C.OBS.SUBJ, C.OBS.EVT, \
 
 # role variables for the singleton pattern
 C.SNG = util.enum(AUX=u"AuxSingleton", \
-    INS=u"__instance", GET=u"getter")
+    SNG="singleton", INS=u"__instance", GET=u"getter")
 
 # artificial classes that may not appear on samples but should be kept
 _artifacts = [ \
