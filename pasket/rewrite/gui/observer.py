@@ -527,7 +527,7 @@ class Observer(object):
         _, r = node.params[0]
         root_evt = C.GUI.EVT
         body = u"""
-          Toolkit t = @Singleton(Toolkit);
+          Toolkit t = Toolkit.getDefaultToolkit();
           {root_evt} evt = new InvocationEvent(null, {r});
           evt.kind = -1; // kinds of usual events start at 0
           EventQueue q = t.getSystemEventQueue();
