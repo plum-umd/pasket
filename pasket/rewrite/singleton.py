@@ -9,7 +9,7 @@ from ..meta.template import Template
 from ..meta.clazz import Clazz
 from ..meta.method import Method
 from ..meta.field import Field
-from ..meta.statement import Statement
+from ..meta.statement import Statement, to_statements
 from ..meta.expression import Expression
 
 class Singleton(object):
@@ -62,10 +62,24 @@ class Singleton(object):
       mtds = util.flatten(map(Singleton.get_candidate_mtds, cls.subs))
     return filter(Singleton.is_candidate_mtd, mtds)
 
+  def getter(self, aux):
+    params = [ (C.J.i, u"mtd_id") ]
+    getr = Method(clazz=aux, mods=C.PBST, typ=C.J.OBJ, params=params, name=u"get")
+    # TODO: need to call candidate class's <init> nondeterministically
+    rtn = u"""
+      if ({0} == null) {{
+        {0} = new Object();
+      }}
+      return {0};
+    """.format(C.SNG.INS)
+    getr.body = to_statements(getr, rtn)
+    aux.add_mtds([getr])
+    setattr(aux, "gttr", getr)
+
   @staticmethod
   def add_fld(cls, ty, nm):
     logging.debug("adding field {}.{} of type {}".format(cls.name, nm, ty))
-    fld = Field(clazz=cls, typ=ty, name=nm)
+    fld = Field(clazz=cls, mods=[C.mod.ST], typ=ty, name=nm)
     cls.add_flds([fld])
     return fld
 
@@ -77,6 +91,12 @@ class Singleton(object):
     self.aux = aux
     tmpl.sng_auxs.append(self.aux_name)
 
+    ## a singleton holder
+    Singleton.add_fld(aux, C.J.OBJ, C.SNG.INS)
+
+    ## getter
+    self.getter(aux)
+
     add_artifacts([aux.name])
     return aux
 
@@ -87,9 +107,7 @@ class Singleton(object):
     node.add_classes([aux])
 
   @v.when(Clazz)
-  def visit(self, node):
-    if node.name == C.J.OBJ:
-      Singleton.add_fld(node, C.J.OBJ, C.SNG.INS)
+  def visit(self, node): pass
 
   @v.when(Field)
   def visit(self, node): pass
