@@ -65,17 +65,25 @@ class Singleton(object):
       mtds = util.flatten(map(Singleton.get_candidate_mtds, cls.subs))
     return filter(Singleton.is_candidate_mtd, mtds)
 
-  @staticmethod
-  def getter(aux):
+  def getter(self, aux, conf):
     params = [ (C.J.i, u"cls_id") ]
     getr = Method(clazz=aux, mods=C.PBST, typ=C.J.OBJ, params=params, name=u"getInstance")
-    rtn = u"""
-      if ({0} == null) {{
-        {0} = new Object();
-      }}
-      return {0};
-    """.format(C.SNG.INS)
-    getr.body = to_statements(getr, rtn)
+    def setter_switch_whole(c):
+      ins = u'_'.join([C.SNG.INS, c])
+      v = getattr(aux, '_'.join([C.SNG.SNG, c]))
+      def setter_switch(ins, v, cls):
+        return u"if ({v} == {cls.id}) {ins} = new {cls.name}();".format(**locals())
+      init = u"\nelse ".join(map(partial(setter_switch, ins, v), self._clss))
+      return u"""
+        if (cls_id == {v}) {{
+          if ({ins} == null) {{
+            {init}
+          }}
+          return {ins};
+        }}
+      """.format(**locals())
+    getr_body = u"\nelse ".join(map(setter_switch_whole, conf)+[u"return null;"])
+    getr.body = to_statements(getr, getr_body)
     aux.add_mtds([getr])
     setattr(aux, "gttr", getr)
 
@@ -90,7 +98,8 @@ class Singleton(object):
       f = getattr(aux, "gttr").name
       args = getattr(aux, '_'.join([C.SNG.SNG, c]))
       return u"if (mtd_id == {v}) return {aname}.{f}({args});".format(**locals())
-    one.body = to_statements(one, "\nelse ".join(map(getter_switch, conf)))
+    one_body = "\nelse ".join(map(getter_switch, conf)+[u"return null;"])
+    one.body = to_statements(one, one_body)
     aux.add_mtds([one])
 
   @staticmethod
@@ -160,10 +169,12 @@ class Singleton(object):
     aux.add_mtds([rg_chk])
 
     ## a singleton holder
-    Singleton.add_fld(aux, C.J.OBJ, C.SNG.INS)
+    def add_holder(c):
+      Singleton.add_fld(aux, C.J.OBJ, '_'.join([C.SNG.INS, c]))
+    map(add_holder, conf)
 
     ## getter
-    Singleton.getter(aux)
+    self.getter(aux, conf)
     Singleton.getter_in_one(aux, conf)
 
     add_artifacts([aux.name])
