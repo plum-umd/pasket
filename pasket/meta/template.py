@@ -261,7 +261,10 @@ class Template(v.BaseNode):
     for itf in ifilter(op.attrgetter("is_itf"), clss):
       if not itf.subs and not itf.flds:
         logging.debug("discarding {} with no implementers".format(itf.name))
-        self._classes.remove(itf) # TODO: ValueError raised if itf is inner
+        if itf in self._classes:
+          self._classes.remove(itf)
+        elif itf.outer: # inner interface
+          itf.outer.inners.remove(itf)
         del decls[repr(itf)]
 
     # some interfaces might have been discarded, hence retrieve classes again
