@@ -78,7 +78,7 @@ def mk_harness_gui(tmpl, cls, smpl):
   buf = cStringIO.StringIO()
 
   # Toolkit initialization
-  buf.write("{0} t = @Singleton({0});\n".format(C.GUI.TOOL))
+  buf.write("{0} t = {0}.{1}{0}();\n".format(C.GUI.TOOL, "getDefault"))
   buf.write("{} q = t.getSystemEventQueue();\n".format(C.GUI.QUE))
 
   # run the application
