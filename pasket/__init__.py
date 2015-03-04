@@ -75,6 +75,8 @@ C.obs_roles = [C.OBS.OBSR, C.OBS.SUBJ, C.OBS.EVT, \
 C.SNG = util.enum(AUX=u"AuxSingleton", \
     SNG="singleton", INS=u"__instance", GET=u"getter")
 
+C.sng_roles = [C.SNG.SNG, C.SNG.GET]
+
 # artificial classes that may not appear on samples but should be kept
 _artifacts = [ \
   u"Platform", \
