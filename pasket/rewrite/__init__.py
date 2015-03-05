@@ -31,14 +31,20 @@ def visit(cmd, smpls, tmpl, patterns):
 
   p2v[C.P.FAC] = Factory(smpls)
 
-  if cmd == "android": pass
+  if cmd == "android":
+    from android import sng_conf
+    p2v[C.P.SNG] = Singleton(smpls, sng_conf)
   elif cmd == "gui":
     from gui import sng_conf
     p2v[C.P.SNG] = Singleton(smpls, sng_conf)
   else:
     p2v[C.P.SNG] = Singleton(smpls)
 
-  if cmd == "android": pass
+  if cmd == "android":
+    from android import acc_default, acc_conf_uni, acc_conf_map
+    p2v[C.P.ACCA] = AccessorAdHoc(smpls, acc_default)
+    p2v[C.P.ACCU] = AccessorUni(smpls, acc_default, acc_conf_uni)
+    p2v[C.P.ACCM] = AccessorMap(smpls, acc_default, acc_conf_map)
   elif cmd == "gui":
     from gui import acc_default, acc_conf_uni, acc_conf_map
     p2v[C.P.ACCA] = AccessorAdHoc(smpls, acc_default)
