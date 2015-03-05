@@ -762,7 +762,7 @@ def to_func(smpls, mtd):
   buf = cStringIO.StringIO()
   if C.mod.GN in mtd.mods: buf.write(C.mod.GN + ' ')
   elif C.mod.HN in mtd.mods: buf.write(C.mod.HN + ' ')
-  cname = mtd.clazz.name
+  cname = unicode(repr(mtd.clazz))
   mname = mtd.name
   arg_typs = mtd.param_typs
   buf.write(trans_ty(mtd.typ) + ' ' + trans_mname(cname, mname, arg_typs) + '(')
@@ -776,7 +776,7 @@ def to_func(smpls, mtd):
   if mtd.is_static:
     params = mtd.params[:]
   else:
-    self_ty = trans_ty(mtd.clazz.name)
+    self_ty = trans_ty(unicode(repr(mtd.clazz)))
     params = [ (self_ty, C.SK.self) ] + mtd.params[:]
 
   # add "logging" flag into parameters
@@ -1069,10 +1069,10 @@ def gen_smpl_sk(sk_path, smpl, tmpl, main):
   for cls in util.flatten_classes(tmpl.classes, "inners"):
     clinit = cls.mtd_by_sig(C.J.CLINIT)
     if not clinit: continue
-    buf.write("  {}();\n".format(trans_mname(cls.name, clinit.name)))
+    buf.write("  {}();\n".format(trans_mname(unicode(repr(cls)), clinit.name)))
 
   # execute template's *main*
-  cname = main.clazz.name
+  cname = unicode(repr(main.clazz))
   mname = main.name
   arg_typs = main.param_typs
   params = main.params + [ (C.J.z, u"logging") ]
