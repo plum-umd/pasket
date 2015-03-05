@@ -1,6 +1,6 @@
 package android.widget;
 
-public abstract class AdapterView extends ViewGroup {
+public abstract class AdapterView<T> extends ViewGroup {
 
   public static interface OnItemSelectedListener {
     public abstract void onItemSelected(AdapterView parent, View view, int position, long id);
