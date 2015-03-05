@@ -139,11 +139,11 @@ class AccessorMap(object):
         v = getattr(aux, '_'.join([C.ACC.GET, cl, role]))
         f = getattr(aux, shorty + "gttr").name
         argpairs = [(C.J.i, getattr(aux, '_'.join([C.ACC.GS, cl, role])))] + params
-        args = ", ".join(map(lambda (ty, nm): nm, argpairs))
+        args = u", ".join(map(lambda (ty, nm): nm, argpairs))
         return u"if (mtd_id == {v}) return {aname}.{f}({args});".format(**locals())
       roles = map(str, range(conf[cl][1]))
-      return "\nelse ".join(map(getter_switch, roles))
-    one.body = to_statements(one, "\nelse ".join(map(getter_switch_whole, filter(lambda x: conf[x][1] > 0, conf.iterkeys()))))
+      return u"\nelse ".join(map(getter_switch, roles))
+    one.body = to_statements(one, u"\nelse ".join(map(getter_switch_whole, filter(lambda x: conf[x][1] > 0, conf.iterkeys()))))
     aux.add_mtds([one])
 
   @staticmethod
@@ -166,11 +166,11 @@ class AccessorMap(object):
         v = getattr(aux, '_'.join([C.ACC.SET, cl, role]))
         f = getattr(aux, shorty + "sttr").name
         argpairs = [(C.J.i, getattr(aux, '_'.join([C.ACC.GS, cl, role])))]+params
-        args = ", ".join(map(lambda (ty, nm): nm, argpairs))
+        args = u", ".join(map(lambda (ty, nm): nm, argpairs))
         return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
       roles = map(str, range(conf[cl][2]))
-      return "\nelse ".join(map(setter_switch, roles))
-    one.body = to_statements(one, "\nelse ".join(map(setter_switch_whole, filter(lambda x: conf[x][2] > 0, conf.iterkeys()))))
+      return u"\nelse ".join(map(setter_switch, roles))
+    one.body = to_statements(one, u"\nelse ".join(map(setter_switch_whole, filter(lambda x: conf[x][2] > 0, conf.iterkeys()))))
     aux.add_mtds([one])
 
   @staticmethod
@@ -272,11 +272,11 @@ class AccessorMap(object):
       return map(lambda i: "assert (argNum(" + getattr(aux, '_'.join([C.ACC.SET, c, str(i)])) + ")) == 2;", range(conf[c][2]))
     def gs_match(c):
       return map(lambda i: "assert subcls(argType(" + getattr(aux, '_'.join([C.ACC.SET, c, str(i)]))+", 1), retType(" + getattr(aux, '_'.join([C.ACC.GET, c, str(i)])) + "));", range(conf[c][2]))
-    checkers.extend(reduce(lambda x,y: x+y, map(getter_sig, conf.iterkeys())))
-    checkers.extend(reduce(lambda x,y: x+y, map(setter_sig, conf.iterkeys())))
-    checkers.extend(reduce(lambda x,y: x+y, map(gs_match, conf.iterkeys())))
+    checkers.extend(reduce(lambda x,y: x+y, map(getter_sig, conf.iterkeys()), []))
+    checkers.extend(reduce(lambda x,y: x+y, map(setter_sig, conf.iterkeys()), []))
+    checkers.extend(reduce(lambda x,y: x+y, map(gs_match, conf.iterkeys()), []))
 
-    rg_chk.body += to_statements(rg_chk, '\n'.join(checkers))
+    rg_chk.body += to_statements(rg_chk, u'\n'.join(checkers))
     aux.add_mtds([rg_chk])
 
     # getter pattern
