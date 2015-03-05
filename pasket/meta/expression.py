@@ -141,11 +141,15 @@ class Expression(v.BaseNode):
 
     elif self.kind == C.E.CALL:
       arg_typs = map(curried, self.a)
-      if self.f.kind == C.E.DOT: # rcv.mid
-        rcv_ty = curried(self.f.le)
-        mname = self.f.re.id
-        mtd_callee = clazz.find_mtd_by_sig(rcv_ty, mname, arg_typs)
-        return mtd_callee.typ
+      if self.f.kind == C.E.DOT:
+        # inner class's <init>, e.g., ViewGroup.LayoutParams(...)
+        if util.is_class_name(self.f.re.id):
+          return unicode(self.f)
+        else: # rcv.mid
+          rcv_ty = curried(self.f.le)
+          mname = self.f.re.id
+          mtd_callee = clazz.find_mtd_by_sig(rcv_ty, mname, arg_typs)
+          return mtd_callee.typ
       else: # mid
         mname = self.f.id
         if mname in C.typ_arrays:
