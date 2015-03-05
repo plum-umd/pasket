@@ -52,11 +52,11 @@ public class Spinner1 extends Activity {
 
     Spinner s1 = (Spinner) findViewById(R.id.spinner1);
 //    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-//        this, R.array.colors, android.R.layout.simple_spinner_item);
+//        this, R.array.colors, R.layout.simple_spinner_item);
     ArrayAdapter<CharSequence> adapter;
     adapter = new ArrayAdapter<CharSequence>(this,
-        android.R.layout.simple_spinner_item, mColors);
-    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        R.layout.simple_spinner_item, mColors);
+    adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
     s1.setAdapter(adapter);
     s1.setOnItemSelectedListener(
         new OnItemSelectedListener() {
@@ -72,10 +72,10 @@ public class Spinner1 extends Activity {
 
     Spinner s2 = (Spinner) findViewById(R.id.spinner2);
 //    adapter = ArrayAdapter.createFromResource(this, R.array.planets,
-//        android.R.layout.simple_spinner_item);
+//        R.layout.simple_spinner_item);
     adapter = new ArrayAdapter<CharSequence>(this,
-        android.R.layout.simple_spinner_item, mPlanets);
-    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        R.layout.simple_spinner_item, mPlanets);
+    adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
     s2.setAdapter(adapter);
     s2.setOnItemSelectedListener(
         new OnItemSelectedListener() {
