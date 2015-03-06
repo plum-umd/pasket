@@ -60,11 +60,28 @@ def gen_events(tmpl, smpl, post, react_immediately=False, ev_name=u"Event"):
 
 
 ## Android-specific harness body
+# initialize Looper and post messages via Handler.sendMessage()
 @takes(Template, Clazz, Sample)
 @returns(nothing)
 def mk_harness_android(tmpl, cls, smpl):
   harness = mk_harness(cls, smpl)
-  # TODO
+
+  buf = cStringIO.StringIO()
+
+  # initialize Looper/MessageQueue/Handler
+  buf.write("{0} l = {0}.{1}{0}();\n".format(C.ADR.LOOP, "getMain"))
+  buf.write("{0} h = new {0}(l);\n".format(C.ADR.HDL))
+
+  # post messages in the sample to the message queue
+  post = u"h.sendMessage"
+  buf.write(gen_events(tmpl, smpl, post, False, C.ADR.MSG))
+
+  # run ActivityThread.main
+  main_cls = tmpl.main
+  # TODO: passing proper parameters
+  buf.write("{}.{}();\n".format(main_cls.clazz.name, main_cls.name))
+
+  harness.body = to_statements(harness, unicode(buf.getvalue()))
   cls.add_mtds([harness])
 
 
@@ -77,11 +94,11 @@ def mk_harness_gui(tmpl, cls, smpl):
 
   buf = cStringIO.StringIO()
 
-  # Toolkit initialization
+  # initialize Toolkit/EventQueue
   buf.write("{0} t = {0}.{1}{0}();\n".format(C.GUI.TOOL, "getDefault"))
-  buf.write("{} q = t.getSystemEventQueue();\n".format(C.GUI.QUE))
+  buf.write("{0} q = t.{1}{0}();\n".format(C.GUI.QUE, "getSystem"))
 
-  # run the application
+  # run main() in the client
   main_cls = tmpl.main
   # TODO: passing proper parameters
   buf.write("{}.{}();\n".format(main_cls.clazz.name, main_cls.name))
@@ -90,6 +107,7 @@ def mk_harness_gui(tmpl, cls, smpl):
   # post events in the sample to the event queue
   post = u"q.postEvent"
   buf.write(gen_events(tmpl, smpl, post, True, C.GUI.EVT))
+
   harness.body = to_statements(harness, unicode(buf.getvalue()))
   cls.add_mtds([harness])
 
