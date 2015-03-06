@@ -21,4 +21,12 @@ public class StringBuffer implements CharSequence {
     _value[i] = c;
   }
 
+  public StringBuffer append(int i) {
+    return append(Integer.toString(i));
+  }
+
+  public StringBuffer append(String str) {
+    // TODO
+    return this;
+  }
 }
