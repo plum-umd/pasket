@@ -2,10 +2,10 @@ import lib.const as C
 
 # special cases for the accessor pattern
 acc_default = [
-    C.GUI.TOOL,
-    "JColorChooser", # ColorSelectionModel
-    "JTextComponent", # Document
-    "JMenuItem", "JMenu" # AccessibleContext
+  C.GUI.TOOL, # EventQueue
+  "JColorChooser", # ColorSelectionModel
+  "JTextComponent", # Document
+  "JMenuItem", "JMenu" # AccessibleContext
 ]
 
 # configuration for the accessor pattern
@@ -26,5 +26,5 @@ acc_conf_map = {
 
 # configuration for the singleton pattern
 sng_conf = [
-    C.GUI.TOOL
+  C.GUI.TOOL
 ]

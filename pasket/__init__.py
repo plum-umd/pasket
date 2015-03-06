@@ -38,8 +38,8 @@ C.GUI = util.enum(TOOL=u"Toolkit", QUE=u"EventQueue", \
     EVT=u"EventObject", IVK=u"InvocationEvent")
 
 # constants regarding Android
-C.ADR = util.enum(ACTT=u"ActivityThread", LOOP=u"Looper", \
-    MSG=u"Message", HDL=u"Handler")
+C.ADR = util.enum(ACTT=u"ActivityThread", QUE=u"MessageQueue", \
+    MSG=u"Message", HDL=u"Handler", LOOP=u"Looper")
 
 # Java collections
 C.collections = [C.J.MAP, C.J.LST, C.J.STK, C.J.QUE, C.J.ITER] \
