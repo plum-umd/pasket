@@ -1000,6 +1000,11 @@ def gen_cls_sk(sk_dir, smpls, cls):
     """.format(trans_ty(fld.typ), accessor, fname))
 
   # methods
+  clinits, mtds = util.partition(lambda m: m.is_clinit, mtds)
+  inits, mtds = util.partition(lambda m: m.is_init, mtds)
+  # <init>/<clinit> should be dumped out in any case
+  buf.write('\n'.join(map(partial(to_func, smpls), clinits)))
+  buf.write('\n'.join(map(partial(to_func, smpls), inits)))
   if not cls.is_itf: # interface won't have method bodies
     buf.write('\n'.join(map(partial(to_func, smpls), mtds)))
 
@@ -1271,6 +1276,7 @@ def to_sk(smpls, tmpl, sk_dir):
   """.format(n_params, max(5, n_evts + 1), n_ios)
 
   # type.sk
+  logging.info("building class hierarchy")
   tmpl.consist()
   # merge all classes and interfaces, except for primitive types
   clss, _ = util.partition(lambda c: util.is_class_name(c.name), classes())
