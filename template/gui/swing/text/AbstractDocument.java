@@ -14,5 +14,6 @@ public abstract class AbstractDocument implements Document {
   public class DefaultDocumentEvent implements DocumentEvent {
     public DefaultDocumentEvent(int off, int len, String type);
     public Document getDocument();
+    public DocumentEvent.EventType getType();
   }
 }
