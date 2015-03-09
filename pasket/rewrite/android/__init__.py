@@ -2,7 +2,8 @@ import lib.const as C
 
 # special cases for the accessor pattern
 acc_default = [
-  C.ADR.LOOP # MessageQueue
+  C.ADR.ACTT, # Handler
+  C.ADR.LOOP  # MessageQueue
 ]
 
 # configuration for the accessor pattern
@@ -19,5 +20,6 @@ acc_conf_map = {
 
 # configuration for the singleton pattern
 sng_conf = [
+  C.ADR.ACTT,
   C.ADR.LOOP
 ]

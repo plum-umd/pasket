@@ -500,9 +500,12 @@ class AccessorUni(object):
 
   @v.when(Method)
   def visit(self, node):
+    # skip the method with explicit annotations, e.g., @Factory
     if node.annos: return
+    # skip java.lang.*
     if node.clazz.pkg in ["java.lang"]: return
-    if node.clazz.client: return
+    # can't edit interface's methods as well as client side
+    if node.clazz.is_itf or node.clazz.client: return
     cname = node.clazz.name
     if cname in self._acc_default: return
  
