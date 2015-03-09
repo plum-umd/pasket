@@ -70,8 +70,8 @@ class Factory(object):
       logging.debug("filling factory: {}.{}".format(node.clazz.name, mname))
       init_e = Clazz.call_init_if_instantiable(factory, node.params)
       body = u"""
-        {0} obj = {1};
-        return obj;
+        {0} __obj = {1};
+        return __obj;
       """.format(factory, str(init_e))
       node.body = to_statements(node, body)
 
