@@ -58,6 +58,8 @@ class AccessorUni(object):
 
   @staticmethod
   def is_candidate_cls(cls):
+    # skip java.lang.*
+    if cls.pkg in ["java.lang"]: return False
     mtds = cls.mtds
     getter_mtds = filter(AccessorUni.is_candidate_getter, mtds)
     cons_mtds = AccessorUni.get_candidate_inits(cls)

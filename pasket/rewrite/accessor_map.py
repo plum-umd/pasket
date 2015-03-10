@@ -52,6 +52,8 @@ class AccessorMap(object):
 
   @staticmethod
   def is_candidate_cls(cls):
+    # skip java.lang.*
+    if cls.pkg in ["java.lang"]: return False
     mtds = AccessorMap.get_candidate_mtds(cls)
     return cls.is_class and any(mtds)
 
