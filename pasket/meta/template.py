@@ -329,6 +329,15 @@ class Template(v.BaseNode):
     main.body = st.to_statements(main, body)
     main_cls.mtds.append(main)
 
+  # find class of certain kind, e.g., Activity
+  @takes("Template", unicode)
+  @returns(list_of(Clazz))
+  def find_cls_kind(self, kind):
+    cls_kind = class_lookup(kind)
+    if cls_kind: pred = lambda cls: cls < cls_kind
+    else: pred = lambda cls: kind in cls.name
+    return filter(pred, self._classes)
+
 
 """
 To import lib.*, run as follows:
