@@ -533,9 +533,6 @@ class Observer(object):
 
         # TODO: should be placed at dispatch... in ActivityManager's Handler
 
-        # TODO: reflective Activity instance generation
-        #   Class cls = Class.forName(act_name);
-        #   Activity act = cls.newInstance();
         act_conds = []
         acts = self._tmpl.find_cls_kind(C.ADR.ACT)
         for act in acts:
@@ -554,8 +551,17 @@ class Observer(object):
             Intent i = (Intent)({msg}.obj);
             ComponentName c = i.getComponent();
             String act_name = c.getClassName();
+
             Activity act;
+            // TODO: reflective Activity instance generation
+            //Class cls = Class.forName(act_name);
+            //act = cls.newInstance();
             {act_switches}
+
+            // TODO: should be pushed and maintained by ActivityStack
+            ActivityThread t = ActivityThread.currentActivityThread();
+            t._activity = act;
+
             act.onCreate(null);
           }} {switches}
         """.format(**locals())
