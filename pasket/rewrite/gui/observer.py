@@ -490,10 +490,8 @@ class Observer(object):
         switches = u''
         for event, i in self._tmpl.events.items():
           if event not in self._clss: continue
-          clss = self._clss[event]
           cls_h = class_lookup(self._evts[event])
           cls_h_name = cls_h.name
-          cls_h_lower = cls_h_name.lower()
           reflect = cls_h.reflect.name
           hdl = '.'.join([cls_h_name, cls_h.handle])
           cond_call = u"""
