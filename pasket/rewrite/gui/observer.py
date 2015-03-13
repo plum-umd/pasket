@@ -57,7 +57,7 @@ class Observer(object):
   # so as to build self._clss and self._auxs
   # at this point, assume those are annotated with @ObserverPattern(E+)
   def find_clss_involved_w_anno_evt(self, tmpl):
-    for cls in tmpl.classes:
+    for cls in util.flatten_classes(tmpl.classes, "inners"):
       if not util.exists(Observer.find_obs(), cls.annos): continue
 
       # ignore interface without implementers
@@ -83,6 +83,8 @@ class Observer(object):
       logging.debug("{}: {} {}".format(event, aux_name, self._clss[event]))
       for cls in self._clss[event]:
         util.mk_or_append(self._auxs, cls.name, aux_name)
+        if cls.outer:
+          util.mk_or_append(self._auxs, unicode(repr(cls)), aux_name)
 
 
   # find possible classes for @Subject and @Observer
@@ -93,7 +95,7 @@ class Observer(object):
     target_events = sample.evt_kinds(self._smpls)
     logging.debug("target events: {}".format(target_events))
 
-    for cls in tmpl.classes:
+    for cls in util.flatten_classes(tmpl.classes, "inners"):
       if not util.exists(Observer.find_obs(), cls.annos): continue
       # ignore interface without implementers
       if cls.is_itf and not cls.subs:
@@ -121,6 +123,8 @@ class Observer(object):
       logging.debug("{}: {} {}".format(event, aux_name, self._clss[event]))
       for cls in self._clss[event]:
         util.mk_or_append(self._auxs, cls.name, aux_name)
+        if cls.outer:
+          util.mk_or_append(self._auxs, unicode(repr(cls)), aux_name)
 
 
   # find possible classes for @Subject and @Observer
@@ -130,7 +134,7 @@ class Observer(object):
     event = "AWTEvent"
     self._clss[event] = []
 
-    for cls in tmpl.classes:
+    for cls in util.flatten_classes(tmpl.classes, "inners"):
       if not util.exists(Observer.find_obs(), cls.annos): continue
       # ignore interface without implementers
       if cls.is_itf and not cls.subs:
@@ -149,12 +153,15 @@ class Observer(object):
     logging.debug("{}: {} {}".format(event, aux_name, self._clss[event]))
     for cls in self._clss[event]:
       util.mk_or_append(self._auxs, cls.name, aux_name)
+      if cls.outer:
+        util.mk_or_append(self._auxs, unicode(repr(cls)), aux_name)
 
 
   # subtype based lookup
   @staticmethod
   def subtype_lookup(dic, ty):
-    if ty in dic: return dic[ty]
+    _ty = util.sanitize_ty(ty)
+    if _ty in dic: return dic[_ty]
     cls = class_lookup(ty)
     if not cls: return None
     if cls.itfs:
