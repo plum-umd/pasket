@@ -23,7 +23,7 @@ acc_conf_uni = {
 acc_conf_map = {
   "Bundle": (0, 1, 1), # (get|put)*
   "Context": (0, 1, 0), # getSystemService
-  "Window": (0, 1, 0), # findViewById
+  "Window": (0, 1, 1), # findViewById, setContentView
 }
 
 # configuration for the singleton pattern
