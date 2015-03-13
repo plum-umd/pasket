@@ -267,7 +267,7 @@ class Template(v.BaseNode):
     # discard interfaces that have no implementers, without constants
     for itf in ifilter(op.attrgetter("is_itf"), clss):
       if not itf.subs and not itf.flds:
-        logging.debug("discarding {} with no implementers".format(itf.name))
+        logging.debug("discarding {} with no implementers".format(repr(itf)))
         if itf in self._classes:
           self._classes.remove(itf)
         elif itf.outer: # inner interface
