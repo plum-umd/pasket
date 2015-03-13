@@ -105,7 +105,7 @@ def mk_harness_android(tmpl, cls, smpl):
     # generate a message by wrapping the event
     h_i = "h{}".format(i)
     if cls_evt <= cls_ievt: # InputEvent, KeyEvent, MotionEvent
-      # TODO: use WindowManager's Handler
+      # TODO: use Window(Manager)'s Handler
       # XXX: use the source View's Handler at the moment
       s_i = "s{}".format(i)
       v_i = "v{}".format(i)

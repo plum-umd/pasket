@@ -501,7 +501,63 @@ class Observer(object):
       # MessageQueue.enqueueMessage
       elif "enqueue" in node.name:
         _, msg = node.params[0]
-        body = u"if (this !=null) {{ {}.add({}); return true; }} return false;".format(mq.mq.name, msg)
+        body = u"if (this != null) {{ {}.add({}); return true; }} return false;".format(mq.mq.name, msg)
+        node.body = to_statements(node, body)
+
+    elif node.clazz.name == C.ADR.HDL:
+      # Handler.dispatchMessage
+      if "dispatch" in node.name:
+        _, msg = node.params[0]
+
+        # TODO: should be placed at dispatch... in Window(Manager)'s Handler
+
+        switches = u''
+        for event, i in self._tmpl.events.items():
+          if event not in self._clss: continue
+          cls_h = class_lookup(self._evts[event])
+          cls_h_name = cls_h.name
+          reflect = cls_h.reflect.name
+          hdl = '.'.join([cls_h_name, cls_h.handle])
+          cond_call = u"""
+            else if ({msg}_k == {i}) {{
+              //{cls_h_name} rcv_{i} = ({cls_h_name}){msg}.getSource();
+              // XXX: View-specific source retrieval
+              {event} evt_{i} = ({event})({msg}.obj);
+              int id_{i} = evt_{i}.getSource();
+              // TODO: rcv_{i}?
+              {cls_h_name}.{reflect}({hdl}, rcv_{i}, null, evt_{i});
+            }}
+          """.format(**locals())
+          switches += cond_call
+
+        # TODO: should be placed at dispatch... in ActivityManager's Handler
+
+        # TODO: reflective Activity instance generation
+        #   Class cls = Class.forName(act_name);
+        #   Activity act = cls.newInstance();
+        act_conds = []
+        acts = self._tmpl.find_cls_kind(C.ADR.ACT)
+        for act in acts:
+          cond_new = u"""
+            if (act_name.equals(\"{act.name}\")) {{
+              act = new {act.name}();
+            }}
+          """.format(**locals())
+          act_conds.append(cond_new)
+        act_switches = u"\nelse ".join(act_conds)
+
+        body = u"""
+          if ({msg} == null) return;
+          int {msg}_k = {msg}.what;
+          if ({msg}_k == -1) {{ // Intent
+            Intent i = (Intent)({msg}.obj);
+            ComponentName c = i.getComponent();
+            String act_name = c.getClassName();
+            Activity act;
+            {act_switches}
+            act.onCreate(null);
+          }} {switches}
+        """.format(**locals())
         node.body = to_statements(node, body)
 
     # for methods that are candidates of @Attach/@Detach/@Handle
