@@ -1,4 +1,3 @@
-import copy as cp
 import operator as op
 from functools import partial
 from itertools import permutations
@@ -9,7 +8,6 @@ import lib.visit as v
 
 from ... import add_artifacts
 from ... import util
-from ... import sample
 from ...encoder import add_ty_map
 from ...meta import class_lookup
 from ...meta.template import Template
@@ -39,7 +37,6 @@ class Observer(object):
     self._smpls = smpls
     self._tmpl = None
     self._eq = None
-    self._cur_cls = None
     self._cur_mtd = None
     # classes that are involved in this pattern
     self._clss = {} # { E1: [C1, D1], E2: [C2, D1], ... }
@@ -474,8 +471,7 @@ class Observer(object):
     add_ty_map(trimmed_auxs)
 
   @v.when(Clazz)
-  def visit(self, node):
-    self._cur_cls = node
+  def visit(self, node): pass
 
   @v.when(Field)
   def visit(self, node): pass
@@ -550,12 +546,8 @@ class Observer(object):
     #    body = u"{}.run();".format(fld.name)
     #    node.body = to_statements(node, body)
 
-    ## only interested in methods that appear in the samples
-    #clss = util.flatten_classes([node.clazz], "subs")
-    #if not sample.mtd_appears(self._smpls, clss, node.name): return
-
     # for methods that are candidates of @Attach/@Detach/@Handle
-    if self._cur_cls.is_itf: return
+    if node.clazz.is_itf: return
     if repr(node) in self._subj_mtds:
       cname = node.clazz.name
       evt_passed = None
