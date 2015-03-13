@@ -281,7 +281,8 @@ class Observer(object):
         if cls.is_itf and not cls.subs: return u''
         actual_params = [(other.name, u"arg")] + [params[-1]]
         args = u", ".join(sig_match(mtd.params, actual_params))
-        call = u"rcv_{}.{}({});".format(aux.name, mtd.name, args)
+        casted_rcv = u"({})rcv_{}".format(mtd.clazz.name, aux.name)
+        call = u"({}).{}({});".format(casted_rcv, mtd.name, args)
         return u"if (mtd_id == {mtd.id}) {{ {call} }}".format(**locals())
       invocations = util.ffilter(map(invoke, mtds))
       return u"\nelse ".join(invocations)
