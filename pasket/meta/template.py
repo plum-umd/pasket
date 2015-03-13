@@ -108,16 +108,23 @@ class Template(v.BaseNode):
     # no additional class is required to represent events
     evt_obj = class_lookup(C.GUI.EVT)
     if evt_obj:
+      # artificial field to record subtype events' kinds
       fld = Field(clazz=evt_obj, mods=[C.mod.PB], typ=C.J.i, name=u"kind")
       evt_obj.flds.append(fld)
 
-    # o.w. introduce artificial class Event that implodes all event kinds
-    # class Event { int kind; E_kind$n$ evt$n$; }
-    elif events:
-      cls_e = merge_layer(u"Event", map(class_lookup, events))
-      cls_e.add_default_init()
-      self._classes.append(cls_e)
-      add_artifacts([u"Event"])
+    else:
+      # if there exists android.os.Message (i.e., cmd == "android")
+      # no additional class is required, too
+      msg = class_lookup(C.ADR.MSG)
+      if msg: pass
+
+      # o.w. introduce artificial class Event that implodes all event kinds
+      # class Event { int kind; E_kind$n$ evt$n$; }
+      elif events:
+        cls_e = merge_layer(u"Event", map(class_lookup, events))
+        cls_e.add_default_init()
+        self._classes.append(cls_e)
+        add_artifacts([u"Event"])
 
   # keep snapshots of instances of meta-classes
   def freeze(self):

@@ -73,6 +73,7 @@ def mk_harness_android(tmpl, cls, smpl):
     {0} h = t.get{0}();
     {1} m = new {1}(h);
     m.obj = i;
+    m.what = -1; // Intent
     {2}(m, 0);
     @React;
   """.format(C.ADR.HDL, C.ADR.MSG, post))
@@ -120,9 +121,11 @@ def mk_harness_android(tmpl, cls, smpl):
       """.format(**locals()))
 
     m_i = "m{}".format(i)
+    e_kind = tmpl.get_event_id(evt.kind)
     buf.write("""
       {_msg} {m_i} = new {_msg}({h_i});
       {m_i}.obj = {e_i};
+      {m_i}.what = {e_kind};
     """.format(**locals()))
 
     # post that message (to the main Looper's MessageQueue)
