@@ -490,6 +490,20 @@ class Observer(object):
   def visit(self, node):
     self._cur_mtd = node
 
+    # special methods
+    if node.clazz.name == C.ADR.QUE:
+      mq = self._mq
+      # MessageQueue.next
+      if node.name == "next":
+        body = u"if (this != null) return ({}){}.remove(); else return null;".format(node.typ, mq.mq.name)
+        node.body = to_statements(node, body)
+
+      # MessageQueue.enqueueMessage
+      elif "enqueue" in node.name:
+        _, msg = node.params[0]
+        body = u"if (this !=null) {{ {}.add({}); return true; }} return false;".format(mq.mq.name, msg)
+        node.body = to_statements(node, body)
+
     # for methods that are candidates of @Attach/@Detach/@Handle
     if node.clazz.is_itf: return
     if repr(node) in self._subj_mtds:
