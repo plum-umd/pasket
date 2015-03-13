@@ -134,7 +134,8 @@ class AccessorAdHoc(object):
     ## getters and setters
     ##
     elif not node.is_static and AccessorAdHoc.is_accessor(mname) and \
-        (not self._acc_default or cls.name in self._acc_default):
+        (not self._acc_default or \
+            cls.name in self._acc_default or mname in self._acc_default):
 
       fname = AccessorAdHoc.get_fname(mname)
 

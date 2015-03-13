@@ -2,7 +2,8 @@ import lib.const as C
 
 # special cases for the accessor pattern
 acc_default = [
-  C.ADR.ACTT, # Handler
+  "getHandler",
+  C.ADR.ACTT, # Handler, Activity
   C.ADR.LOOP  # MessageQueue
 ]
 
@@ -23,7 +24,8 @@ acc_conf_uni = {
 acc_conf_map = {
   "Bundle": (0, 1, 1), # (get|put)*
   "Context": (0, 1, 0), # getSystemService
-  "Window": (0, 1, 1), # findViewById, setContentView
+  # TODO: should use Window's APIs; Activity is sort of proxy
+  "Activity": (0, 1, 1), # findViewById, setContentView
 }
 
 # configuration for the singleton pattern
