@@ -511,6 +511,7 @@ class Observer(object):
         _, msg = node.params[0]
 
         # TODO: should be placed at dispatch... in Window(Manager)'s Handler
+        cls_ievt = class_lookup(u"InputEvent")
 
         switches = u''
         for event, i in self._tmpl.events.items():
@@ -519,13 +520,26 @@ class Observer(object):
           cls_h_name = cls_h.name
           reflect = cls_h.reflect.name
           hdl = '.'.join([cls_h_name, cls_h.handle])
-          cond_call = u"""
-            else if ({msg}_k == {i}) {{
-              //{cls_h_name} rcv_{i} = ({cls_h_name}){msg}.getSource();
+
+          rcv_retrieval = u''
+          cls_evt = class_lookup(event)
+          if cls_evt <= cls_ievt: # InputEvent, KeyEvent, MotionEvent
+            rcv_retrieval = u"""
               // XXX: View-specific source retrieval
               {event} evt_{i} = ({event})({msg}.obj);
               int id_{i} = evt_{i}.getSource();
-              // TODO: rcv_{i}?
+              ActivityThread t_{i} = ActivityThread.currentActivityThread();
+              Activity act_{i} = t_{i}.getActivity();
+              View rcv_{i} = act_{i}.findViewById(id_{i});
+            """.format(**locals())
+          else: # TODO: how to retrieve the source of the event in general?
+            rcv_retrieval = u"""
+              {cls_h_name} rcv_{i} = ({cls_h_name}){msg}.getSource();
+            """.format(**locals())
+
+          cond_call = u"""
+            else if ({msg}_k == {i}) {{
+              {rcv_retrieval}
               {cls_h_name}.{reflect}({hdl}, rcv_{i}, null, evt_{i});
             }}
           """.format(**locals())
