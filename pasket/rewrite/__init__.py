@@ -23,6 +23,10 @@ def visit(cmd, smpls, tmpl, patterns):
     from android import R
     R.generate_R(tmpl)
 
+    from android.view import View
+    v_vis = View()
+    tmpl.accept(v_vis)
+
   p2v = {}
 
   ## structural patterns

@@ -24,8 +24,6 @@ acc_conf_uni = {
 acc_conf_map = {
   "Bundle": (0, 1, 1), # (get|put)*
   "Context": (0, 1, 0), # getSystemService
-  # TODO: should use Window's APIs; Activity is sort of proxy
-  "Activity": (0, 1, 1), # findViewById, setContentView
 }
 
 # configuration for the singleton pattern
