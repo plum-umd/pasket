@@ -1004,6 +1004,8 @@ max_objs = 0
 @returns(nothing)
 def gen_smpl_sk(sk_path, smpl, tmpl, main):
   buf = cStringIO.StringIO()
+  buf.write("package {};\n".format(smpl.name))
+  buf.write(_const)
   buf.write("harness void {} () {{\n".format(smpl.name))
 
   # insert call-return sequences
