@@ -35,8 +35,10 @@ class Observer(object):
       suffix = str(cls.__cnt)
     return u"{}{}".format(C.OBS.AUX, suffix)
 
-  def __init__(self, smpls):
+  def __init__(self, smpls, obs_conf):
     self._smpls = smpls
+    self._obs_conf = obs_conf
+
     self._tmpl = None
     self._eq = None
     self._cur_cls = None
@@ -173,21 +175,36 @@ class Observer(object):
 
   ## @ObserverPattern(E)
   ## class C { ... }
-  ## class D { ... void update(C obj1, E obj2); ... }
-  ## class E { ... }
+  ## class D { ... void update(E obj2); ... }
+  ## class E { ... T gettype(); ...}
   ##   =>
   ## class C { @Subject(D, E, update) ... }
   ## class D { @Observer ... }
-  ## class E { ... }
+  ## class E { @Event ... }
   @staticmethod
-  def check_rule1(aux):
+  def check_rule1(aux, conf):
     rule = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"checkRule1")
-    rule.body = to_statements(rule, u"""
-      assert subcls(belongsTo({aux.update}), {aux.observer});
-      assert 1 == (argNum({aux.update}));
-      assert subcls({aux.event}, argType({aux.update}, 0));
-      assert {aux.subject} != {aux.observer};
-    """.format(**locals()))
+    body = u"""
+      assert {aux.subject} != {aux.observer};""".format(**locals())
+    if conf[0] < 2:
+      body += u"""
+        assert subcls(belongsTo({aux.update}), {aux.observer});
+        assert 1 == (argNum({aux.update}));
+        assert subcls({aux.event}, argType({aux.update}, 0));
+      """.format(**locals())
+    else:
+      body += u"""
+        assert subcls(belongsTo({aux.eventtype}), {aux.event});
+        assert 0 == (argNum({aux.eventtype}));
+      """.format(**locals())
+      for i in range(conf[0]):
+        aux_up = getattr(aux, "update_"+str(i))
+        body += u"""
+          assert subcls(belongsTo({aux_up}), {aux.observer});
+          assert 1 == (argNum({aux_up}));
+          assert subcls({aux.event}, argType({aux_up}, 0));
+        """.format(**locals())
+    rule.body = to_statements(rule, body)
     aux.add_mtds([rule])
 
   ## @Subject(D, E, update)
@@ -200,26 +217,50 @@ class Observer(object):
   ## void M2(D obj2) { @Detach(obj2, _obs) }
   ## void M3(E obj3) { @Handle(D, update, obj3, _obs) }
   @staticmethod
-  def check_rule2(aux):
+  def check_rule2(aux, conf):
     rule = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"checkRule2")
-    rule.body = to_statements(rule, u"""
-      assert subcls(belongsTo({aux.attach}), {aux.subject});
-      assert subcls(belongsTo({aux.detach}), {aux.subject});
-      assert subcls(belongsTo({aux.handle}), {aux.subject});
-      assert 1 == (argNum({aux.attach}));
-      assert 1 == (argNum({aux.detach}));
-      assert 1 == (argNum({aux.handle}));
-      // assert -1 == (retType({aux.attach}));
-      // assert -1 == (retType({aux.detach}));
-      // assert -1 == (retType({aux.handle}));
-      assert {aux.attach} != {aux.detach};
-      assert {aux.detach} != {aux.handle};
-      assert {aux.handle} != {aux.attach};
-      assert subcls({aux.observer}, argType({aux.attach}, 0));
-      assert subcls({aux.observer}, argType({aux.detach}, 0));
-      assert subcls({aux.event}, argType({aux.handle}, 0));
-    """.format(**locals()))
+    body = u""
+    if conf[1] > 0:
+      body += u"""
+        assert subcls(belongsTo({aux.attach}), {aux.subject});
+        assert 1 == (argNum({aux.attach}));
+        assert subcls({aux.observer}, argType({aux.attach}, 0));
+      """.format(**locals())
+    if conf[2] > 0:
+      body += u"""
+        assert subcls(belongsTo({aux.detach}), {aux.subject});
+        assert 1 == (argNum({aux.detach}));
+        assert subcls({aux.observer}, argType({aux.detach}, 0));
+      """.format(**locals())
+    if conf[1] > 0 and conf[2] > 0:
+      body += u"""
+        assert {aux.attach} != {aux.detach};
+      """.format(**locals())
+
+    def handle_related(aux, hdl):
+      constraints = u"""
+        assert subcls(belongsTo({hdl}), {aux.subject});
+        assert 1 == (argNum({hdl}));
+        assert subcls({aux.event}, argType({hdl}, 0));
+      """.format(**locals())
+      if conf[1] > 0:
+        constraints += u"""
+          assert {hdl} != {aux.attach};
+        """.format(**locals())
+      if conf[2] > 0:
+        constraints += u"""
+          assert {hdl} != {aux.detach};
+        """.format(**locals())
+      return constraints
+    if conf[0] < 2:
+      body += handle_related(aux, aux.handle)
+    else:
+      for i in range(conf[0]):
+        aux_hdl = getattr(aux, "handle_"+str(i))
+        body += handle_related(aux, aux_hdl)
+    rule.body = to_statements(rule, body)
     aux.add_mtds([rule])
+
 
   # assume candidate methods will be neither <init> nor static
   #   and have at least one parameter whose type is of interest (if any)
@@ -261,14 +302,43 @@ class Observer(object):
     z = to_expression(u"0")
     d = Field(clazz=aux, mods=C.PRST, typ=C.J.i, name=fname, init=z)
     aux.add_flds([d])
+    ret = u"return" if mtd.typ == u"void" else u"return null"
     prologue = to_statements(mtd, u"""
-      if ({fname} > {depth}) return;
+      if ({fname} > {depth}) {ret};
       {fname} = {fname} + 1;
     """.format(**locals()))
     epilogue = to_statements(mtd, u"""
       {fname} = {fname} - 1;
     """.format(**locals()))
     mtd.body = prologue + mtd.body + epilogue
+
+  # a method that simulates reflection
+  def egetter(self, aux, clss):
+    aname, ename = aux.name, aux.evt.name
+    rcv = u'_'.join(["rcv", ename])
+    params = [(C.J.i, u"mtd_id"), (ename, rcv)]
+    egetter = Method(clazz=aux, mods=C.PBST, typ=u"Object", params=params, name=u"egetter")
+    def switch( (cls, other) ):
+      mtds = cls.mtds
+      for mtd in mtds: util.mk_or_append(self._subj_mtds, repr(mtd), aux)
+      logging.debug("{}.{}, {}, {}, {}".format(aux.name, egetter.name, repr(cls), repr(other), mtds))
+      def invoke(mtd):
+        if mtd.typ == u"void": return u''
+        cls = mtd.clazz
+        # if there is no implementer for this method in interface, ignore it
+        if cls.is_itf and not cls.subs: return u''
+        #actual_params = [(other.name, u"arg")] + [params[-1]]
+        #args = u", ".join(sig_match(mtd.params, actual_params))
+        call = u"return rcv_{}.{}();".format(ename, mtd.name)
+        return u"if (mtd_id == {mtd.id}) {{ {call} }}".format(**locals())
+      invocations = util.ffilter(map(invoke, mtds))
+      return u"\nelse ".join(invocations)
+    tests = util.ffilter([switch((aux.evt, aux.evt))])
+    egetter.body = to_statements(egetter, u"\nelse ".join(tests))
+    Observer.limit_depth(aux, egetter, 2)
+    print egetter
+    aux.add_mtds([egetter])
+    setattr(aux, "egetter", egetter)
 
   # a method that simulates reflection
   def reflect(self, aux, clss):
@@ -333,35 +403,95 @@ class Observer(object):
 
   # handle code
   @staticmethod
-  def handle(aux):
+  def sub_handle(aux, idx):
     params = Observer.mtd_params(aux)
-    handle = Method(clazz=aux, mods=C.PBST, params=params, name=u"handleCode")
+    handle = Method(clazz=aux, mods=C.PBST, params=params, name=u"subHandleCode")
 
     cnt = Observer.__cnt
     aname = aux.name
-    reflect = aux.reflect.name
+    reflect = getattr(aux, "reflect").name
     loop = u"""
       LinkedList<{aname}> obs{cnt} = rcv_{aname}._obs;
       for ({aname} o : obs{cnt}) {{
-        {aname}.{reflect}({aux.update}, o, rcv_{aname}, ({aux.evt.name})evt);
+        {aname}.{reflect}({aux.update}_{idx}, o, rcv_{aname}, ({aux.evt.name})evt);
       }}""".format(**locals())
     handle.body = to_statements(handle, loop)
     aux.add_mtds([handle])
+    setattr(aux, "mtd_sub_handle", handle)
+  
+# handle code
+  @staticmethod
+  def handle(aux, conf):
+    ename = aux.evt.name
+    #rcv = u'_'.join(["rcv", ename])
+    params = Observer.mtd_params(aux)
+    handle = Method(clazz=aux, mods=C.PBST, params=params, name=u"handleCode")
+    reflect = getattr(aux, "reflect").name
+    if conf[0] >= 2: egetter = getattr(aux, "egetter").name
+    aname = aux.name
+    args = u", ".join(map(lambda (ty, nm): nm, params))
+
+    if conf[0] < 2:
+      cnt = Observer.__cnt
+      loop = u"""
+        LinkedList<{aname}> obs{cnt} = rcv_{aname}._obs;
+        for ({aname} o : obs{cnt}) {{
+          {aname}.{reflect}({aux.update}, o, rcv_{aname}, ({aux.evt.name})evt);
+        }}""".format(**locals())
+      handle.body = to_statements(handle, loop)
+    else:
+      evt_cls = class_lookup(aux.evt.name)
+      const_flds = []
+      if evt_cls.inners:
+        for inner in evt_cls.inners:
+          const_flds.extend(filter(lambda f: f.is_final and f.is_static, inner.flds))
+      evtyp = evt_cls.inners[0].name
+      evt_id = getattr(aux, u"eventtype")
+      get_type = u"""
+        {evtyp} et = {aname}.{egetter}({evt_id}, evt);
+        """.format(**locals())
+      
+      def handle_switch(i):
+        evt_cls = class_lookup(aux.evt.name)
+        evtyp = evt_cls.inners[0].name
+        aname = aux.name
+        reflect = getattr(aux, "reflect").name
+        cns_typ = '.'.join([evtyp, const_flds[i].name])
+        hdl_id = getattr(aux, u"handle_"+unicode(i))
+        params = Observer.mtd_params(aux)
+        args = u", ".join(map(lambda (ty, nm): nm, params))
+        return u"""
+          if (et == {cns_typ}) {aname}.{reflect}({hdl_id}, {args});
+          """.format(**locals())
+      choose = u"\nelse ".join(map(handle_switch, range(len(const_flds))))
+      handle.body = to_statements(handle, get_type + choose)
+
+    aux.add_mtds([handle])
     setattr(aux, "mtd_handle", handle)
+    
+    # add a role variable for the handle method
+    if conf[0] >= 2:
+      c_to_e = lambda c: to_expression(unicode(c))
+      new_fld = Field(clazz=aux, mods=[C.mod.ST], typ=C.J.i, name=getattr(aux, C.OBS.H), init=c_to_e(handle.id))
+      aux.add_flds([new_fld])
+
 
   # attach/detach/handle will be dispatched here
   @staticmethod
-  def subjectCall(aux):
+  def subjectCall(aux, conf):
     params = [(C.J.i, u"mtd_id")] + Observer.mtd_params(aux)
     one = Method(clazz=aux, mods=C.PBST, params=params, name=u"subjectCall")
     def switch(role):
       aname = aux.name
+      args = ", ".join(map(lambda (ty, nm): nm, params[1:]))
       v = getattr(aux, role)
       f = getattr(aux, "mtd_"+role).name
-      args = ", ".join(map(lambda (ty, nm): nm, params[1:]))
       return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
-    roles = [C.OBS.A, C.OBS.D, C.OBS.H]
-    one.body = to_statements(one, "\nelse ".join(map(switch, roles)))
+          
+    roles = [C.OBS.H]
+    if conf[1] > 0: roles.append(C.OBS.A)
+    if conf[2] > 0: roles.append(C.OBS.D)
+    one.body = to_statements(one, "\n ".join(map(switch, roles)))
     Observer.limit_depth(aux, one, 2)
     aux.add_mtds([one])
     setattr(aux, "one", one)
@@ -369,7 +499,7 @@ class Observer(object):
   ##
   ## generate an aux type for @Subject and @Observer
   ##
-  def gen_aux_cls(self, event, clss):
+  def gen_aux_cls(self, event, conf, clss):
     aux_name = self._evts[event]
     aux = merge_flat(aux_name, clss)
     aux.mods = [C.mod.PB]
@@ -387,7 +517,18 @@ class Observer(object):
     # set role variables
     def set_role(role):
       setattr(aux, role, '_'.join([role, aux.name]))
-    map(set_role, C.obs_roles)
+    for r in C.obs_roles:
+      if r == C.OBS.H or r == C.OBS.U:
+        if conf[0] < 2: set_role(r)
+        else:
+          set_role(r) 
+          map(lambda i: set_role('_'.join([r, str(i)])), range(conf[0]))
+      elif r == C.OBS.A:
+        if conf[1] > 0: set_role(r)
+      elif r == C.OBS.D:
+        if conf[2] > 0: set_role(r)
+      else:
+        set_role(r)
 
     # add fields that stand for non-deterministic rule choices
     def aux_fld(init, ty, nm):
@@ -418,22 +559,34 @@ class Observer(object):
     aux.add_flds(map(aux_int_cls, cls_vars))
 
     # range check for methods
-    mtd_vars = [C.OBS.A, C.OBS.D, C.OBS.H, C.OBS.U]
+    mtd_vars = []
+    if conf[1] > 0: mtd_vars.append(C.OBS.A)
+    if conf[2] > 0: mtd_vars.append(C.OBS.D)
+    for r in [C.OBS.H, C.OBS.U]:
+      if conf[0] < 2: mtd_vars.append(r)
+      else: map(lambda i: mtd_vars.append('_'.join([r, str(i)])), range(conf[0]))
     mtds = util.flatten(map(partial(self.get_candidate_mtds, aux), clss))
     mtd_ids = map(get_id, mtds)
     mtd_init = gen_range(mtd_ids)
     aux_int_mtd = partial(aux_fld, mtd_init, C.J.i)
     aux.add_flds(map(aux_int_mtd, mtd_vars))
+    
+    # range check for event type getter
+    if conf[0] >= 2:
+      evt_mtds = aux.evt.mtds
+      evt_mtd_init = gen_range(map(get_id, evt_mtds))
+      aux.add_flds([aux_fld(evt_mtd_init, C.J.i, C.OBS.EVTTYP)])
 
     ## rules regarding non-deterministic rewritings
-    Observer.check_rule1(aux)
-    Observer.check_rule2(aux)
+    Observer.check_rule1(aux, conf)
+    Observer.check_rule2(aux, conf)
 
+    if conf[0] >= 2: self.egetter(aux, clss)
     self.reflect(aux, clss)
     Observer.attach(aux)
     Observer.detach(aux)
-    Observer.handle(aux)
-    Observer.subjectCall(aux)
+    Observer.handle(aux, conf)
+    Observer.subjectCall(aux, conf)
 
     add_artifacts([aux.name])
     return aux
@@ -463,7 +616,7 @@ class Observer(object):
     # introduce AuxObserver$n$ for @Subject and @Observer
     for event in self._clss:
       clss = self._clss[event]
-      node.add_classes([self.gen_aux_cls(event, clss)])
+      node.add_classes([self.gen_aux_cls(event, self._obs_conf[event], clss)])
 
     # add an event queue
     Observer.add_event_queue(self._eq)
