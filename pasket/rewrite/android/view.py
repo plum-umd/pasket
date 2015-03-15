@@ -1,3 +1,5 @@
+import logging
+
 import lib.const as C
 import lib.visit as v
 
@@ -28,7 +30,14 @@ class View(object):
   def visit(self, node): pass
 
   @v.when(Method)
-  def visit(self, node): pass
+  def visit(self, node):
+    cname = node.clazz.name
+
+    if cname == C.ADR.VG: # ViewGroup
+      pass
+
+    elif cname == C.ADR.WIN: # Window
+      pass
 
   @v.when(Statement)
   def visit(self, node): return [node]
