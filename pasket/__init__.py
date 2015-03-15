@@ -71,11 +71,11 @@ C.adp_roles = [C.ACC.ADPT, C.ACC.ADPE, C.ACC.FLD]
 
 # role variables for the observer pattern
 C.OBS = util.enum(AUX=u"AuxObserver", \
-    OBSR="observer", SUBJ="subject", EVT="event", \
+    OBSR="observer", SUBJ="subject", EVT="event", EVTTYP="eventtype", \
     A="attach", D="detach", H="handle", U="update", \
     obs=u"_obs", tmp=u"__tmp__")
 
-C.obs_roles = [C.OBS.OBSR, C.OBS.SUBJ, C.OBS.EVT, \
+C.obs_roles = [C.OBS.OBSR, C.OBS.SUBJ, C.OBS.EVT, C.OBS.EVTTYP, \
     C.OBS.A, C.OBS.D, C.OBS.H, C.OBS.U]
 
 # role variables for the singleton pattern

@@ -63,8 +63,9 @@ def visit(cmd, smpls, tmpl, patterns):
     from android.observer import Observer
     p2v[C.P.OBS] = Observer(smpls)
   elif cmd == "gui":
+    from gui import obs_conf
     from gui.observer import Observer
-    p2v[C.P.OBS] = Observer(smpls)
+    p2v[C.P.OBS] = Observer(smpls, obs_conf)
   else:
     from observer import Observer
     p2v[C.P.OBS] = Observer(smpls)
