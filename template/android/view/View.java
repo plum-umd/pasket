@@ -1,5 +1,6 @@
 package android.view;
 
+@ObserverPattern(MotionEvent)
 public class View {
   public View(Context context);
 
@@ -23,13 +24,24 @@ public class View {
   public void setId(int id);
   public int getId();
   public final View findViewById(int id);
+  protected View findViewTraversal(int id);
 
   public ViewGroup.LayoutParams getLayoutParams();
   public void setLayoutParams(ViewGroup.LayoutParams params);
 
+  public Handler getHandler();
+
+  @ObserverPattern(MotionEvent)
   public static interface OnClickListener {
     public abstract void onClick(View v);
   }
 
   public void setOnClickListener(View.OnClickListener l);
+
+  public boolean performClick();
+
+  public boolean onTouchEvent(MotionEvent event);
+
+  public boolean dispatchTouchEvent(MotionEvent event);
+
 }
