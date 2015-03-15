@@ -110,6 +110,8 @@
 < symdroid.sample.radiogroup.RadioGroup1.onStart()
 > symdroid.sample.radiogroup.RadioGroup1.onResume(symdroid.sample.radiogroup.RadioGroup1@726927164)
 < symdroid.sample.radiogroup.RadioGroup1.onResume()
+> android.view.MotionEvent.MotionEvent(7, 1)
+< android.view.MotionEvent.MotionEvent(android.view.MotionEvent@bogus7)
 > symdroid.sample.radiogroup.RadioGroup1.onCheckedChanged(symdroid.sample.radiogroup.RadioGroup1@726927164, android.widget.RadioGroup@403440084, 7)
   > java.lang.StringBuilder.<init>(java.lang.StringBuilder@138580061)
   < java.lang.StringBuilder.<init>(java.lang.StringBuilder@138580061)
