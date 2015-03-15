@@ -23,14 +23,17 @@ class Observer(object):
   def find_obs(cls):
     return lambda anno: anno.by_name(C.A.OBS)
 
-  # to build unique aux class names
+  # to avoid name conflict, use fresh counter as suffix
   __cnt = 0
+  @classmethod
+  def fresh_cnt(cls):
+    cls.__cnt = cls.__cnt + 1
+    return cls.__cnt
 
   @classmethod
   def new_aux(cls, suffix=None):
     if not suffix:
-      cls.__cnt = cls.__cnt + 1
-      suffix = str(cls.__cnt)
+      suffix = str(Observer.fresh_cnt())
     return u"{}{}".format(C.OBS.AUX, suffix)
 
   def __init__(self, smpls, obs_conf):
@@ -424,7 +427,7 @@ class Observer(object):
     aux.add_mtds([handle])
     setattr(aux, "mtd_sub_handle", handle)
   
-# handle code
+  # handle code
   @staticmethod
   def handle(aux, conf):
     ename = aux.evt.name
@@ -741,13 +744,6 @@ class Observer(object):
   @v.when(Statement)
   def visit(self, node): return [node]
 
-  # to avoid name conflict, use fresh variables for distinct events
-  __evt_cnt = 0
-  @classmethod
-  def fresh_evt(cls):
-    cls.__evt_cnt = cls.__evt_cnt + 1
-    return u"evt{}".format(cls.__evt_cnt)
-
   ## @React
   ##   =>
   ## AWTEvent e = q.getNextEvent();
@@ -760,11 +756,11 @@ class Observer(object):
       if _anno.name == C.A.REACT:
         logging.debug("reducing: {}".format(str(_anno)))
 
-        evt = Observer.fresh_evt()
+        suffix = Observer.fresh_cnt()
         body = u"""
-          {0} {1} = q.getNextEvent();
-          q.dispatchEvent({1});
-        """.format(C.GUI.EVT, evt)
+          {1} evt{0} = q.getNextEvent();
+          q.dispatchEvent(evt{0});
+        """.format(suffix, C.GUI.EVT)
 
         return to_statements(self._cur_mtd, body)
 
