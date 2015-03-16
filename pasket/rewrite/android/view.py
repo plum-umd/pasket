@@ -34,7 +34,13 @@ class View(object):
   @v.when(Clazz)
   def visit(self, node):
     cname = node.name
-    if cname in [C.ADR.VG, C.ADR.WIN]:
+    # a field for View id
+    if cname == C.ADR.VIEW:
+      fld = View.add_fld(node, C.J.i, u"_vid")
+      setattr(node, "vid", fld)
+
+    # a field of List type to hold children View's
+    elif cname in [C.ADR.VG, C.ADR.WIN]:
       fld = View.add_fld(node, u"List<{}>".format(C.ADR.VIEW), u"mChildren")
       setattr(node, "children", fld)
 
@@ -47,6 +53,20 @@ class View(object):
     mname = node.name
 
     ##
+    ## View id setup
+    ##
+    if cname == C.ADR.VIEW:
+      if mname in ["setId", "getId"]:
+        fld = getattr(node.clazz, "vid")
+        fname = fld.name
+        if mname.startswith("set"):
+          _, v = node.params[0]
+          body = u"this.{fname} = {v};".format(**locals())
+        else: # get
+          body = u"return this.{fname};".format(**locals())
+        node.body = to_statements(node, body)
+
+    ##
     ## View hierarchy buildup
     ##
 
@@ -54,18 +74,16 @@ class View(object):
       fld = getattr(node.clazz, "children")
       fname = fld.name
       if mname == "addView": # ViewGroup.addView
-        _, v = node.params[0]
-        body = u"""
-          {fname}.add({v});
-        """.format(**locals())
-        node.body = to_statements(node, body)
+        ty, v = node.params[0]
+        if ty == C.ADR.VIEW:
+          body = u"{fname}.add({v});".format(**locals())
+          node.body = to_statements(node, body)
 
       elif mname.endswith("ContentView"): # (set|add)
-        _, v = node.params[0]
-        body = u"""
-          {fname}.add({v});
-        """.format(**locals())
-        node.body = to_statements(node, body)
+        ty, v = node.params[0]
+        if ty == C.ADR.VIEW:
+          body = u"{fname}.add({v});".format(**locals())
+          node.body = to_statements(node, body)
 
     ##
     ## View lookup
@@ -104,9 +122,18 @@ class View(object):
         fld = getattr(node.clazz, "children")
         fname = fld.name
         traversal = u"""
+          // if this is a leaf, no more children are there
+          if ({fname} == null) return null;
+          if ({fname}.isEmpty()) return null;
+
           for (View v : {fname}) {{
-            int v_id = v.getId();
-            if (v_id == {_id}) return v;
+            View vv;
+            try {{
+              vv = ((ViewGroup)v).findViewTraversal({_id});
+            }} catch (ClassCastException e) {{
+              View vv = v.findViewById({_id});
+            }}
+            if (vv != null) return vv;
           }}
           return null;
         """.format(**locals())
