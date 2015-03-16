@@ -297,6 +297,13 @@ def col_to_struct(cls):
         }}
       """.format(trans_mname(cname, u"remove")))
 
+      # List<T>.isEmpty -> isEmpty_List_T
+      buf.write("""
+        bit {} (${{sname}} lst) {{
+          return lst.idx == 0;
+        }}
+      """.format(trans_mname(cname, u"isEmpty")))
+
   return T(buf.getvalue()).safe_substitute(locals())
 
 
