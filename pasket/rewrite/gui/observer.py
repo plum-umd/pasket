@@ -8,6 +8,7 @@ import lib.visit as v
 
 from ... import add_artifacts
 from ... import util
+from ... import sample
 from ...encoder import add_ty_map
 from ...meta import class_lookup
 from ...meta.template import Template
@@ -38,6 +39,7 @@ class Observer(object):
 
   def __init__(self, smpls, obs_conf):
     self._smpls = smpls
+    self._smpl_events = sample.evt_kinds(smpls)
     self._obs_conf = obs_conf
 
     self._tmpl = None
@@ -72,7 +74,8 @@ class Observer(object):
 
       events = util.find(Observer.find_obs(), cls.annos).events
       for event in events:
-        util.mk_or_append(self._clss, event, cls)
+        if event in self._smpl_events: # appears in the samples
+          util.mk_or_append(self._clss, event, cls)
 
     for event in self._clss.keys():
       # if # of candidates is less than 2, ignore that event
@@ -96,9 +99,7 @@ class Observer(object):
   # so as to build self._clss and self._auxs
   # at this point, assume those are annotated with @ObserverPattern
   def find_clss_involved_w_anno(self, tmpl):
-    #target_events = tmpl.events
-    target_events = sample.evt_kinds(self._smpls)
-    logging.debug("target events: {}".format(target_events))
+    logging.debug("target events: {}".format(self._smpl_events))
 
     for cls in util.flatten_classes(tmpl.classes, "inners"):
       if not util.exists(Observer.find_obs(), cls.annos): continue
@@ -108,7 +109,7 @@ class Observer(object):
         continue
 
       involved_clss = cls.param_typs
-      for event in target_events:
+      for event in self._smpl_events:
         cls_e = class_lookup(event)
         for cls_i in map(class_lookup, involved_clss):
           if cls_i and cls_e <= cls_i:
