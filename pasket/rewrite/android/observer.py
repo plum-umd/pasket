@@ -36,8 +36,10 @@ class Observer(object):
       suffix = str(Observer.fresh_cnt())
     return u"{}{}".format(C.OBS.AUX, suffix)
 
-  def __init__(self, smpls):
+  def __init__(self, smpls, obs_conf):
     self._smpls = smpls
+    self._obs_conf = obs_conf
+
     self._tmpl = None
     self._mq = None
     self._cur_mtd = None

@@ -28,7 +28,7 @@ acc_conf_map = {
 obs_conf = {
   "ActionEvent": (1, 1, 1),
   "ChangeEvent": (1, 1, 1),
-  "DocumentEvent": (3, 1, 1), # (get|set)InputMap
+  "DocumentEvent": (3, 1, 1), # (change|insert|remove)
 }
 
 # configuration for the singleton pattern

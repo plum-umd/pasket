@@ -26,6 +26,11 @@ acc_conf_map = {
   "Context": (0, 1, 0), # getSystemService
 }
 
+# configuration for the observer pattern
+obs_conf = {
+  "MotionEvent": (1, 1, 0), # no $detach
+}
+
 # configuration for the singleton pattern
 sng_conf = [
   C.ADR.ACTT,
