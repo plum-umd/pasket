@@ -14,7 +14,7 @@ from ..meta.method import Method
 from ..analysis.empty import EmptyFinder
 from collection import Collection
 from observer import Observer
-from accessor import Accessor
+from accessor_uni import AccessorUni
 from singleton import Singleton
 
 pkgs_android = [u"android."]
@@ -193,10 +193,12 @@ def to_java(cmd, java_dir, tmpls, output_paths, patterns):
     p2v = {}
     p2v[C.P.OBS] = Observer(output_path)
 
-    if cmd == "android": pass
+    if cmd == "android":
+      from ..rewrite.android import acc_conf_uni
+      p2v[C.P.ACCU] = AccessorUni(output_path, acc_conf_uni)
     elif cmd == "gui":
       from ..rewrite.gui import acc_conf_uni
-      p2v[C.P.ACC] = Accessor(output_path, acc_conf_uni)
+      p2v[C.P.ACCU] = AccessorUni(output_path, acc_conf_uni)
     else: pass
 
     p2v[C.P.SNG] = Singleton(output_path)
