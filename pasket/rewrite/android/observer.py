@@ -196,8 +196,8 @@ class Observer(object):
     if conf[0] < 2:
       body += u"""
         assert subcls(belongsTo({aux.update}), {aux.observer});
-        assert 1 == (argNum({aux.update}));
-        assert subcls({aux.event}, argType({aux.update}, 0));
+        assert 1 <= (argNum({aux.update}));
+        //assert subcls({aux.event}, argType({aux.update}, 0));
       """.format(**locals())
     else:
       body += u"""
