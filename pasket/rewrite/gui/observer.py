@@ -121,7 +121,7 @@ class Observer(object):
         del self._clss[event]
         del tmpl.events[event]
         continue
-    
+
       aux_name = Observer.new_aux(event)
       tmpl.obs_auxs[aux_name] = self._clss[event]
       self._evts[event] = aux_name
@@ -147,7 +147,7 @@ class Observer(object):
         continue
 
       util.mk_or_append(self._clss, event, cls)
-    
+
     for e in tmpl.events.keys():
       if e != event:
         del tmpl.events[e]
@@ -268,7 +268,6 @@ class Observer(object):
     rule.body = to_statements(rule, body)
     aux.add_mtds([rule])
 
-
   # assume candidate methods will be neither <init> nor static
   #   and have at least one parameter whose type is of interest (if any)
   def is_candidate_mtd(self, aux, mtd):
@@ -309,7 +308,7 @@ class Observer(object):
     z = to_expression(u"0")
     d = Field(clazz=aux, mods=C.PRST, typ=C.J.i, name=fname, init=z)
     aux.add_flds([d])
-    ret = u"return" if mtd.typ == u"void" else u"return null"
+    ret = u"return" if mtd.typ == C.J.v else u"return null"
     prologue = to_statements(mtd, u"""
       if ({fname} > {depth}) {ret};
       {fname} = {fname} + 1;
@@ -319,7 +318,7 @@ class Observer(object):
     """.format(**locals()))
     mtd.body = prologue + mtd.body + epilogue
 
-  # a method that simulates reflection
+  # event type getter
   def egetter(self, aux, clss):
     aname, ename = aux.name, aux.evt.name
     rcv = u'_'.join(["rcv", ename])
@@ -409,7 +408,7 @@ class Observer(object):
     aux.add_mtds([detach])
     setattr(aux, "mtd_detach", detach)
 
-  # handle code
+  # upper-level handle code
   @staticmethod
   def sub_handle(aux, idx):
     params = Observer.mtd_params(aux)
@@ -426,7 +425,7 @@ class Observer(object):
     handle.body = to_statements(handle, loop)
     aux.add_mtds([handle])
     setattr(aux, "mtd_sub_handle", handle)
-  
+
   # handle code
   @staticmethod
   def handle(aux, conf):
@@ -458,7 +457,7 @@ class Observer(object):
       get_type = u"""
         {evtyp} et = {aname}.{egetter}({evt_id}, evt);
         """.format(**locals())
-      
+
       def handle_switch(i):
         evt_cls = class_lookup(aux.evt.name)
         evtyp = evt_cls.inners[0].name
@@ -476,7 +475,7 @@ class Observer(object):
 
     aux.add_mtds([handle])
     setattr(aux, "mtd_handle", handle)
-    
+
     # add a role variable for the handle method
     if conf[0] >= 2:
       c_to_e = lambda c: to_expression(unicode(c))
@@ -495,11 +494,11 @@ class Observer(object):
       v = getattr(aux, role)
       f = getattr(aux, "mtd_"+role).name
       return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
-          
+
     roles = [C.OBS.H]
     if conf[1] > 0: roles.append(C.OBS.A)
     if conf[2] > 0: roles.append(C.OBS.D)
-    one.body = to_statements(one, "\n ".join(map(switch, roles)))
+    one.body = to_statements(one, u'\n'.join(map(switch, roles)))
     Observer.limit_depth(aux, one, 2)
     aux.add_mtds([one])
     setattr(aux, "one", one)
@@ -529,7 +528,7 @@ class Observer(object):
       if r == C.OBS.H or r == C.OBS.U:
         if conf[0] < 2: set_role(r)
         else:
-          set_role(r) 
+          set_role(r)
           map(lambda i: set_role('_'.join([r, str(i)])), range(conf[0]))
       elif r == C.OBS.A:
         if conf[1] > 0: set_role(r)
@@ -554,7 +553,7 @@ class Observer(object):
     else: # o.w., introduce a role variable for event
       role_var_evt = aux_int(C.OBS.EVT)
     aux.add_flds([role_var_evt])
-    
+
     ## range check
     gen_range = lambda ids: gen_E_gen(map(c_to_e, ids))
     get_id = op.attrgetter("id")
@@ -578,7 +577,7 @@ class Observer(object):
     mtd_init = gen_range(mtd_ids)
     aux_int_mtd = partial(aux_fld, mtd_init, C.J.i)
     aux.add_flds(map(aux_int_mtd, mtd_vars))
-    
+
     # range check for event type getter
     if conf[0] >= 2:
       evt_mtds = aux.evt.mtds
