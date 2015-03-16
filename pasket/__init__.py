@@ -37,6 +37,12 @@ C.primitives = [C.J.z, C.J.b, C.J.s, C.J.c, C.J.i, C.J.j, C.J.f, C.J.d]
 C.GUI = util.enum(TOOL=u"Toolkit", QUE=u"EventQueue", \
     EVT=u"EventObject", IVK=u"InvocationEvent")
 
+# constants regarding Android
+C.ADR = util.enum(ACTT=u"ActivityThread", QUE=u"MessageQueue", \
+    MSG=u"Message", HDL=u"Handler", LOOP=u"Looper", \
+    CMP=u"ComponentName", INTT=u"Intent", ACT=u"Activity", \
+    VIEW=u"View", VG=u"ViewGroup", WIN=u"Window")
+
 # Java collections
 C.collections = [C.J.MAP, C.J.LST, C.J.STK, C.J.QUE, C.J.ITER] \
               + [C.J.TMAP, C.J.LNK, C.J.DEQ]
@@ -65,12 +71,18 @@ C.adp_roles = [C.ACC.ADPT, C.ACC.ADPE, C.ACC.FLD]
 
 # role variables for the observer pattern
 C.OBS = util.enum(AUX=u"AuxObserver", \
-    OBSR="observer", SUBJ="subject", EVT="event", \
+    OBSR="observer", SUBJ="subject", EVT="event", EVTTYP="eventtype", \
     A="attach", D="detach", H="handle", U="update", \
     obs=u"_obs", tmp=u"__tmp__")
 
-C.obs_roles = [C.OBS.OBSR, C.OBS.SUBJ, C.OBS.EVT, \
+C.obs_roles = [C.OBS.OBSR, C.OBS.SUBJ, C.OBS.EVT, C.OBS.EVTTYP, \
     C.OBS.A, C.OBS.D, C.OBS.H, C.OBS.U]
+
+# role variables for the singleton pattern
+C.SNG = util.enum(AUX=u"AuxSingleton", \
+    SNG="singleton", INS=u"__instance", GET=u"getter")
+
+C.sng_roles = [C.SNG.SNG, C.SNG.GET]
 
 # artificial classes that may not appear on samples but should be kept
 _artifacts = [ \

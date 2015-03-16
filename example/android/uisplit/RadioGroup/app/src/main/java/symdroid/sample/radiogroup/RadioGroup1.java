@@ -63,8 +63,13 @@ public class RadioGroup1 extends Activity implements RadioGroup.OnCheckedChangeL
   public void onCheckedChanged(RadioGroup group, int checkedId) {
     String selection = "You have selected: ";
     String none = "(none)";
-    mChoice.setText(selection +
-        (checkedId == View.NO_ID ? none : checkedId));
+    String msg;
+    if (checkedId == View.NO_ID) {
+      msg = selection + none;
+    } else {
+      msg = selection + checkedId;
+    }
+    mChoice.setText(msg);
   }
 
   public void onClick(View v) {

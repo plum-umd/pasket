@@ -68,13 +68,14 @@ def enum(*sequential, **named):
 # Map<K, V> -> [K, V]
 # List<T> -> [T]
 # Map<K, List<T>> -> [K, List<T>]
-@takes(unicode)
+@takes(unicode, optional(unicode))
 @returns(list_of(unicode))
-def extract_generics(tname):
-  regex = r"^({})<(.+)>$".format('|'.join(C.collections))
+def extract_generics(tname, base=u"\S+"):
+  regex = r"^({})<(.+)>$".format(base)
   m = re.match(regex, tname.strip())
   if m: # m.group(1) = collection name
-    return map(op.methodcaller("strip"), m.group(2).split(','))
+    typs = [m.group(1)] + m.group(2).split(',')
+    return map(op.methodcaller("strip"), typs)
   else: return []
 
 
@@ -84,8 +85,8 @@ def extract_generics(tname):
 def of_collection(tname):
   for collection in C.collections:
     if collection in tname:
-      generics = extract_generics(tname)
-      if any(generics): return [collection] + generics
+      typs = extract_generics(tname, u'|'.join(C.collections))
+      if any(typs): return typs
   return []
 
 
@@ -94,6 +95,22 @@ def of_collection(tname):
 @returns(bool)
 def is_collection(tname):
   return any(of_collection(tname))
+
+
+# check whether the given type name has bounded type parameter(s)
+@takes(unicode)
+@returns(bool)
+def is_generic(tname):
+  return any(extract_generics(tname))
+
+
+# ArrayAdapter<?> -> [ArrayAdapter, ?]
+@takes(unicode)
+@returns(list_of(unicode))
+def explode_generics(tname):
+  if is_generic(tname):
+    return extract_generics(tname)
+  else: return [tname]
 
 
 # extrace base type out of array
@@ -121,6 +138,7 @@ def is_class_name(tname):
 
 # sanitize type name
 # e.g., Demo$1 -> Demo_1, Outer.Inner -> Outer_Inner
+# ArrayAdapter<?> (-> ArrayAdapter_?) -> ArrayAdapter_Object
 @takes(unicode)
 @returns(unicode)
 def sanitize_ty(tname):
@@ -128,8 +146,10 @@ def sanitize_ty(tname):
   #repl_dic = dict((re.escape(k), v) for k, v in repl_map.iteritems())
   #pattern = re.compile(" | ".join(repl_dic.keys()))
   #return pattern.sub(lambda m: repl_dic[re.escape(m.group(0))], tname)
-  return tname.replace('$','_').replace('.','_')
-
+  _tname = tname.replace('$','_').replace('.','_')
+  if is_generic(_tname):
+    _tname = u'_'.join(explode_generics(_tname))
+  return _tname.replace('?', C.J.OBJ)
 
 # short form representation of type name
 @takes(unicode)

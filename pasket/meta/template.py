@@ -43,6 +43,8 @@ class Template(v.BaseNode):
     self._obs_auxs = {} # { Aux...1 : [ C1, D1 ], ... }
     # aux types for accessor patterns
     self._acc_auxs = [] # [ Aux...1, ... ]
+    # aux types for singleton pattern
+    self._sng_auxs = [] # [ Aux...1, ... ]
 
     # primitive classes
     cls_obj = Clazz(pkg=u"java.lang", name=C.J.OBJ)
@@ -106,16 +108,23 @@ class Template(v.BaseNode):
     # no additional class is required to represent events
     evt_obj = class_lookup(C.GUI.EVT)
     if evt_obj:
+      # artificial field to record subtype events' kinds
       fld = Field(clazz=evt_obj, mods=[C.mod.PB], typ=C.J.i, name=u"kind")
       evt_obj.flds.append(fld)
 
-    # o.w. introduce artificial class Event that implodes all event kinds
-    # class Event { int kind; E_kind$n$ evt$n$; }
-    elif events:
-      cls_e = merge_layer(u"Event", map(class_lookup, events))
-      cls_e.add_default_init()
-      self._classes.append(cls_e)
-      add_artifacts([u"Event"])
+    else:
+      # if there exists android.os.Message (i.e., cmd == "android")
+      # no additional class is required, too
+      msg = class_lookup(C.ADR.MSG)
+      if msg: pass
+
+      # o.w. introduce artificial class Event that implodes all event kinds
+      # class Event { int kind; E_kind$n$ evt$n$; }
+      elif events:
+        cls_e = merge_layer(u"Event", map(class_lookup, events))
+        cls_e.add_default_init()
+        self._classes.append(cls_e)
+        add_artifacts([u"Event"])
 
   # keep snapshots of instances of meta-classes
   def freeze(self):
@@ -184,6 +193,14 @@ class Template(v.BaseNode):
   def acc_auxs(self, v):
     self._acc_auxs = v
 
+  @property
+  def sng_auxs(self):
+    return self._sng_auxs
+
+  @sng_auxs.setter
+  def sng_auxs(self, v):
+    self._sng_auxs = v
+
   def __str__(self):
     return '\n'.join(map(str, self._classes))
 
@@ -250,8 +267,11 @@ class Template(v.BaseNode):
     # discard interfaces that have no implementers, without constants
     for itf in ifilter(op.attrgetter("is_itf"), clss):
       if not itf.subs and not itf.flds:
-        logging.debug("discarding {} with no implementers".format(itf.name))
-        self._classes.remove(itf) # TODO: ValueError raised if itf is inner
+        logging.debug("discarding {} with no implementers".format(repr(itf)))
+        if itf in self._classes:
+          self._classes.remove(itf)
+        elif itf.outer: # inner interface
+          itf.outer.inners.remove(itf)
         del decls[repr(itf)]
 
     # some interfaces might have been discarded, hence retrieve classes again
@@ -315,6 +335,15 @@ class Template(v.BaseNode):
     body = '\n'.join(map(to_call, self.harness()))
     main.body = st.to_statements(main, body)
     main_cls.mtds.append(main)
+
+  # find class of certain kind, e.g., Activity
+  @takes("Template", unicode)
+  @returns(list_of(Clazz))
+  def find_cls_kind(self, kind):
+    cls_kind = class_lookup(kind)
+    if cls_kind: pred = lambda cls: cls < cls_kind
+    else: pred = lambda cls: kind in cls.name
+    return filter(pred, self._classes)
 
 
 """

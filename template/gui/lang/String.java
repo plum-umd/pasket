@@ -1,6 +1,6 @@
 package java.lang;
 
-public class String {
+public class String implements CharSequence {
     char[] _value;
     int _count;
 
@@ -11,16 +11,16 @@ public class String {
         _count = count;
     }
 
+    public int length() {
+        return _count;
+    }
+
     public String toString() {
         return _value;
     }
 
     public boolean equals(String s) {
         return _value == s._value;
-    }
-
-    public int length() {
-        return _count;
     }
 
     public int indexOf(String str) {

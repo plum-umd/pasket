@@ -1,1 +1,1 @@
-../../../../example/android/UITutorials/app/src/main/java/symdroid/sample/uitutorials/Spinner1.java
+../../../../example/android/uisplit/Spinner/app/src/main/java/symdroid/sample/spinner/Spinner1.java

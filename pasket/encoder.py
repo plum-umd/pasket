@@ -762,7 +762,7 @@ def to_func(smpls, mtd):
   buf = cStringIO.StringIO()
   if C.mod.GN in mtd.mods: buf.write(C.mod.GN + ' ')
   elif C.mod.HN in mtd.mods: buf.write(C.mod.HN + ' ')
-  cname = mtd.clazz.name
+  cname = unicode(repr(mtd.clazz))
   mname = mtd.name
   arg_typs = mtd.param_typs
   buf.write(trans_ty(mtd.typ) + ' ' + trans_mname(cname, mname, arg_typs) + '(')
@@ -776,7 +776,7 @@ def to_func(smpls, mtd):
   if mtd.is_static:
     params = mtd.params[:]
   else:
-    self_ty = trans_ty(mtd.clazz.name)
+    self_ty = trans_ty(unicode(repr(mtd.clazz)))
     params = [ (self_ty, C.SK.self) ] + mtd.params[:]
 
   # add "logging" flag into parameters
@@ -1000,8 +1000,15 @@ def gen_cls_sk(sk_dir, smpls, cls):
     """.format(trans_ty(fld.typ), accessor, fname))
 
   # methods
-  if not cls.is_itf: # interface won't have method bodies
-    buf.write('\n'.join(map(partial(to_func, smpls), mtds)))
+  clinits, mtds = util.partition(lambda m: m.is_clinit, mtds)
+  inits, mtds = util.partition(lambda m: m.is_init, mtds)
+  # <init>/<clinit> should be dumped out in any case
+  buf.write('\n'.join(map(partial(to_func, smpls), clinits)))
+  buf.write('\n'.join(map(partial(to_func, smpls), inits)))
+  for mtd in mtds:
+    # interface won't have method bodies
+    if mtd.clazz.is_itf: continue
+    buf.write(to_func(smpls, mtd) + os.linesep)
 
   cls_sk = cname + ".sk"
   with open(os.path.join(sk_dir, cls_sk), 'w') as f:
@@ -1018,6 +1025,8 @@ max_objs = 0
 @returns(nothing)
 def gen_smpl_sk(sk_path, smpl, tmpl, main):
   buf = cStringIO.StringIO()
+  buf.write("package {};\n".format(smpl.name))
+  buf.write(_const)
   buf.write("harness void {} () {{\n".format(smpl.name))
 
   # insert call-return sequences
@@ -1069,10 +1078,10 @@ def gen_smpl_sk(sk_path, smpl, tmpl, main):
   for cls in util.flatten_classes(tmpl.classes, "inners"):
     clinit = cls.mtd_by_sig(C.J.CLINIT)
     if not clinit: continue
-    buf.write("  {}();\n".format(trans_mname(cls.name, clinit.name)))
+    buf.write("  {}();\n".format(trans_mname(unicode(repr(cls)), clinit.name)))
 
   # execute template's *main*
-  cname = main.clazz.name
+  cname = unicode(repr(main.clazz))
   mname = main.name
   arg_typs = main.param_typs
   params = main.params + [ (C.J.z, u"logging") ]
@@ -1271,6 +1280,7 @@ def to_sk(smpls, tmpl, sk_dir):
   """.format(n_params, max(5, n_evts + 1), n_ios)
 
   # type.sk
+  logging.info("building class hierarchy")
   tmpl.consist()
   # merge all classes and interfaces, except for primitive types
   clss, _ = util.partition(lambda c: util.is_class_name(c.name), classes())

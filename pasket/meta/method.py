@@ -120,7 +120,7 @@ class Method(v.BaseNode):
     return self.body and self.body[-1].kind == C.S.RETURN
 
   def __repr__(self):
-    mname, cname = self._name, util.sanitize_ty(self._clazz.name)
+    mname, cname = self._name, repr(self._clazz)
     params = map(util.sanitize_ty, self.param_typs)
     return u'_'.join([mname, cname] + params)
 

@@ -1,6 +1,7 @@
 package android.widget;
 
 public class RelativeLayout extends ViewGroup {
+  public RelativeLayout(Context context);
 
   public static final int BELOW = 3;
   public static final int CENTER_IN_PARENT = 13;

@@ -53,7 +53,7 @@ class AccessorAdHoc(object):
   @v.when(Field)
   def visit(self, node): pass
 
-  verbs = ["get", "is", "has", "set"]
+  verbs = ["get", "my", "is", "has", "set"]
 
   @staticmethod
   def is_accessor(mname):
@@ -77,6 +77,10 @@ class AccessorAdHoc(object):
 
   @v.when(Method)
   def visit(self, node):
+    # skip the method with explicit annotations, e.g., @Factory
+    if node.annos: return
+    # skip java.lang.*
+    if node.clazz.pkg in ["java.lang"]: return
     # can't edit interface's methods as well as client side
     if node.clazz.is_itf or node.clazz.client: return
     # skip instance methods which have (hand-written) body
@@ -130,7 +134,8 @@ class AccessorAdHoc(object):
     ## getters and setters
     ##
     elif not node.is_static and AccessorAdHoc.is_accessor(mname) and \
-        (not self._acc_default or cls.name in self._acc_default):
+        (not self._acc_default or \
+            cls.name in self._acc_default or mname in self._acc_default):
 
       fname = AccessorAdHoc.get_fname(mname)
 
@@ -139,7 +144,7 @@ class AccessorAdHoc(object):
       ## typ getX();
       ##   =>
       ## typ getX() { return x; }
-      if mname.startswith("get") or mname.startswith("is"):
+      if util.exists(lambda verb: mname.startswith(verb), ["get", "is", "my"]):
         logging.debug("filling getter: {}.{}".format(cls.name, mname))
         fld = cls.fld_by_name(fname)
         if not fld: fld = AccessorAdHoc.add_fld(cls, node.typ, fname)

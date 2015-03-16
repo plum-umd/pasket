@@ -9,6 +9,7 @@ from . import add_artifacts
 import util
 from anno import Anno
 from sample import Sample, CallEnt, CallExt, kind
+from meta import class_lookup
 from meta.template import Template
 from meta.clazz import Clazz
 from meta.method import Method
@@ -25,46 +26,115 @@ def mk_harness(cls, smpl):
   return mtd
 
 
-## common part: code snippets to set environment changes
-@takes(Template, Sample, unicode, optional(bool), optional(unicode))
-@returns(unicode)
-def gen_events(tmpl, smpl, post, react_immediately=False, ev_name=u"Event"):
-  evts = smpl.evts
-  logging.debug("# event(s) in {}: {}".format(smpl.name, len(evts)))
-  buf = cStringIO.StringIO()
-  for i, evt in enumerate(evts):
-    e_i = "e{}".format(i)
-    init = str(evt)
-
-    if ev_name == "Event":
-      e_lower = evt.kind.lower()
-      buf.write("""
-        {ev_name} {e_i} = new {ev_name}();
-        {e_i}.{e_lower} = new {init};
-      """.format(**locals()))
-    else: # Java GUI
-      buf.write("""
-        {ev_name} {e_i} = new {init};
-      """.format(**locals()))
-
-    e_kind = tmpl.get_event_id(evt.kind)
-    buf.write("""
-      {e_i}.kind = {e_kind};
-      {post}({e_i});
-    """.format(**locals()))
-
-    if react_immediately:
-      buf.write("@React;\n")
-
-  return unicode(buf.getvalue())
-
-
 ## Android-specific harness body
+# launch resource managers and send messages to responsible managers
+# e.g., Intent to ActivityManager, MotionEvent to WindowManager, etc.
 @takes(Template, Clazz, Sample)
 @returns(nothing)
 def mk_harness_android(tmpl, cls, smpl):
   harness = mk_harness(cls, smpl)
-  # TODO
+
+  buf = cStringIO.StringIO()
+
+  # TODO: launch resource managers
+
+  # TODO: post an Intent for AUT to ActivityManager
+  # XXX: rather, start (via ActivityThread.main) and post the Intent to it directly
+  main_cls = tmpl.main
+  # TODO: passing proper parameters
+  buf.write("{}.{}();\n".format(main_cls.clazz.name, main_cls.name))
+
+  # global variables, sort of singletons
+  buf.write("""
+    {0} l = {0}.getMain{0}();
+    {1} q = l.myQueue();
+    {2} t = {2}.current{2}();
+  """.format(C.ADR.LOOP, C.ADR.QUE, C.ADR.ACTT))
+
+  # generate an Intent to trigger the main Activity
+  # TODO: how to figure out the *main* Activity?
+  # XXX: assume there is only one Activity
+  acts = tmpl.find_cls_kind(C.ADR.ACT)
+  if not acts:
+    raise Exception("no Activity at all?")
+  elif len(acts) > 1:
+    raise Exception("no idea what to start among multiple Activity's", acts)
+  main_act = acts[0]
+  buf.write("""
+    {0} c = new {0}(\"{1}\", \"{2}\");
+    {3} i = new {3}(c);
+  """.format(C.ADR.CMP, "DONT_CARE_PKG_NAME", main_act.name, C.ADR.INTT))
+
+  post = u"q.enqueue{}".format(C.ADR.MSG)
+
+  # TODO: use ActivityManager's Handler
+  # XXX: use the main UI thread's Handler
+  buf.write("""
+    {0} h = t.get{0}();
+    {1} m = new {1}(h);
+    m.obj = i;
+    m.what = -1; // Intent
+    {2}(m, 0);
+    @React;
+  """.format(C.ADR.HDL, C.ADR.MSG, post))
+
+  # additional global variable(s)
+  buf.write("""
+    {0} a = t.get{0}();
+  """.format(C.ADR.ACT))
+
+  cls_ievt = class_lookup(u"InputEvent")
+
+  # post events in the sample to the main Looper's MessageQueue
+  evts = smpl.evts
+  _hdl = C.ADR.HDL
+  _msg = C.ADR.MSG
+  logging.debug("# event(s) in {}: {}".format(smpl.name, len(evts)))
+  for i, evt in enumerate(evts):
+    cls_evt = class_lookup(evt.kind)
+    if not cls_evt:
+      logging.debug("undeclared event sort: {}".format(evt.kind))
+      continue
+
+    e_i = "e{}".format(i)
+    init = str(evt)
+    buf.write("""
+      {evt.kind} {e_i} = new {init};
+    """.format(**locals()))
+
+    # generate a message by wrapping the event
+    h_i = "h{}".format(i)
+    if cls_evt <= cls_ievt: # InputEvent, KeyEvent, MotionEvent
+      # TODO: use Window(Manager)'s Handler
+      # XXX: use the source View's Handler at the moment
+      s_i = "s{}".format(i)
+      v_i = "v{}".format(i)
+      buf.write("""
+        int {s_i} = {e_i}.getSource();
+        View {v_i} = a.findViewById({s_i});
+        {_hdl} {h_i} = {v_i}.get{_hdl}();
+      """.format(**locals()))
+
+    else: # TODO: how to retrieve an appropriate Handler in general?
+      buf.write("""
+        {_hdl} {h_i} = ...;
+      """.format(**locals()))
+
+    m_i = "m{}".format(i)
+    e_kind = tmpl.get_event_id(evt.kind)
+    buf.write("""
+      {_msg} {m_i} = new {_msg}({h_i});
+      {m_i}.obj = {e_i};
+      {m_i}.what = {e_kind};
+    """.format(**locals()))
+
+    # post that message (to the main Looper's MessageQueue)
+    buf.write("""
+      {post}({m_i}, 0);
+      @React;
+    """.format(**locals()))
+
+  harness.body = to_statements(harness, unicode(buf.getvalue()))
   cls.add_mtds([harness])
 
 
@@ -77,19 +147,35 @@ def mk_harness_gui(tmpl, cls, smpl):
 
   buf = cStringIO.StringIO()
 
-  # Toolkit initialization
-  buf.write("{0} t = @Singleton({0});\n".format(C.GUI.TOOL))
-  buf.write("{} q = t.getSystemEventQueue();\n".format(C.GUI.QUE))
+  # initialize Toolkit/EventQueue
+  buf.write("{0} t = {0}.{1}{0}();\n".format(C.GUI.TOOL, "getDefault"))
+  buf.write("{0} q = t.{1}{0}();\n".format(C.GUI.QUE, "getSystem"))
 
-  # run the application
+  # run main() in the client
   main_cls = tmpl.main
   # TODO: passing proper parameters
   buf.write("{}.{}();\n".format(main_cls.clazz.name, main_cls.name))
   buf.write("@React;\n") # to handle InvokeEvent
 
-  # post events in the sample to the event queue
+  # post events in the sample to Toolkit's EventQueue
   post = u"q.postEvent"
-  buf.write(gen_events(tmpl, smpl, post, True, C.GUI.EVT))
+  evts = smpl.evts
+  ev_name = C.GUI.EVT
+  logging.debug("# event(s) in {}: {}".format(smpl.name, len(evts)))
+  for i, evt in enumerate(evts):
+    e_i = "e{}".format(i)
+    init = str(evt)
+    buf.write("""
+      {ev_name} {e_i} = new {init};
+    """.format(**locals()))
+
+    e_kind = tmpl.get_event_id(evt.kind)
+    buf.write("""
+      {e_i}.kind = {e_kind};
+      {post}({e_i});
+      @React;
+    """.format(**locals()))
+
   harness.body = to_statements(harness, unicode(buf.getvalue()))
   cls.add_mtds([harness])
 

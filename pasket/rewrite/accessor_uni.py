@@ -58,6 +58,8 @@ class AccessorUni(object):
 
   @staticmethod
   def is_candidate_cls(cls):
+    # skip java.lang.*
+    if cls.pkg in ["java.lang"]: return False
     mtds = cls.mtds
     getter_mtds = filter(AccessorUni.is_candidate_getter, mtds)
     cons_mtds = AccessorUni.get_candidate_inits(cls)
@@ -287,7 +289,7 @@ class AccessorUni(object):
         # if there is no implementer for this method in interface, ignore it
         if cls.is_itf and not cls.subs: return u''
         if len(mtd.params) != 0 or mtd.typ != C.J.v: return u''
-        call = "if ({} != null) {}.{}.{}();".format(callee, callee, rcv, mtd.name)
+        call = u"if ({} != null) {}.{}.{}();".format(callee, callee, rcv, mtd.name)
         adaptee_id = getattr(aux, "adaptee")
         return u"if ({adaptee_id} == {mtd.id}) {{ {call} }}".format(**locals())
       invocations = filter(None, map(invoke, mtds))
@@ -406,10 +408,10 @@ class AccessorUni(object):
       return map(lambda i: "assert subcls(argType(" + getattr(aux, '_'.join([C.ACC.SET, c, str(i)]))+", 0), retType(" + getattr(aux, '_'.join([C.ACC.GET, c, str(i)])) + "));", range(conf[c][2]))
     def gs_type_match(c):
         return map(lambda i: "assert argType(" + getattr(aux, '_'.join([C.ACC.CONS, c])) + ", " + getattr(aux, '_'.join([C.ACC.GS, c, str(i)]))+") == retType(" + getattr(aux, '_'.join([C.ACC.GET, c, str(i)]))+");", range(conf[c][1]))
-    checkers.extend(reduce(lambda x,y: x+y, map(getter_sig, conf.iterkeys())))
-    checkers.extend(reduce(lambda x,y: x+y, map(setter_sig, conf.iterkeys())))
-    checkers.extend(reduce(lambda x,y: x+y, map(gs_match, conf.iterkeys())))
-    checkers.extend(reduce(lambda x,y: x+y, map(gs_type_match, conf.iterkeys())))
+    checkers.extend(reduce(lambda x,y: x+y, map(getter_sig, conf.iterkeys()), []))
+    checkers.extend(reduce(lambda x,y: x+y, map(setter_sig, conf.iterkeys()), []))
+    checkers.extend(reduce(lambda x,y: x+y, map(gs_match, conf.iterkeys()), []))
+    checkers.extend(reduce(lambda x,y: x+y, map(gs_type_match, conf.iterkeys()), []))
 
     ## adapter pattern
 
@@ -425,7 +427,7 @@ class AccessorUni(object):
     #checkers.append(u"assert (argNum(" + getattr(aux, C.ACC.ADPT) + ")) == 0 && (argNum(" + getattr(aux, C.ACC.ADPT) + ")) == 0;")
     #checkers.append(u"assert (retType(" + getattr(aux, C.ACC.ADPT) + ")) == -1 && (retType(" + getattr(aux, C.ACC.FLD) + ")) == -1;")
 
-    rg_chk.body += to_statements(rg_chk, '\n'.join(checkers))
+    rg_chk.body += to_statements(rg_chk, u'\n'.join(checkers))
     aux.add_mtds([rg_chk])
     
     ## global counters
@@ -500,9 +502,12 @@ class AccessorUni(object):
 
   @v.when(Method)
   def visit(self, node):
+    # skip the method with explicit annotations, e.g., @Factory
     if node.annos: return
+    # skip java.lang.*
     if node.clazz.pkg in ["java.lang"]: return
-    if node.clazz.client: return
+    # can't edit interface's methods as well as client side
+    if node.clazz.is_itf or node.clazz.client: return
     cname = node.clazz.name
     if cname in self._acc_default: return
  

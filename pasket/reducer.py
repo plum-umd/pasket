@@ -160,7 +160,7 @@ def reduce_anno_fld(smpls, tmpl, cls, fld):
     ##
     elif _anno.name == C.A.MULTI:
       # assume fld.typ is Map<key,value>
-      key, value = util.extract_generics(fld.typ)
+      m, key, value = util.extract_generics(fld.typ)
       if hasattr(_anno, "values"): values = _anno.values
       elif C.J.MAP in fld.typ: values = [value]
 
