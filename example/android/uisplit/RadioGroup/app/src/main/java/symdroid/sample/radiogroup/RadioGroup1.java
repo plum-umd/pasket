@@ -50,10 +50,12 @@ public class RadioGroup1 extends Activity implements RadioGroup.OnCheckedChangeL
     mRadioGroup.addView(newRadioButton, 0, layoutParams);
 
     // test listening to checked change events
-    String selection = "You have selected: ";
+    //String selection = "You have selected: ";
     mRadioGroup.setOnCheckedChangeListener(this);
     mChoice = (TextView) findViewById(R.id.choice);
-    mChoice.setText(selection + mRadioGroup.getCheckedRadioButtonId());
+    //mChoice.setText(selection + mRadioGroup.getCheckedRadioButtonId());
+    String msg = Integer.toString(mRadioGroup.getCheckedRadioButtonId());
+    mChoice.setText(msg);
 
     // test clearing the selection
     Button clearButton = (Button) findViewById(R.id.clear);
@@ -61,6 +63,7 @@ public class RadioGroup1 extends Activity implements RadioGroup.OnCheckedChangeL
   }
 
   public void onCheckedChanged(RadioGroup group, int checkedId) {
+    /*
     String selection = "You have selected: ";
     String none = "(none)";
     String msg;
@@ -69,6 +72,8 @@ public class RadioGroup1 extends Activity implements RadioGroup.OnCheckedChangeL
     } else {
       msg = selection + checkedId;
     }
+    */
+    String msg = Integer.toString(checkedId);
     mChoice.setText(msg);
   }
 
@@ -124,7 +129,8 @@ public class RadioGroup1 extends Activity implements RadioGroup.OnCheckedChangeL
 
     TextView tv = new TextView(this);
     tv.setId(R.id.choice);
-    tv.setText("You have selected: (none)");
+    //tv.setText("You have selected: (none)");
+    tv.setText("-1");
     rg.addView(tv);  // weird to add to the RG but that's what the layout file did
 
     rg.check(R.id.lunch);
