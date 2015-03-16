@@ -1005,8 +1005,10 @@ def gen_cls_sk(sk_dir, smpls, cls):
   # <init>/<clinit> should be dumped out in any case
   buf.write('\n'.join(map(partial(to_func, smpls), clinits)))
   buf.write('\n'.join(map(partial(to_func, smpls), inits)))
-  if not cls.is_itf: # interface won't have method bodies
-    buf.write('\n'.join(map(partial(to_func, smpls), mtds)))
+  for mtd in mtds:
+    # interface won't have method bodies
+    if mtd.clazz.is_itf: continue
+    buf.write(to_func(smpls, mtd) + os.linesep)
 
   cls_sk = cname + ".sk"
   with open(os.path.join(sk_dir, cls_sk), 'w') as f:
