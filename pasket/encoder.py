@@ -804,8 +804,8 @@ def to_func(smpls, mtd):
   if logged: # logging method entry (>)
     log_params = util.ffilter([m_ent] + map(log_param, params))
     buf.write("""
-      int[P] params = {{ {} }};
-      if (logging) check_log@log(params);
+      int[P] __params = {{ {} }};
+      if (logging) check_log@log(__params);
     """.format(", ".join(log_params)))
 
   is_void = C.J.v == mtd.typ
@@ -824,8 +824,8 @@ def to_func(smpls, mtd):
       ret = log_param( (ret_ty, ret_u) )
     log_params = util.ffilter([m_ext, ret])
     buf.write("""
-      params = {{ {} }};
-      if (logging) check_log@log(params);
+      __params = {{ {} }};
+      if (logging) check_log@log(__params);
     """.format(", ".join(log_params)))
 
   if mtd.body and not is_void:
