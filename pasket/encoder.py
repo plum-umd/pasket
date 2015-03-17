@@ -597,7 +597,7 @@ def trans_e(mtd, e):
         # o.w., e.g., static constant in an interface, call the accessor
         else: buf.write(new_fname + "()")
       else: buf.write('.'.join([C.SK.self, new_fname]))
-    elif e.id == C.J.THIS: buf.write(C.SK.self)
+    elif e.id in [C.J.THIS, C.J.SUP]: buf.write(C.SK.self)
     elif util.is_str(e.id): # constant string, such as "Hello, World"
       str_init = trans_mname(C.J.STR, C.J.STR, [u"char[]", C.J.i, C.J.i])
       buf.write("{}(new Object(hash=nonce()), {}, 0, {})".format(str_init, e.id, len(e.id)))
