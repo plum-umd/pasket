@@ -145,7 +145,10 @@ public class ListDemo extends JPanel
             String name = employeeName.getText();
 
             //User didn't type in a unique name...
-            if (name.equals("") || alreadyInList(name)) {
+            //if (name.equals("") || alreadyInList(name)) {
+            boolean empty = name.equals("");
+            boolean a_in = alreadyInList(name);
+            if (empty || a_in) {
                 Toolkit tmpToolkit = Toolkit.getDefaultToolkit();
                 tmpToolkit.beep();
                 employeeName.requestFocusInWindow();
