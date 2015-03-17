@@ -31,8 +31,8 @@ class Observer(object):
     return util.exists(matched, [Observer.regex_cmp, Observer.regex_idx])
 
   ## receiver instance for all the methods in Aux...
-  ## e.g., rcv_AuxObserver1
-  regex_rcv = r"(rcv_{}\d+)".format(C.OBS.AUX)
+  ## e.g., rcv_AuxObserverActionEvent
+  regex_rcv = r"(rcv_{}\S+)".format(C.OBS.AUX)
 
   @staticmethod
   def repl_rcv(msg):
@@ -49,7 +49,7 @@ class Observer(object):
 
   ## hole assignments for roles
   ## glblInit_subject_????,StmtAssign,subject_???? = n
-  regex_role = r"(({})_{}\d+).* = (\d+)$".format('|'.join(C.obs_roles), C.OBS.AUX)
+  regex_role = r"(({})_{}\S+)_.* = (\d+)$".format('|'.join(C.obs_roles), C.OBS.AUX)
 
   @staticmethod
   def st_of_interest(msg):
