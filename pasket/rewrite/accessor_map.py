@@ -255,6 +255,12 @@ class AccessorMap(object):
       map(lambda m: [aux_range(C.ACC.SET, c, m, mtds, 2, True)], range(conf[c][2]))
     map(mtd_range, conf.iterkeys())
 
+    # range check for gs: as an index, shouldn't be negative
+    def gs_positive(role):
+      rv = getattr(aux, role)
+      checkers.append("assert {} >= 0;".format(rv))
+    map(gs_positive, gs_vars)
+
     # other semantics checks
     # such as ownership, bundle getter/setter, and signature types
     def owner_range(rl, c, ids):
