@@ -706,6 +706,7 @@ class Observer(object):
           cond_new = u"""
             if (act_name.equals(\"{act.name}\")) {{
               act = new {act.name}();
+              (({act.name})act).onCreate(null);
             }}
           """.format(**locals())
           act_conds.append(cond_new)
@@ -728,8 +729,6 @@ class Observer(object):
             // TODO: should be pushed and maintained by ActivityStack
             ActivityThread t = ActivityThread.currentActivityThread();
             t._activity = act;
-
-            act.onCreate(null);
           }} {switches}
         """.format(**locals())
         node.body = to_statements(node, body)

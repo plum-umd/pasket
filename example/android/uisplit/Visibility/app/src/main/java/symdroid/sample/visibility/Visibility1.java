@@ -10,7 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
-public class Visibility1 extends Activity {
+public class Visibility1 extends Activity implements OnClickListener {
 
   private static String TAG = "Visibility1";
   private View mVictim;
@@ -29,11 +29,17 @@ public class Visibility1 extends Activity {
     Button goneButton = (Button) findViewById(R.id.gone);
 
     // Wire each button to a click listener
+/*
     visibleButton.setOnClickListener(mVisibleListener);
     invisibleButton.setOnClickListener(mInvisibleListener);
     goneButton.setOnClickListener(mGoneListener);
+*/
+    visibleButton.setOnClickListener(this);
+    invisibleButton.setOnClickListener(this);
+    goneButton.setOnClickListener(this);
   }
 
+/*
   OnClickListener mVisibleListener = new OnClickListener() {
     public void onClick(View v) {
       mVictim.setVisibility(View.VISIBLE);
@@ -51,6 +57,18 @@ public class Visibility1 extends Activity {
       mVictim.setVisibility(View.GONE);
     }
   };
+*/
+
+  public void onClick(View v) {
+    int id = v.getId();
+    if (id == R.id.vis) {
+        mVictim.setVisibility(View.VISIBLE);
+    } else if (id == R.id.invis) {
+        mVictim.setVisibility(View.INVISIBLE);
+    } else if (id == R.id.gone) {
+        mVictim.setVisibility(View.GONE);
+    }
+  }
 
   @Override
   @SuppressWarnings("unused")
@@ -71,18 +89,18 @@ public class Visibility1 extends Activity {
     // could set box drawable background
 
     TextView tv = new TextView(this);
-    tv.setBackgroundColor(0xffff0000);
+    //tv.setBackgroundColor(0xffff0000);
     tv.setText("View A");
     tv_layout.addView(tv, 0, new ViewGroup.LayoutParams(mp, wc));
 
     tv = new TextView(this);
     tv.setId(R.id.victim);
-    tv.setBackgroundColor(0xff00ff00);
+    //tv.setBackgroundColor(0xff00ff00);
     tv.setText("View B");
     tv_layout.addView(tv, 1, new ViewGroup.LayoutParams(mp, wc));
 
     tv = new TextView(this);
-    tv.setBackgroundColor(0xff0000ff);
+    //tv.setBackgroundColor(0xff0000ff);
     tv.setText("View C");
     tv_layout.addView(tv, 2, new ViewGroup.LayoutParams(mp, wc));
 
