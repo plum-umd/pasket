@@ -1,5 +1,5 @@
 > symdroid.sample.visibility.Visibility1.onCreate(symdroid.sample.visibility.Visibility1@192959414, null)
-  > symdroid.sample.visibility.Visibility1.setContentView(symdroid.sample.visibility.Visibility1@192959414, 2130968579)
+  > symdroid.sample.visibility.Visibility1.setContentView(symdroid.sample.visibility.Visibility1@192959414, 3)
     > android.widget.LinearLayout.<init>(android.widget.LinearLayout@587589668, symdroid.sample.visibility.Visibility1@192959414)
     < android.widget.LinearLayout.<init>(android.widget.LinearLayout@587589668)
     > android.widget.LinearLayout.setOrientation(android.widget.LinearLayout@587589668, 1)
