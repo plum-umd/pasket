@@ -14,7 +14,8 @@ acc_conf_uni = {
   "InvocationEvent": (2, 0, 0), # to set Runnable
 
   "ActionEvent": (3, 1, 0), # getActionCommand
-  "ItemEvent": (4, 2, 0), # getItemSelectable/getStateChange
+  "ItemEvent": (4, 2, 0), # get(ItemSelectable|StateChange)
+  "ListSelectionEvent": (4, 3, 0), # get((First|Last)Index|ValueIsAdjusting)
 
   "JButton": (2, 1, 1), # (get|set)ActionCommand
 }
