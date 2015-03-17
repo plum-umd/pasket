@@ -9,15 +9,15 @@ acc_default = [
 
 # configuration for the accessor pattern
 acc_conf_uni = {
-  "Message": (0, 1, 1), # (get|set)Target
+  "Message": (1, 1, 1), # (get|set)Target
   "Handler": (1, 1, 0), # getLooper
 
   "Intent": (1, 1, 0), # getComponent
   "ComponentName": (2, 2, 0), # get(Class|Package)Name
 
   "InputEvent": (1, 1, 1), # (get|set)Source
-  "KeyEvent": (2, 1, 0), # getKeyCode
   "MotionEvent": (2, 1, 0), # getAction(Masked)
+  #"KeyEvent": (2, 1, 0), # getKeyCode
 }
 
 # configuration for the accessor pattern (of Map<K,V> type)

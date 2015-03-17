@@ -38,10 +38,8 @@ public class View {
 
   public void setOnClickListener(View.OnClickListener l);
 
-  public boolean performClick();
-
-  public boolean onTouchEvent(MotionEvent event);
-
   public boolean dispatchTouchEvent(MotionEvent event);
+  //public boolean onTouchEvent(MotionEvent event);
 
+  public boolean performClick();
 }
