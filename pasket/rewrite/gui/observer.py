@@ -342,7 +342,6 @@ class Observer(object):
     tests = util.ffilter([switch((aux.evt, aux.evt))])
     egetter.body = to_statements(egetter, u"\nelse ".join(tests))
     Observer.limit_depth(aux, egetter, 2)
-    print egetter
     aux.add_mtds([egetter])
     setattr(aux, "egetter", egetter)
 
