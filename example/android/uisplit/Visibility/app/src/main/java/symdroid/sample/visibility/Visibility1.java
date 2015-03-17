@@ -10,7 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
-public class Visibility1 extends Activity {
+public class Visibility1 extends Activity implements OnClickListener {
 
   private static String TAG = "Visibility1";
   private View mVictim;
@@ -29,11 +29,17 @@ public class Visibility1 extends Activity {
     Button goneButton = (Button) findViewById(R.id.gone);
 
     // Wire each button to a click listener
+/*
     visibleButton.setOnClickListener(mVisibleListener);
     invisibleButton.setOnClickListener(mInvisibleListener);
     goneButton.setOnClickListener(mGoneListener);
+*/
+    visibleButton.setOnClickListener(this);
+    invisibleButton.setOnClickListener(this);
+    goneButton.setOnClickListener(this);
   }
 
+/*
   OnClickListener mVisibleListener = new OnClickListener() {
     public void onClick(View v) {
       mVictim.setVisibility(View.VISIBLE);
@@ -51,6 +57,18 @@ public class Visibility1 extends Activity {
       mVictim.setVisibility(View.GONE);
     }
   };
+*/
+
+  public void onClick(View v) {
+    int id = v.getId();
+    if (id == R.id.vis) {
+        mVictim.setVisibility(View.VISIBLE);
+    } else if (id == R.id.invis) {
+        mVictim.setVisibility(View.INVISIBLE);
+    } else if (id == R.id.gone) {
+        mVictim.setVisibility(View.GONE);
+    }
+  }
 
   @Override
   @SuppressWarnings("unused")
