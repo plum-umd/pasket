@@ -89,18 +89,18 @@ public class Visibility1 extends Activity implements OnClickListener {
     // could set box drawable background
 
     TextView tv = new TextView(this);
-    tv.setBackgroundColor(0xffff0000);
+    //tv.setBackgroundColor(0xffff0000);
     tv.setText("View A");
     tv_layout.addView(tv, 0, new ViewGroup.LayoutParams(mp, wc));
 
     tv = new TextView(this);
     tv.setId(R.id.victim);
-    tv.setBackgroundColor(0xff00ff00);
+    //tv.setBackgroundColor(0xff00ff00);
     tv.setText("View B");
     tv_layout.addView(tv, 1, new ViewGroup.LayoutParams(mp, wc));
 
     tv = new TextView(this);
-    tv.setBackgroundColor(0xff0000ff);
+    //tv.setBackgroundColor(0xff0000ff);
     tv.setText("View C");
     tv_layout.addView(tv, 2, new ViewGroup.LayoutParams(mp, wc));
 
