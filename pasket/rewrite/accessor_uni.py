@@ -375,6 +375,12 @@ class AccessorUni(object):
       map(lambda m: [aux_range(C.ACC.SET, c, m, mtds, 1, True)], range(conf[c][2]))
     map(mtd_range, conf.iterkeys())
 
+    # range check for gs: as an index, shouldn't be negative
+    def gs_positive(role):
+      rv = getattr(aux, role)
+      checkers.append("assert {} >= 0;".format(rv))
+    map(gs_positive, gs_vars)
+
     # range check for constructors
     inits = util.flatten(map(AccessorUni.get_candidate_inits, self._clss))
     cons_ids = map(get_id, inits)
