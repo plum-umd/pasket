@@ -39,7 +39,8 @@ class Observer(object):
 
   def __init__(self, smpls, obs_conf):
     self._smpls = smpls
-    self._smpl_events = sample.evt_kinds(smpls)
+    evt_kinds = sample.evt_kinds(smpls)
+    self._smpl_events = util.ffilter(map(class_lookup, evt_kinds))
     self._obs_conf = obs_conf
 
     self._tmpl = None
@@ -74,8 +75,11 @@ class Observer(object):
 
       events = util.find(Observer.find_obs(), cls.annos).events
       for event in events:
-        if event in self._smpl_events: # appears in the samples
-          util.mk_or_append(self._clss, event, cls)
+        cls_e = class_lookup(event)
+        if not cls_e: continue
+        for cls_smpl_e in self._smpl_events:
+          if cls_smpl_e <= cls_e: # subtype appears in the samples
+            util.mk_or_append(self._clss, event, cls)
 
     for event in self._clss.keys():
       # if # of candidates is less than 2, ignore that event
@@ -108,12 +112,11 @@ class Observer(object):
         logging.debug("ignore {} due to no implementers".format(cls.name))
         continue
 
-      involved_clss = cls.param_typs
-      for event in self._smpl_events:
-        cls_e = class_lookup(event)
-        for cls_i in map(class_lookup, involved_clss):
+      involved_clss = map(class_lookup, cls.param_typs)
+      for cls_e in self._smpl_events:
+        for cls_i in involved_clss:
           if cls_i and cls_e <= cls_i:
-            util.mk_or_append(self._clss, event, cls)
+            util.mk_or_append(self._clss, cls_e.name, cls)
 
     for event in self._clss.keys():
       # if # of candidates is less than 2, ignore that event
