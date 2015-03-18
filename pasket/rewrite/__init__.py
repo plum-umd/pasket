@@ -13,6 +13,7 @@ from factory import Factory
 from proxy import Proxy
 from singleton import Singleton
 from state import State
+from semantic_checker import SemanticChecker
 
 @takes(str, list_of("Sample"), "Template", list_of(str))
 @returns(nothing)
@@ -87,4 +88,9 @@ def visit(cmd, smpls, tmpl, patterns):
   for p in patterns:
     logging.info("rewriting {} pattern".format(p))
     tmpl.accept(p2v[p])
+
+  # final semantic checking
+  logging.info("semantics checking")
+  chker = SemanticChecker()
+  tmpl.accept(chker)
 
