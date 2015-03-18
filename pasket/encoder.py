@@ -1061,10 +1061,11 @@ def gen_smpl_sk(sk_path, smpl, tmpl, main):
     vals = []
     for val in io.vals:
       kind = sample.kind(val)
-      if kind is [str, unicode]: pass # ignore strings in the samples
-
       if type(kind) is type: val = str(val)
-      if val not in objs: # this object (or primitive value) never occurs
+      # every occurrence of constant string will be uniquely allocated,
+      # hence different hash => assign unique obj_cnt
+      if util.is_str(unicode(val)) or \
+          val not in objs: # this object (or primitive value) never occurs
         obj_cnt = obj_cnt + 1
         objs[val] = obj_cnt
       vals.append(str(objs[val]))
