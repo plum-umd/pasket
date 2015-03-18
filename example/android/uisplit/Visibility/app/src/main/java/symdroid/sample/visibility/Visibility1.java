@@ -12,6 +12,10 @@ import android.widget.TextView;
 
 public class Visibility1 extends Activity implements OnClickListener {
 
+  public Visibility1() {
+    super();
+  }
+
   private static String TAG = "Visibility1";
   private View mVictim;
 
