@@ -149,6 +149,15 @@ class Method(v.BaseNode):
   def __eq__(self, other):
     return repr(self) == repr(other)
 
+  def is_supercall(self, other):
+    if self._name != other.name: return False
+    if len(self._params) != len(other.params): return False
+    if not (self._clazz <= other.clazz): return False
+    args = sig_match(other.params, self._params)
+    for (_, nm), arg in zip(self._params, args):
+      if nm != arg: return False
+    return True
+
   def accept(self, visitor):
     visitor.visit(self)
     f = op.methodcaller("accept", visitor)

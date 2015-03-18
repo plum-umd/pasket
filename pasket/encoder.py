@@ -557,10 +557,15 @@ def sanitize_id(dot_id):
 
 # need to check log conformity except for calls inside the platform
 # i.e., client -> client, platform -> client or vice versa
+# also discard super calls towards the platform, e.g.,
+#     class MyActivity extends Activity {
+#         ... onCreate(...) { super.onCreate(...); ... }
+#     }
 @takes(Method, Method)
 @returns(bool)
 def check_logging(caller, callee):
-  return caller.clazz.client or callee.clazz.client
+  return (caller.clazz.client or callee.clazz.client) and \
+      not caller.is_supercall(callee)
 
 
 @takes(optional(Method), Expression)
