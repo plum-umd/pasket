@@ -16,7 +16,7 @@ import util
 import sample
 from meta import methods, classes, class_lookup
 from meta.template import Template
-from meta.clazz import Clazz, find_fld, find_mtd_by_name, find_mtd_by_sig, find_base
+from meta.clazz import Clazz, find_fld, find_mtds_by_name, find_mtd_by_sig, find_base
 from meta.method import Method, sig_match
 from meta.field import Field
 from meta.statement import Statement
@@ -1048,9 +1048,29 @@ def gen_smpl_sk(sk_path, smpl, tmpl, main):
     # ignore <init>
     if io.is_init: continue
     try: # ignore methods that are not declared in the template
-      mtd = find_mtd_by_name(io.cls, io.mtd)
-      mid = repr(mtd)
-      if mid not in _mids: continue
+      mid = None
+
+      # TODO: retrieve arg types; is it possible for method exit?
+      mtd = None # find_mtd_by_sig(io.cls, io.mtd, ...)
+      if mtd: # found the method that matches the argument types
+        mid = repr(mtd)
+        if mid not in _mids: continue
+
+      else: # try other possible methods
+        mtds = find_mtds_by_name(io.cls, io.mtd)
+        argn = len(io.vals)
+        min_gap = argn
+        for mtd in mtds:
+          if isinstance(io, sample.CallEnt):
+            _gap = abs((argn - (0 if mtd.is_static else 1)) - len(mtd.params))
+          else: # sample.CallExt
+            _gap = abs(argn - (0 if mtd.typ == C.J.v else 1))
+          if _gap <= min_gap: # eq is needed for zero parameter
+            min_gap = _gap
+            mid = repr(mtd)
+            if mid not in _mids: mid = None
+
+      if not mid: continue
     except AttributeError: continue
 
     if isinstance(io, sample.CallEnt):
