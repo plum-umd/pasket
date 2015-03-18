@@ -117,7 +117,7 @@ class Method(v.BaseNode):
 
   @property
   def has_return(self):
-    return self.body and self.body[-1].kind == C.S.RETURN
+    return util.exists(op.attrgetter("has_return"), self.body)
 
   def __repr__(self):
     mname, cname = self._name, repr(self._clazz)

@@ -118,6 +118,23 @@ class Statement(v.BaseNode):
       self.fs = util.flatten(map(f, self.fs))
     return visitor.visit(self)
 
+  def exists(self, pred):
+    if pred(self): return True
+    f = op.methodcaller("exists", pred)
+    if self._kind == C.S.IF:
+      return util.exists(f, self.t + self.f)
+    elif self._kind in [C.S.WHILE, C.S.REPEAT, C.S.FOR]:
+      return util.exists(f, self.b)
+    elif self._kind == C.S.TRY: # TODO: catches
+      return util.exists(f, self.b + self.fs)
+    else:
+      return False
+
+  @property
+  def has_return(self):
+    f = lambda s: s.kind == C.S.RETURN
+    return self.exists(f)
+
 
 # e -> S(EXP, e)
 @takes(Expression)
