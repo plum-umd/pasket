@@ -124,9 +124,6 @@ class Method(v.BaseNode):
     params = map(util.sanitize_ty, self.param_typs)
     return u'_'.join([mname, cname] + params)
 
-  def __eq__(self, other):
-    return repr(self) == repr(other)
-
   def __str__(self, s_printer=str):
     buf = cStringIO.StringIO()
     if self._mods:
@@ -148,6 +145,9 @@ class Method(v.BaseNode):
       buf.write('\n'.join(map(s_printer, self._body)))
       buf.write("\n}\n")
     return buf.getvalue()
+
+  def __eq__(self, other):
+    return repr(self) == repr(other)
 
   def accept(self, visitor):
     visitor.visit(self)

@@ -99,9 +99,6 @@ class Field(v.BaseNode):
   def __repr__(self):
     return u"{}_{}".format(self._name, util.sanitize_ty(self._clazz.name))
 
-  def __eq__(self, other):
-    return repr(self) == repr(other)
-
   def __str__(self):
     buf = cStringIO.StringIO()
     if self._mods: buf.write(' '.join(self._mods) + ' ')
@@ -109,6 +106,9 @@ class Field(v.BaseNode):
     if self._init: buf.write(" = " + str(self._init))
     buf.write(';')
     return buf.getvalue()
+
+  def __eq__(self, other):
+    return repr(self) == repr(other)
 
   def accept(self, visitor):
     visitor.visit(self)
