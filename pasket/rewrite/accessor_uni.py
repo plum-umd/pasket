@@ -442,8 +442,7 @@ class AccessorUni(object):
     obj_cnt = sample.max_objs(self._smpls)
     evt_cnt = sample.max_evts(self._smpls)
     arg_cnt = sum(map(lambda (c, g, s): c, self._acc_conf.values()))
-    # +1 : counting InvocationEvent
-    c_cnt = (obj_cnt + evt_cnt + 1) * (arg_cnt + 1) / len(self._acc_conf.keys())
+    c_cnt = (obj_cnt + evt_cnt + 1) * arg_cnt
 
     # assumption: each getter could be invoked per event
     g_cnt = sum(map(lambda (c, g, s): g, self._acc_conf.values()))
