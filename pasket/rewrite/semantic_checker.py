@@ -41,8 +41,8 @@ class SemanticChecker(object):
         node.body += to_statements(node, u"return 0;")
       elif node.typ == C.J.z:
         node.body += to_statements(node, u"return false;")
-      elif node.typ == C.J.STR:
-        node.body += to_statements(node, u"return \"\";")
+      #elif node.typ == C.J.STR:
+      #  node.body += to_statements(node, u"return \"\";")
       else:
         node.body += to_statements(node, u"return null;")
 
