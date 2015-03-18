@@ -1044,13 +1044,20 @@ def gen_smpl_sk(sk_path, smpl, tmpl, main):
   global _mids
   objs = {} # { @Obj...aaa : 1, @Obj...bbb : 2, ... }
   obj_cnt = 0
+  call_stack = []
   for io in smpl.IOs:
     # ignore <init>
     if io.is_init: continue
-    try: # ignore methods that are not declared in the template
+    elif isinstance(io, sample.CallExt):
+      # ignore method exits whose counterparts are missed
+      if not call_stack: continue
+      mid = call_stack.pop()
+      # ignore methods that are not declared in the template
+      if not mid: continue
+    else: # sample.CallEnt
       mid = None
 
-      # TODO: retrieve arg types; is it possible for method exit?
+      # TODO: retrieve arg types
       mtd = None # find_mtd_by_sig(io.cls, io.mtd, ...)
       if mtd: # found the method that matches the argument types
         mid = repr(mtd)
@@ -1061,17 +1068,15 @@ def gen_smpl_sk(sk_path, smpl, tmpl, main):
         argn = len(io.vals)
         min_gap = argn
         for mtd in mtds:
-          if isinstance(io, sample.CallEnt):
-            _gap = abs((argn - (0 if mtd.is_static else 1)) - len(mtd.params))
-          else: # sample.CallExt
-            _gap = abs(argn - (0 if mtd.typ == C.J.v else 1))
+          _gap = abs((argn - (0 if mtd.is_static else 1)) - len(mtd.params))
           if _gap <= min_gap: # eq is needed for zero parameter
             min_gap = _gap
             mid = repr(mtd)
             if mid not in _mids: mid = None
 
+      call_stack.append(mid)
+      # ignore methods that are not declared in the template
       if not mid: continue
-    except AttributeError: continue
 
     if isinstance(io, sample.CallEnt):
       mid = mid + "_ent()"
