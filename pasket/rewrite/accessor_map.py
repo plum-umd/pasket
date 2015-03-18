@@ -59,7 +59,8 @@ class AccessorMap(object):
 
   @staticmethod
   def is_candidate_getter(mtd):
-    return not mtd.is_init and len(mtd.params) == 1 and mtd.typ != C.J.v
+    return not mtd.is_init and len(mtd.params) == 1 and mtd.typ != C.J.v \
+        and mtd.typ not in C.primitives # NOTE: value type is fixed to C.J.OBJ
 
   @staticmethod
   def is_candidate_setter(mtd):
@@ -82,7 +83,7 @@ class AccessorMap(object):
   def getter_params():
     return [ (C.J.i, u"map_id"), (C.J.i, u"mtd_id"), (C.J.OBJ, u"callee") ]
 
-  # TODO: value type is currently fixed to C.J.OBJ
+  # NOTE: value type is fixed to C.J.OBJ
   # code for getting a map
   @staticmethod
   def __getter(aux, ty):
@@ -106,7 +107,7 @@ class AccessorMap(object):
   def igetter(aux):
     AccessorMap.__getter(aux, C.J.i)
 
-  # TODO: value type is currently fixed to C.J.OBJ
+  # NOTE: value type is fixed to C.J.OBJ
   # code for setting a map
   @staticmethod
   def __setter(aux, ty):
