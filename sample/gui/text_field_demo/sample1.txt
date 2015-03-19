@@ -108,7 +108,7 @@
   > javax.swing.JFrame.setVisible(tutorial.text_field_demo.TextFieldDemo@727081198, true)
   < javax.swing.JFrame.setVisible()
 < tutorial.text_field_demo.TextFieldDemo$1.run()
-> javax.swing.text.AbstractDocument$DefaultDocumentEvent.AbstractDocument$DefaultDocumentEvent(0, 1, "INSERT")
+> javax.swing.text.AbstractDocument$DefaultDocumentEvent.AbstractDocument$DefaultDocumentEvent(0, 1, DocumentEvent.EventType.INSERT)
 < javax.swing.text.AbstractDocument$DefaultDocumentEvent.AbstractDocument$DefaultDocumentEvent(javax.swing.text.AbstractDocument$DefaultDocumentEvent@476466255)
 > tutorial.text_field_demo.TextFieldDemo.insertUpdate(tutorial.text_field_demo.TextFieldDemo@727081198, javax.swing.text.AbstractDocument$DefaultDocumentEvent@476466255)
   > tutorial.text_field_demo.TextFieldDemo.search(tutorial.text_field_demo.TextFieldDemo@727081198)

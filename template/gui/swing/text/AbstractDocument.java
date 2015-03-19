@@ -12,7 +12,7 @@ public abstract class AbstractDocument implements Document {
   public String getText(int offset, int length);
 
   public class DefaultDocumentEvent implements DocumentEvent {
-    public DefaultDocumentEvent(int off, int len, String type);
+    public DefaultDocumentEvent(int off, int len, DocumentEvent.EventType type);
     public Document getDocument();
     public DocumentEvent.EventType getType();
   }
