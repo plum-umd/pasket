@@ -173,7 +173,7 @@ public class TextFieldDemo extends JFrame
 
     public void search() {
         hilit.removeAllHighlights();
-
+/*
         String s = entry.getText();
         if (s.length() <= 0) {
             message("Nothing to search");
@@ -198,6 +198,7 @@ public class TextFieldDemo extends JFrame
             //message("'" + s + "' not found. Press ESC to start a new search");
             message(s);
         }
+*/
     }
 
     void message(String msg) {

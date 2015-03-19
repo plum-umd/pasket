@@ -15,7 +15,7 @@ acc_conf_uni = {
 
   "ActionEvent": (3, 1, 0), # getActionCommand
   "ItemEvent": (4, 2, 0), # get(ItemSelectable|StateChange)
-  "DefaultDocumentEvent": (3, 1, 0), # getType
+  "DefaultDocumentEvent": (4, 1, 0), # getType
   "ListSelectionEvent": (4, 3, 0), # get((First|Last)Index|ValueIsAdjusting)
 
   "JButton": (2, 1, 1), # (get|set)ActionCommand
