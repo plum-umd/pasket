@@ -608,12 +608,10 @@ def __find_mtd(cname, f):
 
 # find the method by the given class name and method name
 @takes(unicode, unicode)
-@returns(optional("Method"))
-def find_mtd_by_name(cname, mname):
+@returns(list_of("Method"))
+def find_mtds_by_name(cname, mname):
   f = lambda cls: cls.mtd_by_name(mname)
-  mtds = __find_mtd(cname, f)
-  if mtds: return mtds[0]
-  else: return None
+  return __find_mtd(cname, f)
 
 
 # find the method by the given class name, method name, and parameter types

@@ -16,7 +16,7 @@ import util
 import sample
 from meta import methods, classes, class_lookup
 from meta.template import Template
-from meta.clazz import Clazz, find_fld, find_mtd_by_name, find_mtd_by_sig, find_base
+from meta.clazz import Clazz, find_fld, find_mtds_by_name, find_mtd_by_sig, find_base
 from meta.method import Method, sig_match
 from meta.field import Field
 from meta.statement import Statement
@@ -557,10 +557,15 @@ def sanitize_id(dot_id):
 
 # need to check log conformity except for calls inside the platform
 # i.e., client -> client, platform -> client or vice versa
+# also discard super calls towards the platform, e.g.,
+#     class MyActivity extends Activity {
+#         ... onCreate(...) { super.onCreate(...); ... }
+#     }
 @takes(Method, Method)
 @returns(bool)
 def check_logging(caller, callee):
-  return caller.clazz.client or callee.clazz.client
+  return (caller.clazz.client or callee.clazz.client) and \
+      not caller.is_supercall(callee)
 
 
 @takes(optional(Method), Expression)
@@ -750,14 +755,23 @@ def trans_s(mtd, s):
 
 
 @takes(tuple_of(unicode))
-@returns(unicode)
+@returns(tuple_of(unicode))
 def log_param( (ty, nm) ):
   ty = trans_ty(ty)
   if util.is_class_name(ty):
-    if nm == C.J.N: return u''
-    else: return nm + ".hash"
-  elif ty in [C.SK.z] + C.primitives: return nm
-  else: return u''
+    if nm == C.J.N:
+      return (u'', u'')
+    else:
+      nm_hash = nm + u"_hash"
+      retrival = u"""
+        int {nm_hash} = 0;
+        if ({nm} != null) {{ {nm_hash} = {nm}.hash; }}
+      """.format(**locals())
+      return (retrival, nm_hash)
+  elif ty in [C.SK.z] + C.primitives:
+    return (u'', nm)
+  else:
+    return (u'', u'')
 
 
 # Java member method -> C-style function
@@ -769,10 +783,11 @@ def to_func(smpls, mtd):
   buf = cStringIO.StringIO()
   if C.mod.GN in mtd.mods: buf.write(C.mod.GN + ' ')
   elif C.mod.HN in mtd.mods: buf.write(C.mod.HN + ' ')
+  ret_ty = trans_ty(mtd.typ)
   cname = unicode(repr(mtd.clazz))
   mname = mtd.name
   arg_typs = mtd.param_typs
-  buf.write(trans_ty(mtd.typ) + ' ' + trans_mname(cname, mname, arg_typs) + '(')
+  buf.write(ret_ty + ' ' + trans_mname(cname, mname, arg_typs) + '(')
 
   @takes(tuple_of(unicode))
   @returns(unicode)
@@ -809,34 +824,47 @@ def to_func(smpls, mtd):
     _mids.add(mid)
 
   if logged: # logging method entry (>)
-    log_params = util.ffilter([m_ent] + map(log_param, params))
-    buf.write("""
+    _log_params = map(log_param, params)
+    _retrievals, _hashes = util.split([(u'', m_ent)] + _log_params)
+    ent_retrievals = util.ffilter(_retrievals)
+    ent_hashes = util.ffilter(_hashes)
+    buf.write("""{}
       int[P] __params = {{ {} }};
       if (logging) check_log@log(__params);
-    """.format(", ".join(log_params)))
+    """.format(u''.join(ent_retrievals), u", ".join(ent_hashes)))
 
   is_void = C.J.v == mtd.typ
   if mtd.body:
-    if is_void: bodies = mtd.body
-    else: bodies = mtd.body[:-1] # exclude the last 'return' statement
+    if not is_void and not mtd.is_init:
+      bodies = mtd.body[:-1] # exclude the last 'return' statement
+    else: bodies = mtd.body
     buf.write('\n'.join(map(partial(trans_s, mtd), bodies)))
 
   if logged: # logging method exit (<)
-    ret = u''
-    if mtd.body and not is_void:
-      if mtd.is_init: ret_v = st.gen_E_id(C.SK.self)
-      else: ret_v = mtd.body[-1].e
+    _log_params = []
+    if mtd.body and not is_void and not mtd.is_init:
+      ret_v = mtd.body[-1].e
       ret_u = unicode(trans_e(mtd, ret_v))
-      ret_ty = trans_ty(mtd.typ)
-      ret = log_param( (ret_ty, ret_u) )
-    log_params = util.ffilter([m_ext, ret])
-    buf.write("""
+      # retrieve the return value to a temporary variable
+      buf.write("{} __ret = {};".format(ret_ty, ret_u))
+      # then, try to obtain a hash from that temporary variable
+      _log_params.append(log_param( (ret_ty, u"__ret") ))
+
+    _retrievals, _hashes = util.split([(u'', m_ext)] + _log_params)
+    ext_retrievals = util.ffilter(_retrievals)
+    ext_hashes = util.ffilter(_hashes)
+    buf.write("""{}
       __params = {{ {} }};
       if (logging) check_log@log(__params);
-    """.format(", ".join(log_params)))
+    """.format(u''.join(ext_retrievals), u", ".join(ext_hashes)))
 
-  if mtd.body and not is_void:
-    buf.write('\n' + trans_s(mtd, mtd.body[-1]))
+  if mtd.body and not is_void and not mtd.is_init:
+    buf.write(os.linesep)
+    if logged:
+      # return the return value stored at the temporary variable
+      buf.write("return __ret;")
+    else:
+      buf.write(trans_s(mtd, mtd.body[-1]))
 
   if mtd.is_init:
     evt_srcs = map(util.sanitize_ty, sample.evt_sources(smpls))
@@ -1042,16 +1070,41 @@ def gen_smpl_sk(sk_path, smpl, tmpl, main):
     int[P] log = { 0 };
   """)
   global _mids
-  objs = {} # { @Obj...aaa : 1, @Obj...bbb : 2, ... }
+  objs = { C.J.N: 0 } # { @Obj...aaa : 1, @Obj...bbb : 2, ... }
   obj_cnt = 0
+  call_stack = []
   for io in smpl.IOs:
     # ignore <init>
     if io.is_init: continue
-    try: # ignore methods that are not declared in the template
-      mtd = find_mtd_by_name(io.cls, io.mtd)
-      mid = repr(mtd)
-      if mid not in _mids: continue
-    except AttributeError: continue
+    elif isinstance(io, sample.CallExt):
+      # ignore method exits whose counterparts are missed
+      if not call_stack: continue
+      mid = call_stack.pop()
+      # ignore methods that are not declared in the template
+      if not mid: continue
+    else: # sample.CallEnt
+      mid = None
+
+      # TODO: retrieve arg types
+      mtd = None # find_mtd_by_sig(io.cls, io.mtd, ...)
+      if mtd: # found the method that matches the argument types
+        mid = repr(mtd)
+        if mid not in _mids: continue
+
+      else: # try other possible methods
+        mtds = find_mtds_by_name(io.cls, io.mtd)
+        argn = len(io.vals)
+        min_gap = argn
+        for mtd in mtds:
+          _gap = abs((argn - (0 if mtd.is_static else 1)) - len(mtd.params))
+          if _gap <= min_gap: # eq is needed for zero parameter
+            min_gap = _gap
+            mid = repr(mtd)
+            if mid not in _mids: mid = None
+
+      call_stack.append(mid)
+      # ignore methods that are not declared in the template
+      if not mid: continue
 
     if isinstance(io, sample.CallEnt):
       mid = mid + "_ent()"

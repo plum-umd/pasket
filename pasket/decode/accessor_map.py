@@ -222,43 +222,32 @@ class AccessorMap(object):
   def visit(self, node):
     self._cur_mtd = node
 
-    #add default return value of the body is empty
-    if not node.is_init and node.body == [] and node.typ != C.J.v:
-      if node.typ == C.J.i:
-        node.body += to_statements(node, u"return 0;")
-      elif node.typ == C.J.z:
-        node.body += to_statements(node, u"return false;")
-      elif node.typ == C.J.STR:
-        node.body += to_statements(node, u"return \"\";")
-      else:
-        node.body += to_statements(node, u"return null;")
-
   @v.when(Statement)
   def visit(self, node):
-    #print "visiting", unicode(node), "in", self._cur_mtd.signature
     if node.kind == C.S.EXP and node.e.kind == C.E.CALL:
       call = unicode(node)
-      if "setterInOne" in call or "SetterInOne" in call:
-        ## Aux.....setterInOne(...);
-        return to_statements(self._cur_mtd, u"if (null != null) return;")
-      elif call.startswith(C.ACC.AUX):
-        ## Aux...constructor...
-        return []
+      if call.startswith(C.ACC.AUX+"Map"):
+        logging.debug("removing {}".format(call))
+        if "setterInOne" in call or "SetterInOne" in call:
+          ## Aux.....setterInOne(...);
+          return to_statements(self._cur_mtd, u"if (null != null) return;")
+        else:
+          ## Aux...constructor...
+          return []
     if node.kind == C.S.RETURN:
       call = unicode(node)
-      if call.startswith(u"return " + C.ACC.AUX):
+      if call.startswith(u"return " + C.ACC.AUX+"Map"):
+        logging.debug("removing {}".format(call))
         if "iGetterInOne" in call:
         ## Aux.....iGetterInOne(...);
           return to_statements(self._cur_mtd, u"return 0;")
-        elif "bGetterInOne" in call:
-        ## Aux.....bGetterInOne(...);
+        elif "zGetterInOne" in call:
+        ## Aux.....zGetterInOne(...);
           return to_statements(self._cur_mtd, u"return false;")
-        elif "sGetterInOne" in call:
-        ## Aux.....sGetterInOne(...);
-          return to_statements(self._cur_mtd, u"return \"\";")
         elif "getterInOne" in call:
         ## Aux.....sGetterInOne(...);
           return to_statements(self._cur_mtd, u"return null;")
+
     return [node]
 
   @v.when(Expression)

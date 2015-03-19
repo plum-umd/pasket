@@ -117,15 +117,12 @@ class Method(v.BaseNode):
 
   @property
   def has_return(self):
-    return self.body and self.body[-1].kind == C.S.RETURN
+    return util.exists(op.attrgetter("has_return"), self.body)
 
   def __repr__(self):
     mname, cname = self._name, repr(self._clazz)
     params = map(util.sanitize_ty, self.param_typs)
     return u'_'.join([mname, cname] + params)
-
-  def __eq__(self, other):
-    return repr(self) == repr(other)
 
   def __str__(self, s_printer=str):
     buf = cStringIO.StringIO()
@@ -148,6 +145,18 @@ class Method(v.BaseNode):
       buf.write('\n'.join(map(s_printer, self._body)))
       buf.write("\n}\n")
     return buf.getvalue()
+
+  def __eq__(self, other):
+    return repr(self) == repr(other)
+
+  def is_supercall(self, other):
+    if self._name != other.name: return False
+    if len(self._params) != len(other.params): return False
+    if not (self._clazz <= other.clazz): return False
+    args = sig_match(other.params, self._params)
+    for (_, nm), arg in zip(self._params, args):
+      if nm != arg: return False
+    return True
 
   def accept(self, visitor):
     visitor.visit(self)
