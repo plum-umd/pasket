@@ -377,7 +377,6 @@ class Observer(object):
         full_args = u", ".join([hdl0, rcv, u"null", args])
         call = u"{}.{}({});".format(aux.name, aux.one.name, full_args)
         body += u"\nelse if (mtd_id == {hdl}) {{ {call} }}".format(**locals())
-        print body
       return body
     tests = util.ffilter(map(switch, permutations(clss, 2)))
     reflect.body = to_statements(reflect, u"\nelse ".join(tests))
@@ -452,15 +451,27 @@ class Observer(object):
     aname = aux.name
     args = u", ".join(map(lambda (ty, nm): nm, params))
 
-    if conf[0] < 2:
+    def handle_body(aux, role):
+      aname, evtname = aux.name, aux.evt.name
       cnt = Observer.__cnt
       loop = u"""
         LinkedList<{aname}> obs{cnt} = rcv_{aname}._obs;
         for ({aname} o : obs{cnt}) {{
-          {aname}.{reflect}({aux.update}, o, rcv_{aname}, ({aux.evt.name})evt);
+          {aname}.reflect({role}, o, rcv_{aname}, ({evtname})evt);
         }}""".format(**locals())
-      handle.body = to_statements(handle, loop)
+      return loop
+    def handle_mtd(i):
+      handle_i = Method(clazz=aux, mods=C.PBST, params=params, name=u"handleCode_{i}".format(**locals()))
+      body_i = handle_body(aux, getattr(aux, "update_"+str(i)))
+      handle_i.body = to_statements(handle_i, body_i)
+      setattr(aux, "mtd_handle_"+str(i), handle_i)
+      return handle_i
+    if conf[0] < 2:
+      cnt = Observer.__cnt
+      body = handle_body(aux, aux.update)
+      handle.body = to_statements(handle, body)
     else:
+      aux.add_mtds(map(handle_mtd, range(conf[0])))
       evt_cls = class_lookup(aux.evt.name)
       const_flds = []
       if evt_cls.inners:
@@ -506,12 +517,13 @@ class Observer(object):
       aname = aux.name
       args = ", ".join(map(lambda (ty, nm): nm, params[1:]))
       v = getattr(aux, role)
-      f = getattr(aux, "mtd_handle").name if role.startswith(C.OBS.H) else getattr(aux, "mtd_"+role).name
+      f = getattr(aux, "mtd_"+role).name
+      #f = getattr(aux, "mtd_handle").name if role.startswith(C.OBS.H) else getattr(aux, "mtd_"+role).name
       return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
 
-    roles = []
-    if conf[0] < 2: roles.append(C.OBS.H)
-    else: map(lambda i: roles.append('_'.join([C.OBS.H, str(i)])), range(conf[0]))
+    roles = [C.OBS.H]
+    #if conf[0] < 2: roles.append(C.OBS.H)
+    if conf[0] >= 2: map(lambda i: roles.append('_'.join([C.OBS.H, str(i)])), range(conf[0]))
     
     if conf[1] > 0: roles.append(C.OBS.A)
     if conf[2] > 0: roles.append(C.OBS.D)
@@ -747,7 +759,6 @@ class Observer(object):
             one_params.append( (ty, nm) )
 
         body = u"{};".format(call_stt(aux.one, one_params))
-        print body
         if evt_passed:
           body = u"""
             if ({0}_k == {1}) {{ {2} }}
