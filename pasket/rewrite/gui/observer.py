@@ -350,7 +350,7 @@ class Observer(object):
     setattr(aux, "egetter", egetter)
 
   # a method that simulates reflection
-  def reflect(self, aux, clss):
+  def reflect(self, aux, clss, conf):
     params = [(C.J.i, u"mtd_id")] + Observer.mtd_params(aux)
     reflect = Method(clazz=aux, mods=C.PBST, params=params, name=u"reflect")
     def switch( (cls, other) ):
@@ -367,7 +367,18 @@ class Observer(object):
         call = u"({}).{}({});".format(casted_rcv, mtd.name, args)
         return u"if (mtd_id == {mtd.id}) {{ {call} }}".format(**locals())
       invocations = util.ffilter(map(invoke, mtds))
-      return u"\nelse ".join(invocations)
+      body = u"\nelse ".join(invocations)
+      if conf[0] >= 2:
+        hdl, hdl0 = getattr(aux, "handle"), getattr(aux, "handle_0")
+        rcv = u"rcv_{}".format(aux.name)
+        #casted_rcv = u"({})rcv_{}".format(aux.name, aux.name)
+        actual_params = [(other.name, u"arg")] + [params[-1]]
+        args = u", ".join(sig_match(mtd.params, actual_params))
+        full_args = u", ".join([hdl0, rcv, u"null", args])
+        call = u"{}.{}({});".format(aux.name, aux.one.name, full_args)
+        body += u"\nelse if (mtd_id == {hdl}) {{ {call} }}".format(**locals())
+        print body
+      return body
     tests = util.ffilter(map(switch, permutations(clss, 2)))
     reflect.body = to_statements(reflect, u"\nelse ".join(tests))
     Observer.limit_depth(aux, reflect, 2)
@@ -419,7 +430,7 @@ class Observer(object):
 
     cnt = Observer.__cnt
     aname = aux.name
-    reflect = getattr(aux, "reflect").name
+    reflect = u"reflect" #getattr(aux, "reflect").name
     loop = u"""
       LinkedList<{aname}> obs{cnt} = rcv_{aname}._obs;
       for ({aname} o : obs{cnt}) {{
@@ -436,7 +447,7 @@ class Observer(object):
     #rcv = u'_'.join(["rcv", ename])
     params = Observer.mtd_params(aux)
     handle = Method(clazz=aux, mods=C.PBST, params=params, name=u"handleCode")
-    reflect = getattr(aux, "reflect").name
+    reflect = u"reflect" #getattr(aux, "reflect").name
     if conf[0] >= 2: egetter = getattr(aux, "egetter").name
     aname = aux.name
     args = u", ".join(map(lambda (ty, nm): nm, params))
@@ -465,7 +476,7 @@ class Observer(object):
         evt_cls = class_lookup(aux.evt.name)
         evtyp = evt_cls.inners[0].name
         aname = aux.name
-        reflect = getattr(aux, "reflect").name
+        reflect = u"reflect" #getattr(aux, "reflect").name
         cns_typ = '.'.join([evtyp, const_flds[i].name])
         hdl_id = getattr(aux, u"handle_"+unicode(i))
         params = Observer.mtd_params(aux)
@@ -495,10 +506,13 @@ class Observer(object):
       aname = aux.name
       args = ", ".join(map(lambda (ty, nm): nm, params[1:]))
       v = getattr(aux, role)
-      f = getattr(aux, "mtd_"+role).name
+      f = getattr(aux, "mtd_handle").name if role.startswith(C.OBS.H) else getattr(aux, "mtd_"+role).name
       return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
 
-    roles = [C.OBS.H]
+    roles = []
+    if conf[0] < 2: roles.append(C.OBS.H)
+    else: map(lambda i: roles.append('_'.join([C.OBS.H, str(i)])), range(conf[0]))
+    
     if conf[1] > 0: roles.append(C.OBS.A)
     if conf[2] > 0: roles.append(C.OBS.D)
     one.body = to_statements(one, u'\n'.join(map(switch, roles)))
@@ -592,11 +606,11 @@ class Observer(object):
     Observer.check_rule2(aux, conf)
 
     if conf[0] >= 2: self.egetter(aux, clss)
-    self.reflect(aux, clss)
+    Observer.handle(aux, conf)
     Observer.attach(aux)
     Observer.detach(aux)
-    Observer.handle(aux, conf)
     Observer.subjectCall(aux, conf)
+    self.reflect(aux, clss, conf)
 
     add_artifacts([aux.name])
     return aux
@@ -733,6 +747,7 @@ class Observer(object):
             one_params.append( (ty, nm) )
 
         body = u"{};".format(call_stt(aux.one, one_params))
+        print body
         if evt_passed:
           body = u"""
             if ({0}_k == {1}) {{ {2} }}
