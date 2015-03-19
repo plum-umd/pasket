@@ -15,6 +15,7 @@ acc_conf_uni = {
 
   "ActionEvent": (3, 1, 0), # getActionCommand
   "ItemEvent": (4, 2, 0), # get(ItemSelectable|StateChange)
+  "DefaultDocumentEvent": (3, 1, 0), # getType
   "ListSelectionEvent": (4, 3, 0), # get((First|Last)Index|ValueIsAdjusting)
 
   "JButton": (2, 1, 1), # (get|set)ActionCommand
@@ -23,6 +24,7 @@ acc_conf_uni = {
 # configuration for the accessor pattern (of Map<K,V> type)
 acc_conf_map = {
   "JCompoment": (0, 1, 1), # (get|set)InputMap
+  "ActionMap": (0, 1, 1), # get, put
 }
 
 # configuration for the observer pattern
