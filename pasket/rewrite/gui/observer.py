@@ -371,7 +371,6 @@ class Observer(object):
       if conf[0] >= 2:
         hdl, hdl0 = getattr(aux, "handle"), getattr(aux, "handle_0")
         rcv = u"rcv_{}".format(aux.name)
-        #casted_rcv = u"({})rcv_{}".format(aux.name, aux.name)
         actual_params = [(other.name, u"arg")] + [params[-1]]
         args = u", ".join(sig_match(mtd.params, actual_params))
         full_args = u", ".join([hdl0, rcv, u"null", args])
@@ -443,7 +442,6 @@ class Observer(object):
   @staticmethod
   def handle(aux, conf):
     ename = aux.evt.name
-    #rcv = u'_'.join(["rcv", ename])
     params = Observer.mtd_params(aux)
     handle = Method(clazz=aux, mods=C.PBST, params=params, name=u"handleCode")
     reflect = u"reflect" #getattr(aux, "reflect").name
@@ -518,13 +516,10 @@ class Observer(object):
       args = ", ".join(map(lambda (ty, nm): nm, params[1:]))
       v = getattr(aux, role)
       f = getattr(aux, "mtd_"+role).name
-      #f = getattr(aux, "mtd_handle").name if role.startswith(C.OBS.H) else getattr(aux, "mtd_"+role).name
       return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
 
     roles = [C.OBS.H]
-    #if conf[0] < 2: roles.append(C.OBS.H)
     if conf[0] >= 2: map(lambda i: roles.append('_'.join([C.OBS.H, str(i)])), range(conf[0]))
-    
     if conf[1] > 0: roles.append(C.OBS.A)
     if conf[2] > 0: roles.append(C.OBS.D)
     one.body = to_statements(one, u'\n'.join(map(switch, roles)))
