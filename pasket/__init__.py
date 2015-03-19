@@ -242,7 +242,7 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
     ## encode (rewritten) templates into sketch files
     sk_dir = os.path.join(out_dir, '_'.join(["sk", p]))
     if conf["encoding"]:
-      encoder.to_sk(smpls, tmpl, sk_dir)
+      encoder.to_sk(cmd, smpls, tmpl, sk_dir)
     else: # not encoding
       logging.info("pass the encoding phase; rather use previous files")
 

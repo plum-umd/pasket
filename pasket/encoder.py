@@ -1310,9 +1310,9 @@ def reset():
 
 # translate the high-level templates into low-level sketches
 # using information at the samples
-@takes(list_of(sample.Sample), Template, str)
+@takes(str, list_of(sample.Sample), Template, str)
 @returns(nothing)
-def to_sk(smpls, tmpl, sk_dir):
+def to_sk(cmd, smpls, tmpl, sk_dir):
   # clean up result directory
   if os.path.isdir(sk_dir): util.clean_dir(sk_dir)
   else: os.makedirs(sk_dir)
@@ -1367,16 +1367,31 @@ def to_sk(smpls, tmpl, sk_dir):
 
   # sample.sk that imports all the other sketch files
   buf = cStringIO.StringIO()
+
   # --bnd-cbits: the number of bits for integer holes
   bits = max(5, int(math.ceil(math.log(len(methods()), 2))))
   buf.write("pragma options \"--bnd-cbits {}\";\n".format(bits))
+
   # --bnd-unroll-amnt: the unroll amount for loops
-  unroll_amnt = n_params
-  buf.write("pragma options \"--bnd-unroll-amnt {}\";\n".format(unroll_amnt))
+  unroll_amnt = None # use a default value if not set
+  if cmd == "android":
+    unroll_amnt = 3 # max siblings in a certain level of View hierarchy
+  elif cmd == "gui":
+    unroll_amnt = n_params
+  if unroll_amnt:
+    buf.write("pragma options \"--bnd-unroll-amnt {}\";\n".format(unroll_amnt))
+
   # --bnd-inline-amnt: bounds inlining to n levels of recursion
-  # setting it 1 means there is no recursion in tutorials
-  buf.write("pragma options \"--bnd-inline-amnt 1\";\n")
-  buf.write("pragma options \"--bnd-bound-mode CALLSITE\";\n")
+  inline_amnt = None # use a default value if not set
+  if cmd == "android":
+    inline_amnt = 2 # depth of View hierarchy (at findViewByTraversal)
+  elif cmd == "gui":
+    # setting it 1 means there is no recursion
+    inline_amnt = 1
+  if inline_amnt:
+    buf.write("pragma options \"--bnd-inline-amnt {}\";\n".format(inline_amnt))
+    buf.write("pragma options \"--bnd-bound-mode CALLSITE\";\n")
+
   sks = ["log.sk", "type.sk"] + cls_sks + smpl_sks
   for sk in sks:
     buf.write("include \"{}\";\n".format(sk))
