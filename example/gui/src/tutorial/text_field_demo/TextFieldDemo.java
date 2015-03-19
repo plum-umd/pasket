@@ -82,11 +82,12 @@ public class TextFieldDemo extends JFrame
 
         entryBg = entry.getBackground();
         entry.getDocument().addDocumentListener(this);
-
+/*
         InputMap im = entry.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap am = entry.getActionMap();
         im.put(KeyStroke.getKeyStroke("ESCAPE"), CANCEL_ACTION);
         am.put(CANCEL_ACTION, new CancelAction());
+*/
     }
 
     /** This method is called from within the constructor to
