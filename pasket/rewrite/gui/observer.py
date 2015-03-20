@@ -1,6 +1,6 @@
 import operator as op
 from functools import partial
-from itertools import permutations
+from itertools import permutations, combinations
 import logging
 
 import lib.const as C
@@ -196,7 +196,8 @@ class Observer(object):
   def check_rule1(aux, conf):
     rule = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"checkRule1")
     body = u"""
-      assert {aux.subject} != {aux.observer};""".format(**locals())
+      assert {aux.subject} != {aux.observer};
+    """.format(**locals())
     if conf[0] < 2:
       body += u"""
         assert subcls(belongsTo({aux.update}), {aux.observer});
@@ -208,13 +209,17 @@ class Observer(object):
         assert subcls(belongsTo({aux.eventtype}), {aux.event});
         assert 0 == (argNum({aux.eventtype}));
       """.format(**locals())
-      for i in range(conf[0]):
+      for i in xrange(conf[0]):
         aux_up = getattr(aux, "update_"+str(i))
         body += u"""
           assert subcls(belongsTo({aux_up}), {aux.observer});
           assert 1 == (argNum({aux_up}));
           assert subcls({aux.event}, argType({aux_up}, 0));
         """.format(**locals())
+      for i, j in combinations(range(conf[0]), 2):
+        aux_up_i = getattr(aux, "update_"+str(i))
+        aux_up_j = getattr(aux, "update_"+str(j))
+        body += u"assert {aux_up_i} != {aux_up_j};".format(**locals())
     rule.body = to_statements(rule, body)
     aux.add_mtds([rule])
 
@@ -266,9 +271,14 @@ class Observer(object):
     if conf[0] < 2:
       body += handle_related(aux, aux.handle)
     else:
-      for i in range(conf[0]):
+      for i in xrange(conf[0]):
         aux_hdl = getattr(aux, "handle_"+str(i))
         body += handle_related(aux, aux_hdl)
+      for i, j in combinations(range(conf[0]), 2):
+        aux_hdl_i = getattr(aux, "handle_"+str(i))
+        aux_hdl_j = getattr(aux, "handle_"+str(j))
+        body += u"assert {aux_hdl_i} != {aux_hdl_j};".format(**locals())
+
     rule.body = to_statements(rule, body)
     aux.add_mtds([rule])
 
@@ -369,17 +379,15 @@ class Observer(object):
       invocations = util.ffilter(map(invoke, mtds))
       body = u"\nelse ".join(invocations)
       if conf[0] >= 2:
-        hdl, hdl0 = getattr(aux, "handle"), getattr(aux, "handle_0")
-        rcv = u"rcv_{}".format(aux.name)
-        actual_params = [(other.name, u"arg")] + [params[-1]]
-        args = u", ".join(sig_match(mtd.params, actual_params))
-        full_args = u", ".join([hdl0, rcv, u"null", args])
-        call = u"{}.{}({});".format(aux.name, aux.one.name, full_args)
+        hdl, mtd = getattr(aux, "handle"), getattr(aux, "mtd_handle")
+        args = u", ".join(sig_match(mtd.params, params))
+        call = u"{}.{}({});".format(aux.name, mtd.name, args)
         body += u"\nelse if (mtd_id == {hdl}) {{ {call} }}".format(**locals())
       return body
     tests = util.ffilter(map(switch, permutations(clss, 2)))
     reflect.body = to_statements(reflect, u"\nelse ".join(tests))
-    Observer.limit_depth(aux, reflect, 2)
+    depth = 3 if conf[0] >= 2 else 2
+    Observer.limit_depth(aux, reflect, depth)
     aux.add_mtds([reflect])
     setattr(aux, "reflect", reflect)
 
@@ -464,6 +472,7 @@ class Observer(object):
       handle_i.body = to_statements(handle_i, body_i)
       setattr(aux, "mtd_handle_"+str(i), handle_i)
       return handle_i
+
     if conf[0] < 2:
       cnt = Observer.__cnt
       body = handle_body(aux, aux.update)
