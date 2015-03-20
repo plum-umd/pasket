@@ -2,6 +2,8 @@ package android.widget;
 
 @ObserverPattern(MotionEvent)
 public abstract class CompoundButton extends Button {
+  public CompoundButton(Context context);
+
   @ObserverPattern(MotionEvent)
   public static interface OnCheckedChangeListener {
     public void onCheckedChanged(CompundButton buttonView, boolean isChecked);

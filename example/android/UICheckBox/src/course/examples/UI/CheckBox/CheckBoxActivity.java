@@ -69,14 +69,14 @@ public class CheckBoxActivity extends Activity implements OnClickListener {
 
     TextView tv = new TextView(this);
     tv.setText("This is a checkbox");
-    tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24.0f);
+    //tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24.0f);
     top_layout.addView(tv, 0,
       new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                                     LinearLayout.LayoutParams.WRAP_CONTENT));
 
     CheckBox cb = new CheckBox(this);
     cb.setText("I'm not checked");
-    cb.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24.0f);
+    //cb.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24.0f);
     cb.setId(R.id.checkbox);
     top_layout.addView(cb, 1,
       new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -84,7 +84,7 @@ public class CheckBoxActivity extends Activity implements OnClickListener {
 
     Button b = new Button(this);
     b.setText("Hide CheckBox");
-    b.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24.0f);
+    //b.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24.0f);
     b.setId(R.id.button);
     top_layout.addView(b, 2,
       new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
