@@ -12,37 +12,45 @@ import android.widget.LinearLayout;
 import android.util.TypedValue;
 import android.widget.TextView;
 
-public class CheckBoxActivity extends Activity {
+public class CheckBoxActivity extends Activity implements OnClickListener {
+
+  public CheckBoxActivity() {
+    super();
+  }
+
+  CheckBox checkbox;
+  Button button;
+
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
 
-    final CheckBox checkbox = (CheckBox) findViewById(R.id.checkbox);
-    checkbox.setOnClickListener(new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          if (checkbox.isChecked()) {
-            checkbox.setText("I'm checked");
-          } else {
-            checkbox.setText("I'm not checked");
-          }
-        }
-      });
+    checkbox = (CheckBox) findViewById(R.id.checkbox);
+    checkbox.setOnClickListener(this);
 
-    final Button button = (Button) findViewById(R.id.button);
-    button.setOnClickListener(new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          if (checkbox.isShown()) {
-            checkbox.setVisibility(View.INVISIBLE);
-            button.setText("Unhide CheckBox");
-          } else {
-            checkbox.setVisibility(View.VISIBLE);
-            button.setText("Hide CheckBox");
-          }
-        }
-      });
+    button = (Button) findViewById(R.id.button);
+    button.setOnClickListener(this);
+  }
+
+  @Override
+  public void onClick(View v) {
+    int vid = v.getId();
+    if (vid == R.id.checkbox) {
+	  if (checkbox.isChecked()) {
+		checkbox.setText("I'm checked");
+	  } else {
+		checkbox.setText("I'm not checked");
+      }
+    } else if (vid == R.id.button) {
+	  if (checkbox.isShown()) {
+		checkbox.setVisibility(View.INVISIBLE);
+		button.setText("Unhide CheckBox");
+	  } else {
+		checkbox.setVisibility(View.VISIBLE);
+		button.setText("Hide CheckBox");
+	  }
+    }
   }
 
 
