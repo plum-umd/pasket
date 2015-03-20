@@ -15,6 +15,7 @@ from ..analysis.empty import EmptyFinder
 from collection import Collection
 from accessor_uni import AccessorUni
 from accessor_map import AccessorMap
+from adapter import Adapter
 from observer import Observer
 from singleton import Singleton
 
@@ -203,6 +204,9 @@ def to_java(cmd, java_dir, tmpls, output_paths, patterns):
       p2v[C.P.ACCU] = AccessorUni(output_path, acc_conf_uni)
       p2v[C.P.ACCM] = AccessorMap(output_path, acc_conf_map)
     else: pass
+
+    if cmd == "gui":
+      p2v[C.P.ADP] = Adapter(output_path)
 
     p2v[C.P.SNG] = Singleton(output_path)
 

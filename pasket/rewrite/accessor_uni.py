@@ -1,4 +1,3 @@
-import copy as cp
 import operator as op
 from itertools import product
 from functools import partial
@@ -275,32 +274,6 @@ class AccessorUni(object):
     cls.init_fld(fld)
     return fld
 
-  # a method that calls the adaptee
-  @staticmethod
-  def call_adaptee(aux, clss):
-    callee = u'_'.join(["rcv", aux.name])
-    rcv = u"_prvt_fld[" + getattr(aux, C.ACC.FLD) + u"]"
-    params = [(C.J.i, u"mtd_id"), (aux.name, callee)]
-    reflect = Method(clazz=aux, mods=C.PBST, params=params, name=u"call_adaptee")
-    def switch( cls ):
-      mtds = AccessorUni.get_candidate_mtds(cls)
-      def invoke(mtd):
-        cls = mtd.clazz
-        # if there is no implementer for this method in interface, ignore it
-        if cls.is_itf and not cls.subs: return u''
-        if len(mtd.params) != 0 or mtd.typ != C.J.v: return u''
-        call = u"if ({} != null) {}.{}.{}();".format(callee, callee, rcv, mtd.name)
-        adaptee_id = getattr(aux, "adaptee")
-        return u"if ({adaptee_id} == {mtd.id}) {{ {call} }}".format(**locals())
-      invocations = filter(None, map(invoke, mtds))
-      return "\nelse ".join(invocations)
-    tests = filter(None, map(switch, clss))
-    prefix = u"if (" + getattr(aux, C.ACC.ADPT) + u" == mtd_id) {\n"
-    reflect.body = to_statements(reflect, prefix + u"\nelse ".join(tests) + u"\n}")
-    AccessorUni.limit_depth(aux, reflect, 2)
-    aux.add_mtds([reflect])
-    setattr(aux, "call_adaptee", reflect)
-
   ##
   ## generate an aux type for getter/setter
   ##
@@ -419,20 +392,6 @@ class AccessorUni(object):
     checkers.extend(reduce(lambda x,y: x+y, map(gs_match, conf.iterkeys()), []))
     checkers.extend(reduce(lambda x,y: x+y, map(gs_type_match, conf.iterkeys()), []))
 
-    ## adapter pattern
-
-    map(set_role, C.adp_roles)
-    mtd_ids = map(get_id, mtds)
-    mtd_init = gen_range(mtd_ids)
-    aux_int_adap = partial(aux_fld, mtd_init, C.J.i)
-    adapter_roles = [C.ACC.ADPT, C.ACC.ADPE]
-    adapter_flds = map(aux_int_adap, adapter_roles)
-    aux.add_flds(adapter_flds + [aux_int(C.ACC.FLD)])
-    AccessorUni.call_adaptee(aux, self._clss)
-
-    #checkers.append(u"assert (argNum(" + getattr(aux, C.ACC.ADPT) + ")) == 0 && (argNum(" + getattr(aux, C.ACC.ADPT) + ")) == 0;")
-    #checkers.append(u"assert (retType(" + getattr(aux, C.ACC.ADPT) + ")) == -1 && (retType(" + getattr(aux, C.ACC.FLD) + ")) == -1;")
-
     rg_chk.body += to_statements(rg_chk, u'\n'.join(checkers))
     aux.add_mtds([rg_chk])
     
@@ -543,16 +502,6 @@ class AccessorUni(object):
       mname = shorty + u"setterInOne"
       callee = C.J.N if node.is_static else C.J.THIS
       args = u", ".join([unicode(node.id), callee, node.params[0][1]])
-      call = u"{}({});".format(u".".join([self.aux_name, mname]), args)
-      node.body += to_statements(node, call)
-      logging.debug("{}.{} => {}.{}".format(cname, node.name, self.aux_name, mname))
-
-    # adapter candidate
-    if len(node.params) == 0 and node.typ == C.J.v and not node.is_static:
-      #fname = u"_prvt_fld"
-      #callee = C.J.THIS+u"."+fname+u"["+getattr(self.aux, C.ACC.ADPT)+u"]"
-      mname = u"call_adaptee"
-      args = u", ".join([unicode(node.id), C.J.THIS])
       call = u"{}({});".format(u".".join([self.aux_name, mname]), args)
       node.body += to_statements(node, call)
       logging.debug("{}.{} => {}.{}".format(cname, node.name, self.aux_name, mname))

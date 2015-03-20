@@ -846,7 +846,9 @@ def to_func(smpls, mtd):
       ret_v = mtd.body[-1].e
       ret_u = unicode(trans_e(mtd, ret_v))
       # retrieve the return value to a temporary variable
-      buf.write("{} __ret = {};".format(ret_ty, ret_u))
+      buf.write(u"""
+        {} __ret = {};
+      """.format(ret_ty, ret_u))
       # then, try to obtain a hash from that temporary variable
       _log_params.append(log_param( (ret_ty, u"__ret") ))
 

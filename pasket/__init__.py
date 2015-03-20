@@ -56,18 +56,22 @@ C.typ_arrays = [C.typ.argNum, C.typ.argType, C.typ.retType] \
 
 # design patterns
 C.P = util.enum(BLD="builder", FAC="factory", SNG="singleton", \
-    OBS="observer", PRX="proxy", STA="state", \
+    OBS="observer", PRX="proxy", ADP="adapter", STA="state", \
     ACCA="accessor_adhoc", ACCU="accessor_uni", ACCM="accessor_map")
 
 # role variables for the accessor pattern
 C.ACC = util.enum(AUX=u"AuxAccessor", \
     ACC="accessor", CONS="cons", GET="getter", SET="setter", \
-    ADPT="adapter", ADPE="adaptee", FLD="field", \
     GS="gs_field", prvt=u"_prvt_fld")
 
 C.acc_roles = [C.ACC.CONS, C.ACC.GET, C.ACC.SET, C.ACC.GS]
 
-C.adp_roles = [C.ACC.ADPT, C.ACC.ADPE, C.ACC.FLD]
+# role variables for the adapter pattern
+
+C.ADP = util.enum(AUX=u"AuxAdapter", \
+    ADPT="adapter", ADPE="adaptee", FLD=u"_adpt_ins")
+
+C.adp_roles = [C.ADP.ADPT, C.ADP.ADPE, C.ADP.FLD]
 
 # role variables for the observer pattern
 C.OBS = util.enum(AUX=u"AuxObserver", \
@@ -170,7 +174,7 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
   if cmd == "pattern":
     _patterns = patterns[:]
   else: ## android or gui
-    _patterns = [C.P.ACCA, C.P.ACCU, C.P.ACCM, \
+    _patterns = [C.P.ACCA, C.P.ACCU, C.P.ACCM, C.P.ADP, \
         C.P.BLD, C.P.FAC, C.P.SNG, C.P.PRX, C.P.OBS, C.P.STA]
 
   opts = [] ## sketch options

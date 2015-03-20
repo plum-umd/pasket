@@ -11,6 +11,7 @@ from accessor_map import AccessorMap
 from builder import Builder
 from factory import Factory
 from proxy import Proxy
+from adapter import Adapter
 from singleton import Singleton
 from state import State
 from semantic_checker import SemanticChecker
@@ -73,6 +74,9 @@ def visit(cmd, smpls, tmpl, patterns):
     p2v[C.P.OBS] = Observer(smpls)
 
   p2v[C.P.PRX] = Proxy(smpls)
+
+  if cmd == "gui":
+    p2v[C.P.ADP] = Adapter(smpls)
 
   p2v[C.P.STA] = State(smpls)
 
