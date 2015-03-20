@@ -79,12 +79,12 @@ public class ListDemo extends JPanel
         fireButton.addActionListener(tmpListener);
 
         employeeName = new JTextField(10);
-        employeeName.addActionListener(hireListener);
+        //employeeName.addActionListener(hireListener);
         Document tmpDoc = employeeName.getDocument();
         tmpDoc.addDocumentListener(hireListener);
         int tmpIndex = list.getSelectedIndex();
         Object tmpElement = listModel.getElementAt(tmpIndex);
-        String name = tmpElement.toString();
+        //String name = tmpElement.toString(); // XXX dead code?
 
         //Create a panel that uses BoxLayout.
         JPanel buttonPane = new JPanel();
@@ -149,8 +149,8 @@ public class ListDemo extends JPanel
             boolean empty = name.equals("");
             boolean a_in = alreadyInList(name);
             if (empty || a_in) {
-                Toolkit tmpToolkit = Toolkit.getDefaultToolkit();
-                tmpToolkit.beep();
+                //Toolkit tmpToolkit = Toolkit.getDefaultToolkit();
+                //tmpToolkit.beep();
                 employeeName.requestFocusInWindow();
                 employeeName.selectAll();
                 return;

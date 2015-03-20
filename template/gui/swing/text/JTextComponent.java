@@ -19,4 +19,6 @@ public abstract class JTextComponent extends JComponent {
 
   public Highlighter getHighlighter();
   public void setHighlighter(Highlighter h);
+
+  public void selectAll();
 }

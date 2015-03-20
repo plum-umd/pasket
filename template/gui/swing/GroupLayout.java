@@ -30,9 +30,7 @@ public class GroupLayout implements LayoutManager {
     public SequentialGroup addPreferredGap(LayoutStyle.ComponentPlacement type);
   }
 
-  @Factory
   public ParallelGroup createParallelGroup(Alignment alignment);
-  @Factory
   public SequentialGroup createSequentialGroup();
 
   public void setHorizontalGroup(Group group);
