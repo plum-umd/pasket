@@ -30,8 +30,10 @@ acc_conf_map = {
 # configuration for the observer pattern
 obs_conf = {
   "ActionEvent": (1, 1, 1),
+  "ItemEvent": (1, 1, 1),
   "ChangeEvent": (1, 1, 1),
   "DocumentEvent": (3, 1, 1), # (change|insert|remove)
+  "ListSelectionEvent": (1, 1, 1),
 }
 
 # configuration for the singleton pattern
