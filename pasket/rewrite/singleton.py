@@ -158,7 +158,7 @@ class Singleton(object):
     # other semantics checks
     # such as ownership and signature types
     def owner_range(c):
-      return u"assert subcls("+getattr(aux, '_'.join([C.SNG.SNG, c]))+", belongsTo("+getattr(aux, '_'.join([C.SNG.GET, c]))+"));"
+      return u"assert "+getattr(aux, '_'.join([C.SNG.SNG, c]))+" == belongsTo("+getattr(aux, '_'.join([C.SNG.GET, c]))+");"
     checkers.extend(map(owner_range, conf))
 
     def getter_sig(c):
