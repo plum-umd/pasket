@@ -23,11 +23,14 @@ def visit(cmd, smpls, tmpl, patterns):
   ## non-trivial, framework-specific rewriting
   if cmd == "android":
     from android import R
-    R.generate_R(tmpl)
-
+    from android.system import System
     from android.view import View
-    v_vis = View()
-    tmpl.accept(v_vis)
+
+    R.generate_R(tmpl)
+    _visitors = []
+    _visitors.append(System())
+    _visitors.append(View())
+    map(lambda vis: tmpl.accept(vis), _visitors)
 
   p2v = {}
 

@@ -38,11 +38,12 @@ C.GUI = util.enum(TOOL=u"Toolkit", QUE=u"EventQueue", \
     EVT=u"EventObject", IVK=u"InvocationEvent")
 
 # constants regarding Android
-C.ADR = util.enum(ACTT=u"ActivityThread", QUE=u"MessageQueue", \
+C.ADR = util.enum(SYS=u"SystemServer", QUE=u"MessageQueue", \
     MSG=u"Message", BDL=u"Bundle", HDL=u"Handler", LOOP=u"Looper", \
     CMP=u"ComponentName", INTT=u"Intent", \
-    CTX=u"Context", ACT=u"Activity", \
-    VIEW=u"View", VG=u"ViewGroup", WIN=u"Window", WMG=u"WindowManagerGlobal")
+    CTX=u"Context", ACT=u"Activity", ACTT=u"ActivityThread", \
+    VIEW=u"View", VG=u"ViewGroup", WIN=u"Window", WMG=u"WindowManagerGlobal", \
+    SSM=u"SystemServiceManager", TPM=u"TelephonyManager")
 
 # Java collections
 C.collections = [C.J.MAP, C.J.LST, C.J.STK, C.J.QUE, C.J.ITER] \

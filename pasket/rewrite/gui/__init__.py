@@ -38,5 +38,5 @@ obs_conf = {
 
 # configuration for the singleton pattern
 sng_conf = [
-  C.GUI.TOOL
+  C.GUI.TOOL # getDefaultToolkit
 ]

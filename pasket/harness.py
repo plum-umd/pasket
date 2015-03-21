@@ -39,8 +39,8 @@ def mk_harness_android(tmpl, cls, smpl):
   # TODO: launch resource managers
 
   # TODO: post an Intent for AUT to ActivityManager
-  # XXX: rather, start (via ActivityThread.main) and post the Intent to it directly
-  main_cls = tmpl.main
+  # XXX: rather, start and post the Intent to the global Context directly
+  main_cls = tmpl.main # SystemServer.main
   # TODO: passing proper parameters
   buf.write("{}.{}();\n".format(main_cls.clazz.name, main_cls.name))
 
@@ -48,7 +48,7 @@ def mk_harness_android(tmpl, cls, smpl):
   buf.write("""
     {0} l = {0}.getMain{0}();
     {1} q = l.myQueue();
-    {2} t = {2}.current{2}();
+    {2} t = {2}.current{2}(); // global Context
   """.format(C.ADR.LOOP, C.ADR.QUE, C.ADR.ACTT))
 
   # generate an Intent to trigger the main Activity

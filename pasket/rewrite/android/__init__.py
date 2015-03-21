@@ -23,8 +23,8 @@ acc_conf_uni = {
 # configuration for the accessor pattern (of Map<K,V> type)
 acc_conf_map = {
   #C.ADR.BDL: (0, 1, 1), # (get|put)*
-  C.ADR.CTX: (0, 1, 0), # getSystemService
   C.ADR.WMG: (0, 1, 1), # addView, findViewById
+  C.ADR.SSM: (0, 1, 1), # getService, registerService
 }
 
 # configuration for the observer pattern
@@ -34,7 +34,9 @@ obs_conf = {
 
 # configuration for the singleton pattern
 sng_conf = [
-  C.ADR.ACTT,
-  C.ADR.LOOP,
-  C.ADR.WMG
+  C.ADR.ACTT, # currentActivityThread
+  C.ADR.LOOP, # getMainLooper
+  C.ADR.WMG,  # getInstance
+  C.ADR.SSM,  # getInstance
+  C.ADR.TPM   # getDefault
 ]

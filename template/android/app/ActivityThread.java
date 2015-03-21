@@ -26,5 +26,4 @@ public final class ActivityThread {
   public final Activity getActivity();
 
   //public static void main(String[] args);
-  public static void main(); // XXX
 }
