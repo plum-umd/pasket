@@ -157,7 +157,7 @@ def sanitize_ty(tname):
 def to_shorty(tname):
   # TODO: (multi-dimensional) array
   if tname in C.primitives:
-    for key, value in C.J.__dict__.items():
+    for key, value in C.J.__dict__.iteritems():
       if tname == value: return unicode(key)
   elif is_class_name(tname):
     return u'L'

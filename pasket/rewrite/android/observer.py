@@ -699,7 +699,7 @@ class Observer(object):
         cls_ievt = class_lookup(u"InputEvent")
 
         switches = u''
-        for event, i in self._tmpl.events.items():
+        for event, i in self._tmpl.events.iteritems():
           if event not in self._clss: continue
           cls_h = class_lookup(self._evts[event])
           cls_h_name = cls_h.name

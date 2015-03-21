@@ -525,7 +525,7 @@ class Observer(object):
         dp = self._main_cls.dp.name
 
         switches = u''
-        for event, i in self._tmpl.events.items():
+        for event, i in self._tmpl.events.iteritems():
           clss = self._clss[event]
           cls_h = class_lookup(self._auxs[clss[0].name])
           cls_h_name = cls_h.name
