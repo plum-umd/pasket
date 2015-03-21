@@ -193,7 +193,13 @@ def to_java(cmd, java_dir, tmpls, output_paths, patterns):
 
     _patterns = patterns[:]
     p2v = {}
-    p2v[C.P.OBS] = Observer(output_path)
+
+    if cmd == "android":
+      from ..rewrite.android import obs_conf
+      p2v[C.P.OBS] = Observer(output_path, obs_conf)
+    elif cmd == "gui":
+      from ..rewrite.gui import obs_conf
+      p2v[C.P.OBS] = Observer(output_path, obs_conf)
 
     if cmd == "android":
       from ..rewrite.android import acc_conf_uni, acc_conf_map

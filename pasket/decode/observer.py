@@ -62,9 +62,10 @@ class Observer(object):
     self._role[v] = n
 
   # initializer
-  def __init__(self, output_path):
+  def __init__(self, output_path, obs_conf):
     self._output = output_path
     self._demo = util.pure_base(output_path)
+    self._obs_conf = obs_conf
 
     self._cur_mtd = None
     self._exps = {} # { f : [exp...] }
