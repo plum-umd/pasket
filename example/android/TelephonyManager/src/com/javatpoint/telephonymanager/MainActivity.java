@@ -49,6 +49,7 @@ public class MainActivity extends Activity {
         //getting information if phone is in roaming
         boolean isRoaming=tm.isNetworkRoaming();
 
+/*
         String info="Phone Details:\n";
         info+="\n IMEI Number:"+IMEINumber;
         info+="\n SubscriberID:"+subscriberID;
@@ -61,6 +62,7 @@ public class MainActivity extends Activity {
         info+="\n In Roaming? :"+isRoaming;
 
         textView1.setText(info);
+*/
     }
 
   @Override
