@@ -251,6 +251,16 @@ def max_evts(smpls):
   return max_smpls(smpls, op.attrgetter("evts"))
 
 
+# max number of View elements in the samples
+@takes(list_of(Sample))
+@returns(int)
+def max_views(smpls):
+  def find_view(smpl):
+    find_view_adder = lambda log: isinstance(log, CallEnt) and log.mtd == "addView"
+    return smpl.find("mtd", find_view_adder)
+  return max_smpls(smpls, find_view)
+
+
 # max number of object instances in the given samples
 @takes(list_of(Sample))
 @returns(int)
