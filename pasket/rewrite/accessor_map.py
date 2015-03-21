@@ -116,6 +116,10 @@ class AccessorMap(object):
     setr = Method(clazz=aux, mods=C.PBST, params=params, name=shorty+u"set")
     assign = u"""
       Map<{0}, {1}> map = callee._prvt_{2}map[map_id];
+      if (map == null) {{ // never initialized before
+        map = new Map<{0}, {1}>();
+        callee._prvt_{2}map[map_id] = map;
+      }}
       map.put(key, val);
     """.format(ty, C.J.OBJ, shorty)
     setr.body = to_statements(setr, assign)
