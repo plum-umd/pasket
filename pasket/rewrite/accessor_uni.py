@@ -405,11 +405,11 @@ class AccessorUni(object):
 
     # assumption: each getter could be invoked per event
     g_cnt = sum(map(lambda (c, g, s): g, self._acc_conf.values()))
-    g_cnt = g_cnt * evt_cnt
+    g_cnt = g_cnt * max(1, evt_cnt)
 
     # assumption: setter could be invoked once, excluding constructor
     s_cnt = sum(map(lambda (c, g, s): s, self._acc_conf.values()))
-    s_cnt = s_cnt * evt_cnt
+    s_cnt = s_cnt * max(1, evt_cnt)
     s_cnt = s_cnt + c_cnt # as constructor can call setter
 
     # getter pattern
