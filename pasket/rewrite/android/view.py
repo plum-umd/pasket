@@ -39,10 +39,11 @@ class View(object):
       fld = View.add_fld(node, C.J.i, u"_vid")
       setattr(node, "vid", fld)
 
-    # a field of List type to hold children View's
-    elif cname in [C.ADR.VG, C.ADR.WIN]:
-      fld = View.add_fld(node, u"List<{}>".format(C.ADR.VIEW), u"mChildren")
-      setattr(node, "children", fld)
+    # (for recursive hierarchy buildup)
+    ## a field of List type to hold children View's
+    #elif cname in [C.ADR.VG, C.ADR.WIN]:
+    #  fld = View.add_fld(node, u"List<{}>".format(C.ADR.VIEW), u"mChildren")
+    #  setattr(node, "children", fld)
 
   @v.when(Field)
   def visit(self, node): pass
@@ -66,6 +67,51 @@ class View(object):
           body = u"return this.{fname};".format(**locals())
         node.body = to_statements(node, body)
 
+    #self._recursive_hierarchy(node)
+    self._flat_views(node)
+
+
+  def _flat_views(self, node):
+    cname = node.clazz.name
+    mname = node.name
+
+    ##
+    ## View registerations
+    ##
+    if cname in [C.ADR.VG, C.ADR.WIN]:
+      # ViewGroup.addView or (set|add)ContentView
+      if mname == "addView" or mname.endswith("ContentView"):
+        ty, _ = node.params[0]
+        args = [ nm for (_, nm) in node.params ]
+        if ty == C.ADR.VIEW:
+          body = u"""
+            {0} wm = {0}.getInstance();
+            wm.addView({1});
+          """.format(C.ADR.WMG, ", ".join(args))
+          node.body = to_statements(node, body)
+
+    elif cname == C.ADR.WMG and mname == "addView":
+      ty, v = node.params[0]
+      if ty == C.ADR.VIEW:
+        body = u"addView({v}.getId(), {v});".format(**locals())
+        node.body = to_statements(node, body)
+
+    ##
+    ## View lookup
+    ##
+    if mname.startswith("find"+C.ADR.VIEW) and cname != C.ADR.WMG:
+      _, _id = node.params[0]
+      body = u"""
+        {0} wm = {0}.getInstance();
+        return wm.findViewById({1});
+      """.format(C.ADR.WMG, _id)
+      node.body = to_statements(node, body)
+
+
+  def _recursive_hierarchy(self, node):
+    cname = node.clazz.name
+    mname = node.name
+
     ##
     ## View hierarchy buildup
     ##
@@ -73,13 +119,8 @@ class View(object):
     if cname in [C.ADR.VG, C.ADR.WIN]:
       fld = getattr(node.clazz, "children")
       fname = fld.name
-      if mname == "addView": # ViewGroup.addView
-        ty, v = node.params[0]
-        if ty == C.ADR.VIEW:
-          body = u"{fname}.add({v});".format(**locals())
-          node.body = to_statements(node, body)
-
-      elif mname.endswith("ContentView"): # (set|add)
+      # ViewGroup.addView or (set|add)ContentView
+      if mname == "addView" or mname.endswith("ContentView"):
         ty, v = node.params[0]
         if ty == C.ADR.VIEW:
           body = u"{fname}.add({v});".format(**locals())

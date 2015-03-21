@@ -9,11 +9,11 @@ acc_default = [
 
 # configuration for the accessor pattern
 acc_conf_uni = {
-  "Message": (1, 1, 1), # (get|set)Target
-  "Handler": (1, 1, 0), # getLooper
+  C.ADR.MSG: (1, 1, 1), # (get|set)Target
+  C.ADR.HDL: (1, 1, 0), # getLooper
 
-  "Intent": (1, 1, 0), # getComponent
-  "ComponentName": (2, 2, 0), # get(Class|Package)Name
+  C.ADR.INTT: (1, 1, 0), # getComponent
+  C.ADR.CMP: (2, 2, 0), # get(Class|Package)Name
 
   "InputEvent": (1, 1, 1), # (get|set)Source
   "MotionEvent": (2, 1, 0), # getAction(Masked)
@@ -22,8 +22,9 @@ acc_conf_uni = {
 
 # configuration for the accessor pattern (of Map<K,V> type)
 acc_conf_map = {
-  "Bundle": (0, 1, 1), # (get|put)*
-  "Context": (0, 1, 0), # getSystemService
+  #C.ADR.BDL: (0, 1, 1), # (get|put)*
+  C.ADR.CTX: (0, 1, 0), # getSystemService
+  C.ADR.WMG: (0, 1, 1), # addView, findViewById
 }
 
 # configuration for the observer pattern
@@ -34,5 +35,6 @@ obs_conf = {
 # configuration for the singleton pattern
 sng_conf = [
   C.ADR.ACTT,
-  C.ADR.LOOP
+  C.ADR.LOOP,
+  C.ADR.WMG
 ]
