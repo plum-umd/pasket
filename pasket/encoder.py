@@ -1332,7 +1332,14 @@ def to_sk(cmd, smpls, tmpl, sk_dir):
     n_params = 2 + max(map(len, map(op.attrgetter("params"), mtds)))
   else: # no meaningful logs in the sample?
     n_params = 2
+
   n_evts = sample.max_evts(smpls)
+  if cmd == "android":
+    n_views = 8 # number of Views
+    magic_S = max(n_evts + 1, n_views)
+  else:
+    magic_S = max(n_evts + 1, 5) # at least 5, just in case
+
   n_ios = sample.max_IOs(smpls)
 
   global _const
@@ -1340,7 +1347,7 @@ def to_sk(cmd, smpls, tmpl, sk_dir):
     int P = {}; // length of parameters (0: (>|<)mid, 1: receiver, 2...)
     int S = {}; // length of arrays for Java collections
     int N = {}; // length of logs
-  """.format(n_params, max(5, n_evts + 1), n_ios)
+  """.format(n_params, magic_S, n_ios)
 
   # type.sk
   logging.info("building class hierarchy")
@@ -1375,18 +1382,14 @@ def to_sk(cmd, smpls, tmpl, sk_dir):
   buf.write("pragma options \"--bnd-cbits {}\";\n".format(bits))
 
   # --bnd-unroll-amnt: the unroll amount for loops
-  unroll_amnt = None # use a default value if not set
-  if cmd == "android":
-    unroll_amnt = 3 # max siblings in a certain level of View hierarchy
-  elif cmd == "gui":
-    unroll_amnt = n_params
-  if unroll_amnt:
-    buf.write("pragma options \"--bnd-unroll-amnt {}\";\n".format(unroll_amnt))
+  unroll_amnt = max(n_params, magic_S)
+  buf.write("pragma options \"--bnd-unroll-amnt {}\";\n".format(unroll_amnt))
 
   # --bnd-inline-amnt: bounds inlining to n levels of recursion
   inline_amnt = None # use a default value if not set
   if cmd == "android":
-    inline_amnt = 2 # depth of View hierarchy (at findViewByTraversal)
+    #inline_amnt = 2 # depth of View hierarchy (at findViewByTraversal)
+    inline_amnt = 1 # no recursion for flat Views
   elif cmd == "gui":
     # setting it 1 means there is no recursion
     inline_amnt = 1
