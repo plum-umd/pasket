@@ -114,6 +114,7 @@ public class ListDemo extends JPanel
             int index = list.getSelectedIndex();
             listModel.remove(index);
 
+            /*
             int size = listModel.getSize();
 
             if (size == 0) { //Nobody's left, disable firing.
@@ -128,6 +129,7 @@ public class ListDemo extends JPanel
                 list.setSelectedIndex(index);
                 list.ensureIndexIsVisible(index);
             }
+            */
         }
     }
 
