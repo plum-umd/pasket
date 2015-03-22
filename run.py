@@ -42,6 +42,9 @@ def main():
   parser.add_option("--randassign",
     action="store_true", dest="randassign", default=False,
     help="run sketch with the concretization feature")
+  parser.add_option("--randdegree",
+    action="store", dest="randdegree", default=None, type="int",
+    help="use sketch's concretization feature, along with the given degree")
   parser.add_option("--parallel",
     action="store_true", dest="parallel", default=False,
     help="run sketch in parallel until it finds a solution")

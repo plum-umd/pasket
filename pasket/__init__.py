@@ -152,6 +152,7 @@ def configure(opt):
   conf["encoding"] = opt.encoding
   conf["sketch"] = opt.sketch
   conf["randassign"] = opt.randassign
+  conf["randdegree"] = opt.randdegree
   conf["parallel"] = opt.parallel
   conf["verbose"] = opt.verbose
 
@@ -264,7 +265,7 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
 
       if conf["randassign"] or conf["parallel"]:
         _opts.append("--slv-randassign")
-        _opts.extend(["--bnd-dag-size", "16000000"]) # 16M ~> 8G memory
+        #_opts.extend(["--bnd-dag-size", "16000000"]) # 16M ~> 8G memory
 
       sketch.set_default_option(_opts)
 
@@ -273,7 +274,10 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
         #_, r = sketch.be_p_run(sk_dir, output_path)
         # Java implementation inside sketch-frontend
         _opts.append("--slv-parallel")
-        _opts.extend(["--slv-strategy", "WILCOXON"])
+        if conf["randdegree"]: # assume FIXED strategy
+          _opts.extend(["--slv-randdegree", str(conf["randdegree"])])
+        else: # adaptive concretization
+          _opts.extend(["--slv-strategy", "WILCOXON"])
         _, r = sketch.run(sk_dir, output_path)
       else:
         _, r = sketch.run(sk_dir, output_path)
