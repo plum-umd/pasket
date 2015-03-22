@@ -127,7 +127,8 @@ def trans_mname(cname, mname, arg_typs=[]):
     return _mtds[mid]
   # methods of Java collections
   elif util.is_collection(cname):
-    r_mtd = u'_'.join([mname, trans_ty(cname)])
+    _arg_typs = map(trans_ty, arg_typs)
+    r_mtd = u'_'.join([mname, trans_ty(cname)] + _arg_typs)
   else:
     if is_replaced(cname):
       tr_name = trans_ty(cname)
@@ -186,7 +187,7 @@ def col_to_struct(cls):
         }}
         return 0;
       }}
-    """.format(trans_mname(cname, u"containsKey")))
+    """.format(trans_mname(cname, u"containsKey", [k])))
 
     # Map<K,V>.get -> get_Map_K_V
     buf.write("""
@@ -197,7 +198,7 @@ def col_to_struct(cls):
         }}
         return null;
       }}
-    """.format(trans_mname(cname, u"get")))
+    """.format(trans_mname(cname, u"get", [k])))
 
     # Map<K,V>.put -> put_Map_K_V
     buf.write("""
@@ -206,7 +207,7 @@ def col_to_struct(cls):
         map.val[map.idx] = v;
         map.idx = (map.idx + 1) % S;
       }}
-    """.format(trans_mname(cname, u"put")))
+    """.format(trans_mname(cname, u"put", [k, v])))
 
     # Map<K,V>.clear -> clear_Map_K_V
     if util.is_class_name(k): default_k = "null"
@@ -219,7 +220,7 @@ def col_to_struct(cls):
           map.val[i] = null;
         }}
       }}
-    """.format(trans_mname(cname, u"clear"), default_k))
+    """.format(trans_mname(cname, u"clear", []), default_k))
 
   else:
     collection, t = util.of_collection(cname)
@@ -236,7 +237,7 @@ def col_to_struct(cls):
           stk.elts[stk.idx] = elt;
           stk.idx = (stk.idx + 1) % S;
         }}
-      """.format(trans_mname(cname, u"push")))
+      """.format(trans_mname(cname, u"push", [t])))
 
       # Stack<T>.pop -> pop_Stack_T
       buf.write("""
@@ -247,7 +248,7 @@ def col_to_struct(cls):
           stk.elts[stk.idx] = null;
           return top;
         }}
-      """.format(trans_mname(cname, u"pop")))
+      """.format(trans_mname(cname, u"pop", [])))
 
     elif C.J.QUE in collection:
       # Queue<T>.add -> add_Queue_T
@@ -256,7 +257,7 @@ def col_to_struct(cls):
           que.elts[que.idx] = elt;
           que.idx = (que.idx + 1) % S;
         }}
-      """.format(trans_mname(cname, u"add")))
+      """.format(trans_mname(cname, u"add", [t])))
 
       # Queue<T>.remove -> remove_Queue_T
       buf.write("""
@@ -267,14 +268,14 @@ def col_to_struct(cls):
           que.head = (que.head + 1) % S;
           return top;
         }}
-      """.format(trans_mname(cname, u"remove")))
+      """.format(trans_mname(cname, u"remove", [])))
 
       # Queue<T>.isEmpty -> isEmpty_Queue_T
       buf.write("""
         bit {} (${{sname}} que) {{
           return que.head == que.idx;
         }}
-      """.format(trans_mname(cname, u"isEmpty")))
+      """.format(trans_mname(cname, u"isEmpty", [])))
 
     elif C.J.LST in collection:
       # List<T>.add -> add_List_T
@@ -283,26 +284,56 @@ def col_to_struct(cls):
           lst.elts[lst.idx] = elt;
           lst.idx = (lst.idx + 1) % S;
         }}
-      """.format(trans_mname(cname, u"add")))
+      """.format(trans_mname(cname, u"add", [t])))
 
-      # List<T>.remove -> remove_List_T
+      # List<T>.remove(T) -> remove_List_T_T
       buf.write("""
-        void {} (${{sname}} lst, ${{t}} elt) {{
+        bit {} (${{sname}} lst, ${{t}} elt) {{
           int i;
           for (i = 0; lst.elts[i] != null && i < S; i++) {{
             if (lst.elts[i] == elt) {{
               lst.elts[i] = null;
+              return true;
             }}
           }}
+          return false;
         }}
-      """.format(trans_mname(cname, u"remove")))
+      """.format(trans_mname(cname, u"remove", [t])))
+
+      # List<T>.remove(int) -> remove_List_T_int
+      buf.write("""
+        ${{t}} {} (${{sname}} lst, int index) {{
+          ${{t}} res = null;
+          if (0 <= index && index < lst.idx) {{
+            res = lst.elts[index];
+            lst.elts[index] = null;
+            int i;
+            for (i = index; lst.elts[i] != null && i < lst.idx; i++) {{
+              lst.elts[i] = lst.elts[i+1];
+            }}
+            lst.idx = (lst.idx - 1) % S;
+          }}
+          return res;
+        }}
+      """.format(trans_mname(cname, u"remove", [C.J.i])))
+
+      # List<T>.get -> get_List_T
+      buf.write("""
+        ${{t}} {} (${{sname}} lst, int index) {{
+          ${{t}} res = null;
+          if (0 <= index && index < lst.idx) {{
+            res = lst.elts[index];
+          }}
+          return res;
+        }}
+      """.format(trans_mname(cname, u"get", [C.J.i])))
 
       # List<T>.isEmpty -> isEmpty_List_T
       buf.write("""
         bit {} (${{sname}} lst) {{
           return lst.idx == 0;
         }}
-      """.format(trans_mname(cname, u"isEmpty")))
+      """.format(trans_mname(cname, u"isEmpty", [])))
 
   return T(buf.getvalue()).safe_substitute(locals())
 
