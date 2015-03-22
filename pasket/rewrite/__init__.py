@@ -98,6 +98,6 @@ def visit(cmd, smpls, tmpl, patterns):
 
   # final semantic checking
   logging.info("semantics checking")
-  chker = SemanticChecker()
+  chker = SemanticChecker(cmd)
   tmpl.accept(chker)
 

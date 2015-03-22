@@ -1,8 +1,9 @@
 import lib.const as C
+from lib.enum import enum
 
 from .. import util
 
-C.mod = util.enum(PR=u"private", PB=u"public", \
+C.mod = enum(PR=u"private", PB=u"public", \
     AB=u"abstract", ST=u"static", FN=u"final", \
     GN=u"generator", HN=u"harness")
 C.PBST = [C.mod.PB, C.mod.ST]

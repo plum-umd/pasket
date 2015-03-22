@@ -3,11 +3,12 @@ import re
 import sys
 
 import lib.const as C
+from lib.enum import enum
 from lib.rlock import FLockFileHandler
 
 import util
 
-C.log_caller = util.enum(PASKET="pasket", PSKETCH="psketch")
+C.log_caller = enum(PASKET="pasket", PSKETCH="psketch")
 
 def find_demo_name(argv):
   for i, arg in enumerate(argv):

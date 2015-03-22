@@ -5,12 +5,13 @@ from antlr3.tree import CommonTree as AST
 
 from lib.typecheck import *
 import lib.const as C
+from lib.enum import enum
 
 import util
 # to avoid circular import (TODO: do we really need those annotations?)
 #from meta.expression import parse_e
 
-C.A = util.enum(OVERRIDE="Override", SUPWARN="SuppressWarnings", \
+C.A = enum(OVERRIDE="Override", SUPWARN="SuppressWarnings", \
   HARNESS="Harness", \
   EVENT="Event", REACT="React", OBS="ObserverPattern", \
   OBSS="Observers", ATTACH="Attach", DETACH="Detach", NOTI="Notified", \

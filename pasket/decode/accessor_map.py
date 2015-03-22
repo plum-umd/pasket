@@ -235,19 +235,15 @@ class AccessorMap(object):
         else:
           ## Aux...constructor...
           return []
+
     if node.kind == C.S.RETURN:
       call = unicode(node)
-      if call.startswith(u"return " + C.ACC.AUX+"Map"):
-        logging.debug("removing {}".format(call))
-        if "iGetterInOne" in call:
-        ## Aux.....iGetterInOne(...);
-          return to_statements(self._cur_mtd, u"return 0;")
-        elif "zGetterInOne" in call:
-        ## Aux.....zGetterInOne(...);
-          return to_statements(self._cur_mtd, u"return false;")
-        elif "getterInOne" in call:
-        ## Aux.....sGetterInOne(...);
-          return to_statements(self._cur_mtd, u"return null;")
+      ## return Aux....getterInOne(...);
+      if call.startswith(u"return " + C.ACC.AUX+"Map") and "etterInOne" in call:
+        vname = self._cur_mtd.name
+        v = util.default_value(self._cmd, self._cur_mtd.typ, vname)
+        logging.debug("replacing {} with {}".format(call, v))
+        return to_statements(self._cur_mtd, u"return {};".format(v))
 
     return [node]
 

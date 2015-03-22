@@ -11,6 +11,7 @@ import logging
 
 from lib.typecheck import *
 import lib.const as C
+from lib.enum import enum
 
 import util
 import sample
@@ -25,7 +26,7 @@ from meta.expression import Expression, typ_of_e
 import meta.expression as exp
 
 # constants regarding sketch
-C.SK = util.enum(z=u"bit", self=u"self")
+C.SK = enum(z=u"bit", self=u"self")
 
 # global constants that should be placed at every sketch file
 _const = u''
