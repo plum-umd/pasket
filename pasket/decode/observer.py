@@ -49,7 +49,7 @@ class Observer(object):
 
   ## hole assignments for roles
   ## glblInit_subject_????,StmtAssign,subject_???? = n
-  regex_role = r"(({})_{}\S+)_.* = (\d+)$".format('|'.join(C.obs_roles), C.OBS.AUX)
+  regex_role = r"(({})_{}[^_]+)_.* = (\d+)$".format('|'.join(C.obs_roles), C.OBS.AUX)
 
   @staticmethod
   def st_of_interest(msg):
