@@ -203,12 +203,12 @@ def to_java(cmd, java_dir, tmpls, output_paths, patterns):
 
     if cmd == "android":
       from ..rewrite.android import acc_conf_uni, acc_conf_map
-      p2v[C.P.ACCU] = AccessorUni(output_path, acc_conf_uni)
-      p2v[C.P.ACCM] = AccessorMap(output_path, acc_conf_map)
+      p2v[C.P.ACCU] = AccessorUni(cmd, output_path, acc_conf_uni)
+      p2v[C.P.ACCM] = AccessorMap(cmd, output_path, acc_conf_map)
     elif cmd == "gui":
       from ..rewrite.gui import acc_conf_uni, acc_conf_map
-      p2v[C.P.ACCU] = AccessorUni(output_path, acc_conf_uni)
-      p2v[C.P.ACCM] = AccessorMap(output_path, acc_conf_map)
+      p2v[C.P.ACCU] = AccessorUni(cmd, output_path, acc_conf_uni)
+      p2v[C.P.ACCM] = AccessorMap(cmd, output_path, acc_conf_map)
     else: pass
 
     if cmd == "gui":
