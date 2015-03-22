@@ -79,7 +79,8 @@ def visit(cmd, smpls, tmpl, patterns):
   p2v[C.P.PRX] = Proxy(smpls)
 
   if cmd == "gui":
-    p2v[C.P.ADP] = Adapter(smpls)
+    from gui import adp_conf
+    p2v[C.P.ADP] = Adapter(smpls, adp_conf)
 
   p2v[C.P.STA] = State(smpls)
 

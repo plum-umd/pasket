@@ -212,7 +212,8 @@ def to_java(cmd, java_dir, tmpls, output_paths, patterns):
     else: pass
 
     if cmd == "gui":
-      p2v[C.P.ADP] = Adapter(output_path)
+      from ..rewrite.gui import adp_conf
+      p2v[C.P.ADP] = Adapter(output_path, adp_conf)
 
     p2v[C.P.SNG] = Singleton(output_path)
 

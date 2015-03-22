@@ -40,3 +40,9 @@ obs_conf = {
 sng_conf = [
   C.GUI.TOOL # getDefaultToolkit
 ]
+
+adp_conf = {
+  "InvocationEvent": 1,
+  "ListModel": 3,
+  "JList": 1
+}

@@ -17,8 +17,9 @@ from ..meta.expression import Expression, to_expression, gen_E_gen
 
 class Adapter(object):
 
-  def __init__(self, smpls):
+  def __init__(self, smpls, adp_conf):
     self._smpls = smpls
+    self._adp_conf = adp_conf
 
     self._clss = []
     self._aux_name = C.ADP.AUX
@@ -117,16 +118,23 @@ class Adapter(object):
   ##
   ## generate an aux type
   ##
-  def gen_aux_cls(self, tmpl):
+  def gen_aux_cls(self, tmpl, conf):
     tmpl.acc_auxs.append(self.aux_name)
     aux = Clazz(name=self.aux_name, mods=[C.mod.PB], subs=self._clss)
     self.aux = aux
 
-    # set role variables
-    def set_role(role):
-      setattr(aux, role, '_'.join([role, aux.name]))
+    instances = []
+    for c in conf.iterkeys():
+      n = conf[c]
+      map(lambda i: instances.append(c + "_" + str(i)), range(n))
 
-    map(set_role, C.adp_roles)
+    # set role variables
+    def set_role(role, ins):
+      setattr(aux, role, '_'.join([role, ins, aux.name]))
+    
+    for role in C.adp_roles:
+      for ins in instances:
+        map(partial(set_role, role), C.adp_roles)
     
     # add fields that stand for non-deterministic role choices
     def aux_fld(init, ty, nm):
@@ -155,8 +163,10 @@ class Adapter(object):
     mtd_init = gen_range(mtd_ids)
     aux_int_adap = partial(aux_fld, mtd_init, C.J.i)
     adapter_roles = [C.ADP.ADPT, C.ADP.ADPE]
-    adapter_flds = map(aux_int_adap, adapter_roles)
-    aux.add_flds(adapter_flds + [aux_int(C.ADP.FLD)])
+    for c in conf.iterkeys():
+      for x in range(conf[c]):
+        adapter_flds = map(aux_int_adap, map(lambda r: '_'.join([r, c, str(x)]), adapter_roles))
+        aux.add_flds(adapter_flds + [aux_int('_'.join([C.ADP.FLD, c, str(x)]))])
     Adapter.call_adaptee(aux, self._clss)
 
     #checkers.append(u"assert (argNum(" + getattr(aux, C.ADP.ADPT) + ")) == 0 && (argNum(" + getattr(aux, C.ADP.ADPT) + ")) == 0;")
@@ -169,7 +179,7 @@ class Adapter(object):
   @v.when(Template)
   def visit(self, node):
     self.find_clss_involved(node)
-    aux = self.gen_aux_cls(node)
+    aux = self.gen_aux_cls(node, self._adp_conf)
     node.add_classes([aux])
 
   @v.when(Clazz)

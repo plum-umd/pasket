@@ -34,9 +34,10 @@ class Adapter(object):
     self._role[v] = n
 
   # initializer
-  def __init__(self, output_path):
+  def __init__(self, output_path, adp_conf):
     self._output = output_path
     self._demo = util.pure_base(output_path)
+    self._adp_conf = adp_conf
 
     self._cur_mtd = None
     self._role = {} # { v : n }
@@ -112,17 +113,35 @@ class Adapter(object):
     logging.debug("adapter: {}".format(repr(adpt)))
     logging.debug("adaptee: {}".format(repr(adpe)))
 
+    adpt = {}
+    adpe = {}
+    adpf = {}
+    for key in self._adp_conf.iterkeys():
+      adpt[key] = {}
+      adpe[key] = {}
+      adpf[key] = {}
+      for x in range(self._adp_conf[key]):
+        adpt[key][x] = find_mtd_role('_'.join([C.ADP.ADPT, key, str(x)]))
+        adpe[key][x] = find_mtd_role('_'.join([C.ADP.ADPE, key, str(x)]))
+        adpf[key][x] = find_mtd_role('_'.join([C.ADP.FLD, key, str(x)]))
+
+    print adpt
+    print adpe
+    print adpf    
+
     self._adapter[aux.name] = adpt
     self._adaptee[aux.name] = adpe
 
     # insert code snippets for adapter
-    adpt_cls = adpt.clazz
-    for init in adpt_cls.inits:
-      for n, t in enumerate(init.param_typs):
-        Adapter.add_prvt_fld(adpt_cls, adpt_cls.name, t, n)
-      Adapter.def_constructor(init, adpt_cls)
+    for key in self._adp_conf.iterkeys():
+      for x in range(self._adp_conf[key]): 
+        adpt_cls = adpt[key][x].clazz
+        for init in adpt_cls.inits:
+          for n, t in enumerate(init.param_typs):
+            Adapter.add_prvt_fld(adpt_cls, adpt_cls.name, t, n)
+          Adapter.def_constructor(init, adpt_cls)
 
-    Adapter.def_adapter(adpt, adpe, adpf)
+        Adapter.def_adapter(adpt[key][x], adpe[key][x], adpf[key][x])
 
     # remove Aux class
     node.classes.remove(aux)
