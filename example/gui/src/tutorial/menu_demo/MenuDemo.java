@@ -184,8 +184,7 @@ public class MenuDemo implements ActionListener, ItemListener {
         scrollPane = new JScrollPane(output);
 
         //Add the text area to the content pane.
-        //contentPane.add(scrollPane, BorderLayout.CENTER);
-        contentPane.add(scrollPane);
+        contentPane.add(scrollPane, BorderLayout.CENTER);
 
         return contentPane;
     }
