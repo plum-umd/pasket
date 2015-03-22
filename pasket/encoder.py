@@ -81,7 +81,7 @@ def trans_ty(tname):
   elif _tname in [C.J.b, C.J.s, C.J.j]: r_ty = C.J.i
   # TODO: parameterize len?
   elif _tname in [C.J.c+"[]"]: r_ty = u"{}[51]".format(C.J.c)
-  elif _tname in [C.J.INT]: r_ty = C.J.i
+  elif _tname in [C.J.B, C.J.S, C.J.J, C.J.I]: r_ty = C.J.i
   # array bounds
   elif m:
     r_ty = trans_ty(m.group(1)) + \

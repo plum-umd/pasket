@@ -203,7 +203,7 @@ class AccessorUni(object):
   
   @staticmethod
   def zgetter_in_one(aux, conf, fld_g, g_cnt):
-    AccessorUni.__getter_in_one(aux, conf, fld_g, g_cnt, C.J.z, C.J.F)
+    AccessorUni.__getter_in_one(aux, conf, fld_g, g_cnt, C.J.z, C.J.FALSE)
   
   # setter will be invoked here
   @staticmethod

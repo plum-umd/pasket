@@ -33,7 +33,7 @@ class AccessorMap(object):
 
   ## hole assignments for roles
   ## glblInit_accessor_????,StmtAssign,accessor_???? = n
-  regex_role = r"(({})_\S+_{}).* = (\d+)$".format('|'.join(C.acc_roles), __aux_name)
+  regex_role = r"(({})_\S+_\d+_{}).* = (\d+)$".format('|'.join(C.acc_roles), __aux_name)
 
   @staticmethod
   def simple_role_of_interest(msg):
@@ -46,7 +46,8 @@ class AccessorMap(object):
     self._role[v] = n
 
   # initializer
-  def __init__(self, output_path, acc_conf):
+  def __init__(self, cmd, output_path, acc_conf):
+    self._cmd = cmd
     self._output = output_path
     self._demo = util.pure_base(output_path)
     self._acc_conf = acc_conf
@@ -93,7 +94,7 @@ class AccessorMap(object):
     name = u'_'.join([C.ACC.prvt, unicode(num), acc.name])
     fld = acc.fld_by_name(name)
     if not fld:
-      logging.debug("adding private field {} for {} of type {}".format(str(num), acc.name, typ))
+      logging.debug("adding private field {} for {} of type {}".format(name, acc.name, typ))
       fld = Field(clazz=acc, typ=typ, name=name)
       acc.add_fld(fld)
       acc.init_fld(fld)
@@ -102,16 +103,18 @@ class AccessorMap(object):
   # getter code
   @staticmethod
   def def_getter(mtd, acc, fld_id):
+    _, k = mtd.params[0] # 1st arg: key
     logging.debug("adding getter code into {}".format(repr(mtd)))
-    get = u"return {}_{}_{};".format(C.ACC.prvt, unicode(fld_id), acc.name)
+    get = u"return {}_{}_{}.get({});".format(C.ACC.prvt, unicode(fld_id), acc.name, k)
     mtd.body = to_statements(mtd, get)
 
   # setter code
   @staticmethod
-  def def_setter(mtd, acc, fld_id, typ):
-    args = find_formals(mtd.params, [typ])
+  def def_setter(mtd, acc, fld_id):
+    _, k = mtd.params[0] # 1st arg: key
+    _, v = mtd.params[1] # 2nd arg: val
     logging.debug("adding setter code into {}".format(repr(mtd)))
-    set = u"{}_{}_{} = {};".format(C.ACC.prvt, unicode(fld_id), acc.name, args[0])
+    set = u"{}_{}_{}.put({}, {});".format(C.ACC.prvt, unicode(fld_id), acc.name, k, v)
     mtd.body = to_statements(mtd, set)
 
   # constructor code
@@ -182,19 +185,30 @@ class AccessorMap(object):
       for e in gs[k].iterkeys():
         getr = getters[k][e]
         setr = setters[k][e] if e in setters[k].keys() else None
-        if getr.id in self._invoked or \
-            setr and setr.id in self._invoked:
+        effective = False
+        if self._cmd == "android": effective = True
+        elif self._cmd == "gui":
+          effective = getr.id in self._invoked
+          if not effective: effective = setr and setr.id in self._invoked
 
-          lst_ty = u"List<{}>".format(getr.typ)
+        if effective:
+          if len(getr.params) < 1:
+            raise Exception("semantic error", getr.signature)
+          k_ty = getr.param_typs[0]
+          lst_ty = u"Map<{},{}>".format(k_ty, getr.typ)
           AccessorMap.add_prvt_fld(getr.clazz, k, lst_ty, int(gs[k][e]))
           logging.debug("getter: {}_{}: {}".format(k, e, repr(getr)))
           AccessorMap.def_getter(getr, getr.clazz, gs[k][e])
 
           if setr:
-            lst_ty = u"List<{}>".format(setr.param_typs[0])
+            if len(setr.params) < 2:
+              raise Exception("semantic error", setr.signature)
+            k_ty = setr.param_typs[0]
+            v_ty = setr.param_typs[1]
+            lst_ty = u"Map<{},{}>".format(k_ty, v_ty)
             AccessorMap.add_prvt_fld(setr.clazz, k, lst_ty, int(gs[k][e]))
             logging.debug("setter: {}_{}: {}".format(k, e, repr(setr)))
-            AccessorMap.def_setter(setr, setr.clazz, gs[k][e], setr.param_typs[0])
+            AccessorMap.def_setter(setr, setr.clazz, gs[k][e])
 
     # remove Aux class
     node.classes.remove(aux)

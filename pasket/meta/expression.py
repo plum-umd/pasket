@@ -97,7 +97,7 @@ class Expression(v.BaseNode):
 
     elif self.kind == C.E.C:
       if self.c == C.J.N: return C.J.OBJ
-      elif self.c in [C.J.T, C.J.F]: return C.J.z
+      elif self.c in [C.J.TRUE, C.J.FALSE]: return C.J.z
       else: return C.J.i
 
     elif self.kind == C.E.ID:
@@ -359,7 +359,7 @@ def parse_e(node, cls=None):
   elif len(_nodes) <= 1:
     if kind:
       try:
-        if kind in [C.J.T, C.J.F, C.J.N]: e = gen_E_c(unicode(kind))
+        if kind in [C.J.TRUE, C.J.FALSE, C.J.N]: e = gen_E_c(unicode(kind))
         else: e = gen_E_c(ast.literal_eval(kind))
       except Exception: e = gen_E_id(unicode(kind))
     else: e = gen_E_id(_nodes[0].getText())

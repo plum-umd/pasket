@@ -21,17 +21,22 @@ C.T = util.enum(ANNO="ANNOTATION", \
 
 # constants regarding Java
 C.J = util.enum(MAIN=u"main", CLINIT=u"clinit", \
-    T=u"true", F=u"false", N=u"null", \
+    TRUE=u"true", FALSE=u"false", N=u"null", \
     NEW="new", THIS=u"this", SUP=u"super", \
     v=u"void", z=u"boolean", b=u"byte", s=u"short", c=u"char", \
     i=u"int", j=u"long", f=u"float", d=u"double", \
-    OBJ=u"Object", INT=u"Integer", RUN=u"Runnable", \
+    V=u"Void", Z=u"Boolean", B=u"Byte", S=u"Short", C=u"Char", \
+    I=u"Integer", J=u"Long", F=u"Float", D=u"Dobule", \
+    OBJ=u"Object", RUN=u"Runnable", \
     STR=u"String", SB=u"StringBuffer", \
     MAP=u"Map", LST=u"List", STK=u"Stack", QUE=u"Queue", ITER=u"Iterator", \
     TMAP=u"TreeMap", LNK=u"LinkedList", DEQ=u"ArrayDeque")
 
 # Java primitive types
 C.primitives = [C.J.z, C.J.b, C.J.s, C.J.c, C.J.i, C.J.j, C.J.f, C.J.d]
+
+# Java autoboxing: should be in order!
+C.autoboxing = [C.J.Z, C.J.B, C.J.S, C.J.C, C.J.I, C.J.J, C.J.F, C.J.D]
 
 # constants regarding Java GUI
 C.GUI = util.enum(TOOL=u"Toolkit", QUE=u"EventQueue", \
@@ -152,6 +157,7 @@ def configure(opt):
   conf["encoding"] = opt.encoding
   conf["sketch"] = opt.sketch
   conf["randassign"] = opt.randassign
+  conf["randdegree"] = opt.randdegree
   conf["parallel"] = opt.parallel
   conf["verbose"] = opt.verbose
 
@@ -264,7 +270,7 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
 
       if conf["randassign"] or conf["parallel"]:
         _opts.append("--slv-randassign")
-        _opts.extend(["--bnd-dag-size", "16000000"]) # 16M ~> 8G memory
+        #_opts.extend(["--bnd-dag-size", "16000000"]) # 16M ~> 8G memory
 
       sketch.set_default_option(_opts)
 
@@ -273,7 +279,10 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
         #_, r = sketch.be_p_run(sk_dir, output_path)
         # Java implementation inside sketch-frontend
         _opts.append("--slv-parallel")
-        _opts.extend(["--slv-strategy", "WILCOXON"])
+        if conf["randdegree"]: # assume FIXED strategy
+          _opts.extend(["--slv-randdegree", str(conf["randdegree"])])
+        else: # adaptive concretization
+          _opts.extend(["--slv-strategy", "WILCOXON"])
         _, r = sketch.run(sk_dir, output_path)
       else:
         _, r = sketch.run(sk_dir, output_path)

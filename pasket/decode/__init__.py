@@ -19,7 +19,7 @@ from adapter import Adapter
 from observer import Observer
 from singleton import Singleton
 
-pkgs_android = [u"android."]
+pkgs_android = [u"android.", u"com.android."]
 
 pkgs_gui = [u"java.awt", u"javax.swing", u"javax.accessibility"]
 
@@ -203,12 +203,12 @@ def to_java(cmd, java_dir, tmpls, output_paths, patterns):
 
     if cmd == "android":
       from ..rewrite.android import acc_conf_uni, acc_conf_map
-      p2v[C.P.ACCU] = AccessorUni(output_path, acc_conf_uni)
-      p2v[C.P.ACCM] = AccessorMap(output_path, acc_conf_map)
+      p2v[C.P.ACCU] = AccessorUni(cmd, output_path, acc_conf_uni)
+      p2v[C.P.ACCM] = AccessorMap(cmd, output_path, acc_conf_map)
     elif cmd == "gui":
       from ..rewrite.gui import acc_conf_uni, acc_conf_map
-      p2v[C.P.ACCU] = AccessorUni(output_path, acc_conf_uni)
-      p2v[C.P.ACCM] = AccessorMap(output_path, acc_conf_map)
+      p2v[C.P.ACCU] = AccessorUni(cmd, output_path, acc_conf_uni)
+      p2v[C.P.ACCM] = AccessorMap(cmd, output_path, acc_conf_map)
     else: pass
 
     if cmd == "gui":
@@ -226,7 +226,7 @@ def to_java(cmd, java_dir, tmpls, output_paths, patterns):
 
     coll = "collection"
     p2v[coll] = Collection()
-    _patterns.insert(0, coll)
+    _patterns.append(coll)
     
     p2vs.append(p2v)
     
@@ -267,10 +267,15 @@ def dump(cmd, dst_dir, tmpl, msg=None):
       u"InputStreamReader", u"BufferedReader", \
       u"FileNotFoundException", u"IOException"]
 
-  gui_pkgs = set([])
+  if cmd == "android":
+    pkgs_of_interest = pkgs_android
+  elif cmd == "gui":
+    pkgs_of_interest = pkgs_gui
+  decl_pkgs = set([])
   for cls in tmpl.classes:
     if not cls.pkg: continue
-    if check_pkg(cls.pkg, pkgs_gui): gui_pkgs.add(cls.pkg)
+    if check_pkg(cls.pkg, pkgs_of_interest):
+      decl_pkgs.add(cls.pkg)
 
   for cls in tmpl.classes:
     ## generate folders according to package hierarchy
@@ -287,13 +292,11 @@ def dump(cmd, dst_dir, tmpl, msg=None):
     cls_body = str(cls)
     imports.extend(find_imports(cls_body, u"java.util", C.collections))
     imports.extend(find_imports(cls_body, u"java.io", ios))
-
-    if cmd == "android":
-      pass
-    elif cmd == "gui":
+    if cmd == "gui":
       imports.extend(find_imports(cls_body, u"java.util", [C.GUI.EVT]))
-      for pkg in gui_pkgs:
-        if not cls.pkg or cls.pkg != pkg: imports.append(pkg+".*")
+
+    for pkg in decl_pkgs:
+      if not cls.pkg or cls.pkg != pkg: imports.append(pkg+".*")
 
     ## generate Java files
     with open(java_path, 'w') as f:

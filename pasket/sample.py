@@ -354,7 +354,7 @@ def kind(val):
     if '@' in val: return val
     else: v_typ = str
   except ValueError:
-    if val in [C.J.T, C.J.F]: v_typ = bool
+    if val in [C.J.TRUE, C.J.FALSE]: v_typ = bool
     else: v_typ = str
   return v_typ
 

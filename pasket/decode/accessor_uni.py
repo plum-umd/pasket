@@ -33,7 +33,7 @@ class AccessorUni(object):
 
   ## hole assignments for roles
   ## glblInit_accessor_????,StmtAssign,accessor_???? = n
-  regex_role = r"(({})_\S+_{}).* = (\d+)$".format('|'.join(C.acc_roles), __aux_name)
+  regex_role = r"(({})_\S+_\d+_{}).* = (\d+)$".format('|'.join(C.acc_roles), __aux_name)
 
   @staticmethod
   def simple_role_of_interest(msg):
@@ -46,7 +46,8 @@ class AccessorUni(object):
     self._role[v] = n
 
   # initializer
-  def __init__(self, output_path, acc_conf):
+  def __init__(self, cmd, output_path, acc_conf):
+    self._cmd = cmd
     self._output = output_path
     self._demo = util.pure_base(output_path)
     self._acc_conf = acc_conf
@@ -93,7 +94,7 @@ class AccessorUni(object):
     name = u'_'.join([C.ACC.prvt, unicode(num), acc.name])
     fld = acc.fld_by_name(name)
     if not fld:
-      logging.debug("adding private field {} for {} of type {}".format(str(num), acc.name, typ))
+      logging.debug("adding private field {} for {} of type {}".format(name, acc.name, typ))
       fld = Field(clazz=acc, typ=typ, name=name)
       acc.add_fld(fld)
     setattr(acc, C.ACC.CONS+"_"+inst+"_"+str(num), fld)
@@ -181,9 +182,13 @@ class AccessorUni(object):
       for e in gs[k].iterkeys():
         getr = getters[k][e]
         setr = setters[k][e] if e in setters[k].keys() else None
-        if getr.id in self._invoked or \
-            setr and setr.id in self._invoked:
+        effective = False
+        if self._cmd == "android": effective = True
+        elif self._cmd == "gui":
+          effective = getr.id in self._invoked
+          if not effective: effective = setr and setr.id in self._invoked
 
+        if effective:
           AccessorUni.add_prvt_fld(getr.clazz, k, getr.typ, int(gs[k][e]))
           logging.debug("getter: {}_{}: {}".format(k, e, repr(getr)))
           AccessorUni.def_getter(getr, getr.clazz, gs[k][e])

@@ -49,7 +49,7 @@ class Observer(object):
 
   ## hole assignments for roles
   ## glblInit_subject_????,StmtAssign,subject_???? = n
-  regex_role = r"(({})_{}\S+)_.* = (\d+)$".format('|'.join(C.obs_roles), C.OBS.AUX)
+  regex_role = r"(({})_{}[^_]+)_.* = (\d+)$".format('|'.join(C.obs_roles), C.OBS.AUX)
 
   @staticmethod
   def st_of_interest(msg):
@@ -211,14 +211,24 @@ class Observer(object):
 
   @v.when(Template)
   def visit(self, node):
+    conf = self._obs_conf
+
     def find_role(lst, aux_name, role):
       try:
         _id = self._role['_'.join([role, aux_name])]
         return lst[int(_id)]
       except KeyError: return None
 
+    regex_ev = r"{}(\S+)".format(C.OBS.AUX)
+
     for aux_name in node.obs_auxs:
       aux = class_lookup(aux_name)
+      evt = getattr(aux, "evt").name
+
+      if evt in conf:
+        hdl_cnt, attach_cnt, detach_cnt = conf[evt]
+      else:
+        hdl_cnt, attach_cnt, detach_cnt = (1, 1, 1)
 
       # find and store class roles
       find_cls_role = partial(find_role, classes(), aux_name)
@@ -232,16 +242,23 @@ class Observer(object):
 
       # find and store method roles
       find_mtd_role = partial(find_role, methods(), aux_name)
-      attach, detach = map(find_mtd_role, [C.OBS.A, C.OBS.D])
-      logging.debug("attach: {}.{}".format(attach.clazz.name, attach.name))
-      logging.debug("detach: {}.{}".format(detach.clazz.name, detach.name))
+
+      if attach_cnt == 0: attach = None
+      else: # attach_cnt == 1
+        attach = find_mtd_role(C.OBS.A)
+        logging.debug("attach: {}.{}".format(attach.clazz.name, attach.name))
+
+      if detach_cnt == 0: detach = None
+      else: # detach_cnt == 1
+        detach = find_mtd_role(C.OBS.D)
+        logging.debug("detach: {}.{}".format(detach.clazz.name, detach.name))
 
       handle, update = map(find_mtd_role, [C.OBS.H, C.OBS.U])
       logging.debug("handle: {}.{}".format(handle.clazz.name, handle.name))
       logging.debug("update: {}.{}".format(update.clazz.name, update.name))
 
-      self._attach[aux.name] = attach
-      self._detach[aux.name] = detach
+      if attach: self._attach[aux.name] = attach
+      if detach: self._detach[aux.name] = detach
       self._handle[aux.name] = handle
 
       # concretize @Subject if an interface is chosen
@@ -259,8 +276,8 @@ class Observer(object):
       Observer.add_obs(subj, obsr)
 
       # insert or move code snippets from Aux classes to actual participants
-      Observer.def_attach(attach, subj, obsr)
-      Observer.def_detach(detach, subj, obsr)
+      if attach: Observer.def_attach(attach, subj, obsr)
+      if detach: Observer.def_detach(detach, subj, obsr)
 
       handle.body = aux.mtd_handle.body
       Observer.revise_handle(handle, update, aux, obsr, aux.evt)
