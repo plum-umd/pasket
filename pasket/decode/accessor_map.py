@@ -103,16 +103,18 @@ class AccessorMap(object):
   # getter code
   @staticmethod
   def def_getter(mtd, acc, fld_id):
+    _, k = mtd.params[0] # 1st arg: key
     logging.debug("adding getter code into {}".format(repr(mtd)))
-    get = u"return {}_{}_{};".format(C.ACC.prvt, unicode(fld_id), acc.name)
+    get = u"return {}_{}_{}.get({});".format(C.ACC.prvt, unicode(fld_id), acc.name, k)
     mtd.body = to_statements(mtd, get)
 
   # setter code
   @staticmethod
-  def def_setter(mtd, acc, fld_id, typ):
-    args = find_formals(mtd.params, [typ])
+  def def_setter(mtd, acc, fld_id):
+    _, k = mtd.params[0] # 1st arg: key
+    _, v = mtd.params[1] # 2nd arg: val
     logging.debug("adding setter code into {}".format(repr(mtd)))
-    set = u"{}_{}_{} = {};".format(C.ACC.prvt, unicode(fld_id), acc.name, args[0])
+    set = u"{}_{}_{}.put({}, {});".format(C.ACC.prvt, unicode(fld_id), acc.name, k, v)
     mtd.body = to_statements(mtd, set)
 
   # constructor code
@@ -190,16 +192,23 @@ class AccessorMap(object):
           if not effective: effective = setr and setr.id in self._invoked
 
         if effective:
-          lst_ty = u"List<{}>".format(getr.typ)
+          if len(getr.params) < 1:
+            raise Exception("semantic error", getr.signature)
+          k_ty = getr.param_typs[0]
+          lst_ty = u"Map<{},{}>".format(k_ty, getr.typ)
           AccessorMap.add_prvt_fld(getr.clazz, k, lst_ty, int(gs[k][e]))
           logging.debug("getter: {}_{}: {}".format(k, e, repr(getr)))
           AccessorMap.def_getter(getr, getr.clazz, gs[k][e])
 
           if setr:
-            lst_ty = u"List<{}>".format(setr.param_typs[0])
+            if len(setr.params) < 2:
+              raise Exception("semantic error", setr.signature)
+            k_ty = setr.param_typs[0]
+            v_ty = setr.param_typs[1]
+            lst_ty = u"Map<{},{}>".format(k_ty, v_ty)
             AccessorMap.add_prvt_fld(setr.clazz, k, lst_ty, int(gs[k][e]))
             logging.debug("setter: {}_{}: {}".format(k, e, repr(setr)))
-            AccessorMap.def_setter(setr, setr.clazz, gs[k][e], setr.param_typs[0])
+            AccessorMap.def_setter(setr, setr.clazz, gs[k][e])
 
     # remove Aux class
     node.classes.remove(aux)
