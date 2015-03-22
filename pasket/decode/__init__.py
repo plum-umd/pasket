@@ -225,7 +225,7 @@ def to_java(cmd, java_dir, tmpls, output_paths, patterns):
 
     coll = "collection"
     p2v[coll] = Collection()
-    _patterns.insert(0, coll)
+    _patterns.append(coll)
     
     p2vs.append(p2v)
     
