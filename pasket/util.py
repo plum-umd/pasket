@@ -165,6 +165,17 @@ def to_shorty(tname):
     return None
 
 
+# autoboxing, e.g., int -> Integer
+@takes(unicode)
+@returns(unicode)
+def autoboxing(tname):
+  if tname in C.primitives:
+    for i, v in enumerate(C.primitives):
+      if tname == v: return C.autoboxing[i]
+
+  return tname
+
+
 # Sketch-ish short form representation of type name
 @takes(unicode)
 @returns(unicode)

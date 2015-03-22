@@ -21,17 +21,22 @@ C.T = util.enum(ANNO="ANNOTATION", \
 
 # constants regarding Java
 C.J = util.enum(MAIN=u"main", CLINIT=u"clinit", \
-    T=u"true", F=u"false", N=u"null", \
+    TRUE=u"true", FALSE=u"false", N=u"null", \
     NEW="new", THIS=u"this", SUP=u"super", \
     v=u"void", z=u"boolean", b=u"byte", s=u"short", c=u"char", \
     i=u"int", j=u"long", f=u"float", d=u"double", \
-    OBJ=u"Object", INT=u"Integer", RUN=u"Runnable", \
+    V=u"Void", Z=u"Boolean", B=u"Byte", S=u"Short", C=u"Char", \
+    I=u"Integer", J=u"Long", F=u"Float", D=u"Dobule", \
+    OBJ=u"Object", RUN=u"Runnable", \
     STR=u"String", SB=u"StringBuffer", \
     MAP=u"Map", LST=u"List", STK=u"Stack", QUE=u"Queue", ITER=u"Iterator", \
     TMAP=u"TreeMap", LNK=u"LinkedList", DEQ=u"ArrayDeque")
 
 # Java primitive types
 C.primitives = [C.J.z, C.J.b, C.J.s, C.J.c, C.J.i, C.J.j, C.J.f, C.J.d]
+
+# Java autoboxing: should be in order!
+C.autoboxing = [C.J.Z, C.J.B, C.J.S, C.J.C, C.J.I, C.J.J, C.J.F, C.J.D]
 
 # constants regarding Java GUI
 C.GUI = util.enum(TOOL=u"Toolkit", QUE=u"EventQueue", \
