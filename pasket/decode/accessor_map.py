@@ -240,12 +240,8 @@ class AccessorMap(object):
       call = unicode(node)
       ## return Aux....getterInOne(...);
       if call.startswith(u"return " + C.ACC.AUX+"Map") and "etterInOne" in call:
-        cls = class_lookup(self._cur_mtd.typ)
-        if not cls: return
-        vname = self._cur_mtd.name
-        v = util.default_value(self._cmd, cls.JVM_notation, vname)
-        logging.debug("replacing {} with {}".format(call, v))
-        return to_statements(self._cur_mtd, u"return {};".format(v))
+        logging.debug("removing {}".format(call))
+        return []
 
     return [node]
 

@@ -232,7 +232,7 @@ def to_java(cmd, java_dir, tmpls, output_paths, patterns):
     logging.info("semantics checking")
     _visitors = []
     _visitors.append(Collection())
-    _visitors.append(SemanticChecker())
+    _visitors.append(SemanticChecker(cmd))
     map(lambda vis: tmpl.accept(vis), _visitors)
 
     tmpl.freeze()
