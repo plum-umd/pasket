@@ -15,9 +15,9 @@ acc_conf_uni = {
   C.ADR.INTT: (1, 1, 0), # getComponent
   C.ADR.CMP: (2, 2, 0), # get(Class|Package)Name
 
-  "InputEvent": (1, 1, 1), # (get|set)Source
-  "MotionEvent": (2, 1, 0), # getAction(Masked)
-  #"KeyEvent": (2, 1, 0), # getKeyCode
+  #"InputEvent": (1, 1, 1), # (get|set)Source <- abstract
+  "MotionEvent": (2, 2, 1), # getAction(Masked)
+  #"KeyEvent": (2, 2, 1), # getKeyCode
 }
 
 # configuration for the accessor pattern (of Map<K,V> type)

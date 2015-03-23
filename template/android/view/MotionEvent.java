@@ -9,5 +9,8 @@ public class MotionEvent extends InputEvent {
   // XXX: virtual <init>, in lieu of CREATOR factory
   MotionEvent(int source, int action);
 
+  public int getSource();
+  public void setSource(int source);
+
   public final int getActionMasked();
 }
