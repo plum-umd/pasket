@@ -2,6 +2,7 @@ package android.widget;
 
 @ObserverPattern(MotionEvent)
 public abstract class AdapterView<T> extends ViewGroup {
+  public AdapterView(Context context);
 
   public abstract void setSelection(int position);
 
