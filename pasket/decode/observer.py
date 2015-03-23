@@ -180,7 +180,7 @@ class Observer(object):
 
   # handle code
   @staticmethod
-  def revise_handle(mtd, upd, aux, obsr, evt):
+  def revise_handle(mtd, upd, aux, subj, obsr, evt):
     body = '\n'.join(map(str,mtd.body))
 
     # rcv_Aux... -> this
@@ -195,16 +195,24 @@ class Observer(object):
     body = body.replace(reflect, concrete)
 
     # List<Aux...> -> List<@Observer>
+    # List<Object> -> List<@Observer>
     body = body.replace(aux.name, obsr.name)
+    body = body.replace(C.J.OBJ, obsr.name)
 
     # formal parameter of event type
     args = find_formals(mtd.params, [evt.name])
     body = body.replace("evt", args[0])
 
-    # if @Update doesn't receive @Subject
+    # adjust # of arguments for @Update
     if len(upd.params) < 2:
-      # o.update(this, event) -> o.update(event)
-      body = body.replace("this, ",'')
+      upd_param_typ = upd.param_typs[0]
+      # either pass @Subject
+      if upd_param_typ == subj.name:
+        # o.update(this, event) -> o.update(this)
+        body = body.replace(", ({}){}".format(evt.name, args[0]), '')
+      else: # or @Event
+        # o.update(this, event) -> o.update(event)
+        body = body.replace("this, ",'')
 
     logging.debug("revising handle code at {}".format(mtd.name))
     mtd.body = to_statements(mtd, body)
@@ -280,7 +288,7 @@ class Observer(object):
       if detach: Observer.def_detach(detach, subj, obsr)
 
       handle.body = aux.mtd_handle.body
-      Observer.revise_handle(handle, update, aux, obsr, aux.evt)
+      Observer.revise_handle(handle, update, aux, subj, obsr, aux.evt)
       setattr(subj, "handle", handle)
 
       old = "handleCode_{0}_{0}_{0}_{1}".format(aux.name, aux.evt.name)
@@ -309,28 +317,26 @@ class Observer(object):
       node.name = subj.lower()
 
   # Aux...subjectCall(...);
-  regex_one = r"^{}\d+\.subjectCall\(.*\);$".format(C.OBS.AUX)
+  regex_one = r"^{}\S+\.subjectCall\(.*\);$".format(C.OBS.AUX)
 
   @v.when(Method)
   def visit(self, node):
     self._cur_mtd = node
     if not node.body: return
+    cls = node.clazz
     # remove auxiliary initializing statements
     if node.is_init:
       def tmp_filter(st): return C.OBS.tmp not in str(st)
       node.body = filter(tmp_filter, node.body)
 
-    cls = node.clazz
-    # if this method belongs to either Subject or Observer
-    if cls in self._subj.values() + self._obsr.values():
-      if not node.is_init:
-        # remove subjectCall() call
-        s = unicode(node.body[0])
-        m = re.match(Observer.regex_one, s)
-        if m:
-          logging.debug("at {}, removing {}".format(node.name, s))
-          # assume that call is the only statement in the method
-          node.body.pop(0)
+    else: # node.is_init
+      # remove subjectCall() call
+      s = unicode(node.body[0])
+      m = re.match(Observer.regex_one, s)
+      if m:
+        logging.debug("at {}, removing {}".format(node.name, s))
+        # assume that call is the only statement in the method
+        node.body.pop(0)
 
   @v.when(Statement)
   def visit(self, node):
