@@ -61,6 +61,10 @@ class Method(v.BaseNode):
     return C.mod.ST in self._mods
 
   @property
+  def is_abstract(self):
+    return C.mod.AB in self._mods
+
+  @property
   def typ(self):
     return self._typ
 
@@ -138,8 +142,8 @@ class Method(v.BaseNode):
       buf.write(')')
       if self._throws:
         buf.write(" {} {}".format(C.T.THROWS, ", ".join(self._throws)))
-    # interfaces won't have method body
-    if self._clazz.is_itf: buf.write(';')
+    # interfaces and abstract methods won't have method body
+    if self._clazz.is_itf or self.is_abstract: buf.write(';')
     else:
       buf.write(" {\n")
       buf.write('\n'.join(map(s_printer, self._body)))
