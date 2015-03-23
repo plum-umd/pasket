@@ -4,16 +4,18 @@ import lib.const as C
 import lib.visit as v
 
 from .. import util
+from ..meta import class_lookup
 from ..meta.template import Template
 from ..meta.clazz import Clazz
 from ..meta.method import Method
 from ..meta.field import Field
-from ..meta.statement import Statement
+from ..meta.statement import Statement, to_statements
 from ..meta.expression import Expression, gen_E_c
 
 class SemanticChecker(object):
 
-  def __init__(self): pass
+  def __init__(self, cmd):
+    self._cmd = cmd
 
   @v.on("node")
   def visit(self, node):
@@ -34,10 +36,21 @@ class SemanticChecker(object):
   def visit(self, node):
     if node.clazz.is_aux: return
     if node.clazz.is_itf: return
+
     # abstract method cannot have a body
     if node.is_abstract and node.body:
       logging.debug("clean up abstract method: {}".format(node.signature))
       node.body = []
+
+    # method without any proper return statement
+    if not node.is_init and node.typ != C.J.v and not node.has_return:
+      cls = class_lookup(node.typ)
+      if not cls: return
+      v = util.default_value(self._cmd, cls.JVM_notation, node.name)
+      cast = u''
+      if util.is_class_name(node.typ): cast = u"({})".format(node.typ)
+      node.body += to_statements(node, u"return {}{};".format(cast, v))
+      logging.debug("filling return value for {}: {}".format(node.signature, v))
 
     # XXX: remove ad-hoc reflective Activity instantiation in Android
     if node.clazz.name == C.ADR.HDL and "dispatch" in node.name:

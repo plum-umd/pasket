@@ -233,7 +233,7 @@ def to_java(cmd, java_dir, tmpls, output_paths, patterns):
     logging.info("semantics checking")
     _visitors = []
     _visitors.append(Collection())
-    _visitors.append(SemanticChecker())
+    _visitors.append(SemanticChecker(cmd))
     map(lambda vis: tmpl.accept(vis), _visitors)
 
     tmpl.freeze()
@@ -293,7 +293,9 @@ def dump(cmd, dst_dir, tmpl, msg=None):
     cls_body = str(cls)
     imports.extend(find_imports(cls_body, u"java.util", C.collections))
     imports.extend(find_imports(cls_body, u"java.io", ios))
-    if cmd == "gui":
+    if cmd == "android":
+      imports.extend(find_imports(cls_body, u"symdroid.ocaml", [u"SymUtil"]))
+    elif cmd == "gui":
       imports.extend(find_imports(cls_body, u"java.util", [C.GUI.EVT]))
 
     for pkg in decl_pkgs:

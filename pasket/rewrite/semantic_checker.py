@@ -36,12 +36,15 @@ class SemanticChecker(object):
   def visit(self, node):
     if node.clazz.is_aux: return
     if node.clazz.is_itf: return
+
     # method without any proper return statement
     if not node.is_init and node.typ != C.J.v and not node.has_return:
       cls = class_lookup(node.typ)
       if not cls: return
       v = util.default_value(self._cmd, cls.JVM_notation, node.name)
-      node.body += to_statements(node, u"return {};".format(v))
+      cast = u''
+      if util.is_class_name(node.typ): cast = u"({})".format(node.typ)
+      node.body += to_statements(node, u"return {}{};".format(cast, v))
       logging.debug("filling return value for {}: {}".format(node.signature, v))
 
   @v.when(Statement)
