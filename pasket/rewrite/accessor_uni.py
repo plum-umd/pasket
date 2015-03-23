@@ -66,11 +66,13 @@ class AccessorUni(object):
 
   @staticmethod
   def is_candidate_getter(mtd):
-    return not mtd.is_init and len(mtd.params) == 0 and mtd.typ != C.J.v
+    return not mtd.is_init and not mtd.is_abstract and \
+        len(mtd.params) == 0 and mtd.typ != C.J.v
 
   @staticmethod
   def is_candidate_setter(mtd):
-    return not mtd.is_init and len(mtd.params) == 1 and mtd.typ == C.J.v
+    return not mtd.is_init and not mtd.is_abstract and \
+        len(mtd.params) == 1 and mtd.typ == C.J.v
 
   # assume methods that participate will be neither <init> nor static
   @staticmethod
@@ -470,8 +472,10 @@ class AccessorUni(object):
     if node.annos: return
     # skip java.lang.*
     if node.clazz.pkg in ["java.lang"]: return
-    # can't edit interface's methods as well as client side
-    if node.clazz.is_itf or node.clazz.client: return
+    # can't edit interface's methods or abstract methods
+    if node.clazz.is_itf or node.is_abstract: return
+    # can't edit client side
+    if node.clazz.client: return
     cname = node.clazz.name
     if cname in self._acc_default: return
  

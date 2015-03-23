@@ -81,8 +81,10 @@ class AccessorAdHoc(object):
     if node.annos: return
     # skip java.lang.*
     if node.clazz.pkg in ["java.lang"]: return
-    # can't edit interface's methods as well as client side
-    if node.clazz.is_itf or node.clazz.client: return
+    # can't edit interface's methods or abstract methods
+    if node.clazz.is_itf or node.is_abstract: return
+    # can't edit client side
+    if node.clazz.client: return
     # skip instance methods which have (hand-written) body
     if not node.is_init and node.body: return
 
