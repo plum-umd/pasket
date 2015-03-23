@@ -247,6 +247,13 @@ class Clazz(v.BaseNode):
   def is_event(self):
     return self._name.endswith("Event")
 
+  @property
+  def JVM_notation(self):
+    cname = self._name
+    if self._outer: cname = u'$'.join([self._outer.name, self._name])
+    full_name = u'.'.join(util.ffilter([self._pkg, cname]))
+    return util.toJVM(full_name)
+
   def __repr__(self):
     cname = self._name
     if self._outer: cname = u'.'.join([self._outer.name, self._name])

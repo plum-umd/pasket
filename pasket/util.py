@@ -56,14 +56,6 @@ def pure_base(path):
 regarding Java features
 """
 
-# Java's Enum
-# NOTE: adding an Enum type to Python is still an open PEP:
-# http://www.python.org/dev/peps/pep-0435/
-def enum(*sequential, **named):
-  enums = dict(zip(sequential, range(len(sequential))), **named)
-  return type('Enum', (), enums)
-
-
 # extract parameterized types
 # Map<K, V> -> [K, V]
 # List<T> -> [T]
@@ -151,6 +143,54 @@ def sanitize_ty(tname):
     _tname = u'_'.join(explode_generics(_tname))
   return _tname.replace('?', C.J.OBJ)
 
+
+# convert type name to JVM notation
+# e.g., x.y.Z -> Lx/y/Z;
+@takes(unicode)
+@returns(unicode)
+def toJVM(tname):
+  if is_class_name(tname.split('.')[-1]):
+    return u'L' + tname.replace('.','/') + u';'
+  elif is_array(tname):
+    return u'[' + toJVM(componentType(tname))
+  else: return tname
+
+
+# default value of the given time, depending on framework
+_default_values = {
+  C.J.i: u"0",
+  C.J.z: C.J.FALSE,
+  u"default": C.J.N
+}
+@takes(str, unicode, unicode)
+@returns(unicode)
+def default_value(cmd, ty, vname):
+  if cmd == "android":
+    if ty in C.primitives:
+      if ty == C.J.z:
+        v = u"SymUtil.new_sym_bit(\"{}\")".format(vname)
+      else:
+        v = u"SymUtil.new_sym_int(\"{}\")".format(vname)
+    else:
+      v = u"SymUtil.new_sym(\"{}\", \"{}\")".format(vname, ty)
+  else:
+    if ty in _default_values:
+      v = _default_values[ty]
+    else: v = _default_values[u"default"]
+  return v
+
+
+# autoboxing, e.g., int -> Integer
+@takes(unicode)
+@returns(unicode)
+def autoboxing(tname):
+  if tname in C.primitives:
+    for i, v in enumerate(C.primitives):
+      if tname == v: return C.autoboxing[i]
+
+  return tname
+
+
 # short form representation of type name
 @takes(unicode)
 @returns(optional(unicode))
@@ -163,17 +203,6 @@ def to_shorty(tname):
     return u'L'
   else: # erroneous
     return None
-
-
-# autoboxing, e.g., int -> Integer
-@takes(unicode)
-@returns(unicode)
-def autoboxing(tname):
-  if tname in C.primitives:
-    for i, v in enumerate(C.primitives):
-      if tname == v: return C.autoboxing[i]
-
-  return tname
 
 
 # Sketch-ish short form representation of type name

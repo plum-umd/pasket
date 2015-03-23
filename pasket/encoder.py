@@ -11,6 +11,7 @@ import logging
 
 from lib.typecheck import *
 import lib.const as C
+from lib.enum import enum
 
 import util
 import sample
@@ -25,7 +26,7 @@ from meta.expression import Expression, typ_of_e
 import meta.expression as exp
 
 # constants regarding sketch
-C.SK = util.enum(z=u"bit", self=u"self")
+C.SK = enum(z=u"bit", self=u"self")
 
 # global constants that should be placed at every sketch file
 _const = u''
@@ -233,9 +234,10 @@ def col_to_struct(cls):
     if C.J.STK in collection:
       # Stack<T>.push -> push_Stack_T
       buf.write("""
-        void {} (${{sname}} stk, ${{t}} elt) {{
+        ${{t}} {} (${{sname}} stk, ${{t}} elt) {{
           stk.elts[stk.idx] = elt;
           stk.idx = (stk.idx + 1) % S;
+          return elt;
         }}
       """.format(trans_mname(cname, u"push", [t])))
 
@@ -253,9 +255,10 @@ def col_to_struct(cls):
     elif C.J.QUE in collection:
       # Queue<T>.add -> add_Queue_T
       buf.write("""
-        void {} (${{sname}} que, ${{t}} elt) {{
+        bit {} (${{sname}} que, ${{t}} elt) {{
           que.elts[que.idx] = elt;
           que.idx = (que.idx + 1) % S;
+          return true;
         }}
       """.format(trans_mname(cname, u"add", [t])))
 
@@ -280,9 +283,10 @@ def col_to_struct(cls):
     elif C.J.LST in collection:
       # List<T>.add -> add_List_T
       buf.write("""
-        void {} (${{sname}} lst, ${{t}} elt) {{
+        bit {} (${{sname}} lst, ${{t}} elt) {{
           lst.elts[lst.idx] = elt;
           lst.idx = (lst.idx + 1) % S;
+          return true;
         }}
       """.format(trans_mname(cname, u"add", [t])))
 
@@ -1391,6 +1395,8 @@ def to_sk(cmd, smpls, tmpl, sk_dir):
   # cls.sk
   cls_sks = []
   for cls in tmpl.classes:
+    # skip the collections, which will be encoded at type.sk
+    if repr(cls).split('_')[0] in C.collections: continue
     cls_sk = gen_cls_sk(sk_dir, smpls, cls)
     if cls_sk: cls_sks.append(cls_sk)
 

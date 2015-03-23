@@ -5,13 +5,12 @@ import logging.config
 import subprocess
 import sys
 
+from lib.enum import enum
 from lib.typecheck import *
 import lib.const as C
 
-import util
-
 # Terminals used at AST
-C.T = util.enum(ANNO="ANNOTATION", \
+C.T = enum(ANNO="ANNOTATION", \
     PKG="package", CLS="class", ITF="interface", ENUM="enum", \
     EXT="extends", IMP="implements", THROWS="throws", \
     DECL="DECL", FLD="FIELD", MTD="METHOD", \
@@ -20,7 +19,7 @@ C.T = util.enum(ANNO="ANNOTATION", \
     HOLE=u"??")
 
 # constants regarding Java
-C.J = util.enum(MAIN=u"main", CLINIT=u"clinit", \
+C.J = enum(MAIN=u"main", CLINIT=u"clinit", \
     TRUE=u"true", FALSE=u"false", N=u"null", \
     NEW="new", THIS=u"this", SUP=u"super", \
     v=u"void", z=u"boolean", b=u"byte", s=u"short", c=u"char", \
@@ -39,11 +38,11 @@ C.primitives = [C.J.z, C.J.b, C.J.s, C.J.c, C.J.i, C.J.j, C.J.f, C.J.d]
 C.autoboxing = [C.J.Z, C.J.B, C.J.S, C.J.C, C.J.I, C.J.J, C.J.F, C.J.D]
 
 # constants regarding Java GUI
-C.GUI = util.enum(TOOL=u"Toolkit", QUE=u"EventQueue", \
+C.GUI = enum(TOOL=u"Toolkit", QUE=u"EventQueue", \
     EVT=u"EventObject", IVK=u"InvocationEvent")
 
 # constants regarding Android
-C.ADR = util.enum(SYS=u"SystemServer", QUE=u"MessageQueue", \
+C.ADR = enum(SYS=u"SystemServer", QUE=u"MessageQueue", \
     MSG=u"Message", BDL=u"Bundle", HDL=u"Handler", LOOP=u"Looper", \
     CMP=u"ComponentName", INTT=u"Intent", \
     CTX=u"Context", ACT=u"Activity", ACTT=u"ActivityThread", \
@@ -55,19 +54,19 @@ C.collections = [C.J.MAP, C.J.LST, C.J.STK, C.J.QUE, C.J.ITER] \
               + [C.J.TMAP, C.J.LNK, C.J.DEQ]
 
 # type information encodings
-C.typ = util.enum(argNum="argNum", argType="argType", retType="retType", \
+C.typ = enum(argNum="argNum", argType="argType", retType="retType", \
     belongsTo="belongsTo", subcls="subcls")
 
 C.typ_arrays = [C.typ.argNum, C.typ.argType, C.typ.retType] \
              + [C.typ.belongsTo, C.typ.subcls]
 
 # design patterns
-C.P = util.enum(BLD="builder", FAC="factory", SNG="singleton", \
+C.P = enum(BLD="builder", FAC="factory", SNG="singleton", \
     OBS="observer", PRX="proxy", ADP="adapter", STA="state", \
     ACCA="accessor_adhoc", ACCU="accessor_uni", ACCM="accessor_map")
 
 # role variables for the accessor pattern
-C.ACC = util.enum(AUX=u"AuxAccessor", \
+C.ACC = enum(AUX=u"AuxAccessor", \
     ACC="accessor", CONS="cons", GET="getter", SET="setter", \
     GS="gs_field", prvt=u"_prvt_fld")
 
@@ -75,13 +74,13 @@ C.acc_roles = [C.ACC.CONS, C.ACC.GET, C.ACC.SET, C.ACC.GS]
 
 # role variables for the adapter pattern
 
-C.ADP = util.enum(AUX=u"AuxAdapter", \
+C.ADP = enum(AUX=u"AuxAdapter", \
     ADPT="adapter", ADPE="adaptee", FLD=u"_adpt_ins")
 
 C.adp_roles = [C.ADP.ADPT, C.ADP.ADPE, C.ADP.FLD]
 
 # role variables for the observer pattern
-C.OBS = util.enum(AUX=u"AuxObserver", \
+C.OBS = enum(AUX=u"AuxObserver", \
     OBSR="observer", SUBJ="subject", EVT="event", EVTTYP="eventtype", \
     A="attach", D="detach", H="handle", U="update", \
     obs=u"_obs", tmp=u"__tmp__")
@@ -90,7 +89,7 @@ C.obs_roles = [C.OBS.OBSR, C.OBS.SUBJ, C.OBS.EVT, C.OBS.EVTTYP, \
     C.OBS.A, C.OBS.D, C.OBS.H, C.OBS.U]
 
 # role variables for the singleton pattern
-C.SNG = util.enum(AUX=u"AuxSingleton", \
+C.SNG = enum(AUX=u"AuxSingleton", \
     SNG="singleton", INS=u"__instance", GET=u"getter")
 
 C.sng_roles = [C.SNG.SNG, C.SNG.GET]
@@ -116,6 +115,7 @@ def get_artifacts():
   return _artifacts
 
 
+import util
 from sample import Sample
 from meta import class_lookup
 from meta.template import Template

@@ -10,6 +10,7 @@ import grammar.JavaParser as Parser
 
 from lib.typecheck import *
 import lib.const as C
+from lib.enum import enum
 import lib.visit as v
 
 from .. import util
@@ -19,7 +20,7 @@ from . import class_lookup
 import clazz
 
 # e ::= anno | ?? | {| e* |} | c | id | uop e | e bop e | e.e | e[e] | new e | e(e*) | (e)e
-C.E = util.enum("ANNO", "HOLE", "GEN", "C", "ID", "UOP", "BOP", "DOT", "IDX", "NEW", "CALL", "CAST")
+C.E = enum("ANNO", "HOLE", "GEN", "C", "ID", "UOP", "BOP", "DOT", "IDX", "NEW", "CALL", "CAST")
 C.uop = ['+', '-', '~', '!', "++", "--"]
 C.bop = ["||", "&&", '|', '^', '&'] \
       + ['+', '-', '*', '/', '%'] \

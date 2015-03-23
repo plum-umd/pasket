@@ -394,7 +394,7 @@ class Observer(object):
   # add a list of @Observer, along with an initializing statement
   @staticmethod
   def add_obs(aux, clss):
-    typ = u"{}<{}>".format(C.J.LNK, aux.name)
+    typ = u"{}<{}>".format(C.J.LST, C.J.OBJ)
     obs = Field(clazz=aux, typ=typ, name=C.OBS.obs)
     aux.add_flds([obs])
     setattr(aux, "obs", obs)
@@ -438,7 +438,7 @@ class Observer(object):
     aname = aux.name
     reflect = u"reflect" #getattr(aux, "reflect").name
     loop = u"""
-      LinkedList<{aname}> obs{cnt} = rcv_{aname}._obs;
+      List<Object> obs{cnt} = rcv_{aname}._obs;
       for ({aname} o : obs{cnt}) {{
         {aname}.{reflect}({aux.update}_{idx}, o, rcv_{aname}, ({aux.evt.name})evt);
       }}""".format(**locals())
@@ -461,7 +461,7 @@ class Observer(object):
       aname, evtname = aux.name, aux.evt.name
       cnt = Observer.__cnt
       loop = u"""
-        LinkedList<{aname}> obs{cnt} = rcv_{aname}._obs;
+        List<Object> obs{cnt} = rcv_{aname}._obs;
         for ({aname} o : obs{cnt}) {{
           {aname}.reflect({role}, o, rcv_{aname}, ({evtname})evt);
         }}""".format(**locals())

@@ -4,6 +4,7 @@ import lib.const as C
 import lib.visit as v
 
 from .. import util
+from ..meta import class_lookup
 from ..meta.template import Template
 from ..meta.clazz import Clazz
 from ..meta.method import Method
@@ -13,7 +14,8 @@ from ..meta.expression import Expression
 
 class SemanticChecker(object):
 
-  def __init__(self): pass
+  def __init__(self, cmd):
+    self._cmd = cmd
 
   @v.on("node")
   def visit(self, node):
@@ -36,15 +38,11 @@ class SemanticChecker(object):
     if node.clazz.is_itf: return
     # method without any proper return statement
     if not node.is_init and node.typ != C.J.v and not node.has_return:
-      logging.debug("filling return statement for {}".format(node.signature))
-      if node.typ == C.J.i:
-        node.body += to_statements(node, u"return 0;")
-      elif node.typ == C.J.z:
-        node.body += to_statements(node, u"return false;")
-      #elif node.typ == C.J.STR:
-      #  node.body += to_statements(node, u"return \"\";")
-      else:
-        node.body += to_statements(node, u"return null;")
+      cls = class_lookup(node.typ)
+      if not cls: return
+      v = util.default_value(self._cmd, cls.JVM_notation, node.name)
+      node.body += to_statements(node, u"return {};".format(v))
+      logging.debug("filling return value for {}: {}".format(node.signature, v))
 
   @v.when(Statement)
   def visit(self, node): return [node]

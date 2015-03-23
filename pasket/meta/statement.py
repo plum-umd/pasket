@@ -9,6 +9,7 @@ import grammar.JavaParser as Parser
 
 from lib.typecheck import *
 import lib.const as C
+from lib.enum import enum
 import lib.visit as v
 
 from .. import util
@@ -19,7 +20,7 @@ from expression import Expression, parse_e, gen_E_id, gen_E_bop
 #     | while e s | repeat e s # syntactic sugar borrowed from sketch
 #     | for e e s | break | try s (catch e s)* (finally s)?
 #     | s; s # represented as a list
-C.S = util.enum("EXP", "ASSERT", "RETURN", "ASSIGN", "IF", "WHILE", "REPEAT", "FOR", "BREAK", "TRY")
+C.S = enum("EXP", "ASSERT", "RETURN", "ASSIGN", "IF", "WHILE", "REPEAT", "FOR", "BREAK", "TRY")
 
 
 class Statement(v.BaseNode):
