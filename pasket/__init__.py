@@ -159,6 +159,7 @@ def configure(opt):
   conf["randassign"] = opt.randassign
   conf["randdegree"] = opt.randdegree
   conf["parallel"] = opt.parallel
+  conf["p_cpus"] = opt.p_cpus
   conf["verbose"] = opt.verbose
 
 
@@ -270,7 +271,7 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
 
       if conf["randassign"] or conf["parallel"]:
         _opts.append("--slv-randassign")
-        #_opts.extend(["--bnd-dag-size", "16000000"]) # 16M ~> 8G memory
+        _opts.extend(["--bnd-dag-size", "16000000"]) # 16M ~> 8G memory
 
       sketch.set_default_option(_opts)
 
@@ -279,6 +280,8 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
         #_, r = sketch.be_p_run(sk_dir, output_path)
         # Java implementation inside sketch-frontend
         _opts.append("--slv-parallel")
+        if conf["p_cpus"]:
+          _opts.extend(["--slv-p-cpus", str(conf["p_cpus"])])
         if conf["randdegree"]: # assume FIXED strategy
           _opts.extend(["--slv-randdegree", str(conf["randdegree"])])
         else: # adaptive concretization

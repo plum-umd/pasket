@@ -171,6 +171,9 @@ if __name__ == "__main__":
   parser.add_option("--parallel",
     action="store_true", dest="parallel", default=False,
     help="run sketch in parallel")
+  parser.add_option("--p_cpus",
+    action="store", dest="p_cpus", default=None, type="int",
+    help="the number of cores to use for parallel running")
   parser.add_option("-v", "--verbose",
     action="store_true", dest="verbose", default=False,
     help="print intermediate messages verbosely")
@@ -200,7 +203,9 @@ if __name__ == "__main__":
   if opt.verbose: _opts.extend(["-V", "10"])
   if opt.parallel:
     _opts.append("--slv-randassign")
-    #_opts.extend(["--bnd-dag-size", "16000000"]) # 16M ~> 8G memory
+    _opts.extend(["--bnd-dag-size", "16000000"]) # 16M ~> 8G memory
+    if opt.p_cpus:
+      _opts.extend(["--slv-p-cpus", str(opt.p_cpus)])
 
   # custom codegen
   _opts.extend(["--fe-custom-codegen", codegen_jar])
