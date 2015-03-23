@@ -167,7 +167,10 @@ _default_values = {
 def default_value(cmd, ty, vname):
   if cmd == "android":
     if ty in C.primitives:
-      v = u"SymUtil.new_sym_int(\"{}\")".format(vname)
+      if ty == C.J.z:
+        v = u"SymUtil.new_sym_bit(\"{}\")".format(vname)
+      else:
+        v = u"SymUtil.new_sym_int(\"{}\")".format(vname)
     else:
       v = u"SymUtil.new_sym(\"{}\", \"{}\")".format(vname, ty)
   else:
