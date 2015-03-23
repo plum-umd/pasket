@@ -9,6 +9,8 @@ public class RelativeLayout extends ViewGroup {
   public static final int CENTER_VERTICAL = 15;
 
   public static class LayoutParams extends ViewGroup.MarginLayoutParams {
+    public LayoutParams(int width, int height);
+
     public void addRule(int verb);
     public void addRule(int verb, int anchor);
   }

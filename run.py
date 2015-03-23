@@ -41,13 +41,16 @@ def main():
     help="proceed the whole process without running sketch")
   parser.add_option("--randassign",
     action="store_true", dest="randassign", default=False,
-    help="run sketch with the concretization feature")
+    help="run sketch with the concretization feature (not parallel)")
   parser.add_option("--randdegree",
     action="store", dest="randdegree", default=None, type="int",
     help="use sketch's concretization feature, along with the given degree")
   parser.add_option("--parallel",
     action="store_true", dest="parallel", default=False,
     help="run sketch in parallel until it finds a solution")
+  parser.add_option("--p_cpus",
+    action="store", dest="p_cpus", default=None, type="int",
+    help="the number of cores to use for parallel running")
   parser.add_option("--simulate",
     action="store", dest="sim", default=None,
     help="what to simulate")

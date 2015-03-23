@@ -19,6 +19,7 @@ public class ViewGroup extends View {
   protected View findViewTraversal(int id);
 
   public static class MarginLayoutParams extends ViewGroup.LayoutParams {
+    public MarginLayoutParams(int width, int height);
   }
 
 }

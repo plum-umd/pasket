@@ -59,13 +59,15 @@ class AccessorMap(object):
 
   @staticmethod
   def is_candidate_getter(mtd):
-    return not mtd.is_init and len(mtd.params) == 1 and mtd.typ != C.J.v \
-        and mtd.typ not in C.primitives # NOTE: value type is fixed to C.J.OBJ
+    return not mtd.is_init and not mtd.is_abstract and \
+        len(mtd.params) == 1 and mtd.typ != C.J.v and \
+        mtd.typ not in C.primitives # NOTE: value type is fixed to C.J.OBJ
 
   @staticmethod
   def is_candidate_setter(mtd):
-    return not mtd.is_init and len(mtd.params) == 2 and mtd.typ == C.J.v \
-        and util.is_class_name(mtd.param_typs[1]) # assume subtype of Object
+    return not mtd.is_init and not mtd.is_abstract and \
+        len(mtd.params) == 2 and mtd.typ == C.J.v and \
+        util.is_class_name(mtd.param_typs[1]) # assume subtype of Object
 
   @staticmethod
   def is_candidate_mtd(mtd):
@@ -331,8 +333,10 @@ class AccessorMap(object):
     if node.annos: return
     # skip java.lang.*
     if node.clazz.pkg in ["java.lang"]: return
-    # can't edit interface's methods as well as client side
-    if node.clazz.is_itf or node.clazz.client: return
+    # can't edit interface's methods or abstract methods
+    if node.clazz.is_itf or node.is_abstract: return
+    # can't edit client side
+    if node.clazz.client: return
     cname = node.clazz.name
     if cname in self._acc_default: return
 

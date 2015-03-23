@@ -12,12 +12,13 @@ from ..meta.clazz import Clazz
 from ..meta.method import Method
 
 from ..analysis.empty import EmptyFinder
-from collection import Collection
 from accessor_uni import AccessorUni
 from accessor_map import AccessorMap
 from adapter import Adapter
 from observer import Observer
 from singleton import Singleton
+from collection import Collection
+from semantic_checker import SemanticChecker
 
 pkgs_android = [u"android.", u"com.android."]
 
@@ -160,12 +161,10 @@ def merge_tmpls(prv, elt):
         prv_dict[aux2] = elt_dict[aux2]
       map(cp_role, attrs)
 
-  # merging the accessor pattern
-  #acc1, acc2 = p2v1[C.P.ACC], p2v2[C.P.ACC]
-
   # merge classes
   for cls2 in tmpl2.classes:
-    if cls2.name == C.J.OBJ: continue # skip Object
+    # skip java.lang.* and java.util.*
+    if cls2.pkg in ["java.lang", "java.util"]: continue
     cls1 = class_lookup(cls2.name)
     # TODO: this case never happens now because we don't use reducer.remove_cls
     if not cls1: tmpl.classes.append(cls2)
@@ -224,16 +223,18 @@ def to_java(cmd, java_dir, tmpls, output_paths, patterns):
     ## filter out unknown pattern names
     _patterns = util.intersection(_patterns, keys)
 
-    coll = "collection"
-    p2v[coll] = Collection()
-    _patterns.append(coll)
-    
     p2vs.append(p2v)
-    
     for p in _patterns:
       if p not in p2v: continue
       logging.info("decoding {} pattern for {}".format(p, demo))
       tmpl.accept(p2v[p])
+
+    # final semantic checking
+    logging.info("semantics checking")
+    _visitors = []
+    _visitors.append(Collection())
+    _visitors.append(SemanticChecker())
+    map(lambda vis: tmpl.accept(vis), _visitors)
 
     tmpl.freeze()
 

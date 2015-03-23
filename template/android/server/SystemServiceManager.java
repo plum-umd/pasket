@@ -3,9 +3,9 @@ package com.android.server;
 //@Singleton
 public class SystemServiceManager {
 
-  static SystemServiceManager getInstance();
+  public static SystemServiceManager getInstance();
 
-  void registerService(String name, Object service);
-  Object getService(String name);
+  public void registerService(String name, Object service);
+  public Object getService(String name);
 
 }
