@@ -703,7 +703,7 @@ def trans_e(mtd, e):
         mid = mname
         rcv = None
       elif mname == C.J.SUP and mtd.is_init: # super(...) inside <init>
-        sup = class_lookup(class_lookup(mtd.name).sup)
+        sup = class_lookup(mtd.clazz.sup)
         mid = trans_mname(sup.name, sup.name, arg_typs)
         rcv = C.SK.self
       else: # member methods
