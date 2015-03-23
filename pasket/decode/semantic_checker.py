@@ -39,6 +39,10 @@ class SemanticChecker(object):
       logging.debug("clean up abstract method: {}".format(node.signature))
       node.body = []
 
+    # XXX: remove ad-hoc reflective Activity instantiation in Android
+    if node.clazz.name == C.ADR.HDL and "dispatch" in node.name:
+      node.body = []
+
   @v.when(Statement)
   def visit(self, node): return [node]
 
