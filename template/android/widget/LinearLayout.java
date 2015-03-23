@@ -9,6 +9,7 @@ public class LinearLayout extends ViewGroup {
   public void setOrientation(int orientation);
 
   public static class LayoutParams extends ViewGroup.MarginLayoutParams {
+    public LayoutParams(int width, int height);
   }
 
 }
