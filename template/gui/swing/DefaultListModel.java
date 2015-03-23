@@ -9,5 +9,8 @@ public class DefaultListModel extends AbstractListModel {
 
   public void insertElementAt(Object element, int index);
 
+  public int getSize();
+  public Object getElementAt(int index);
+
   public Object remove(int index);
 }
