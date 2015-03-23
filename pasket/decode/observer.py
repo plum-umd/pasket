@@ -168,7 +168,7 @@ class Observer(object):
     args = find_formals(mtd.params, [obsr.name])
     logging.debug("adding attach code into {}".format(subj.name))
     add = u"{}.add({});".format(subj.obs.name, ", ".join(args))
-    mtd.body += to_statements(mtd, add)
+    mtd.body = to_statements(mtd, add)
 
   # detach code
   @staticmethod
@@ -176,7 +176,7 @@ class Observer(object):
     args = find_formals(mtd.params, [obsr.name])
     logging.debug("adding detach code into {}".format(subj.name))
     rm = u"{}.remove({});".format(subj.obs.name, ", ".join(args))
-    mtd.body += to_statements(mtd, rm)
+    mtd.body = to_statements(mtd, rm)
 
   # handle code
   @staticmethod
@@ -315,14 +315,15 @@ class Observer(object):
   def visit(self, node):
     self._cur_mtd = node
     if not node.body: return
+    # remove auxiliary initializing statements
+    if node.is_init:
+      def tmp_filter(st): return C.OBS.tmp not in str(st)
+      node.body = filter(tmp_filter, node.body)
+
     cls = node.clazz
     # if this method belongs to either Subject or Observer
     if cls in self._subj.values() + self._obsr.values():
-      if node.is_init:
-        # remove auxiliary initializing statements
-        def tmp_filter(st): return C.OBS.tmp not in str(st)
-        node.body = filter(tmp_filter, node.body)
-      else:
+      if not node.is_init:
         # remove subjectCall() call
         s = unicode(node.body[0])
         m = re.match(Observer.regex_one, s)
