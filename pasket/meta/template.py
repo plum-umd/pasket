@@ -61,7 +61,8 @@ class Template(v.BaseNode):
       if tag in [C.T.CLS, C.T.ITF, C.T.ENUM]:
         clazz = parse_class(_ast)
         clazz.annos = annos
-        if pkg: clazz.pkg = pkg
+        if pkg:
+          for cls in util.flatten_classes([clazz], "inners"): cls.pkg = pkg
         clazz.mods = mods
         self._classes.append(clazz)
 
@@ -235,11 +236,11 @@ class Template(v.BaseNode):
       return False
 
     def add_decl(tname):
-      # (not) to handle primitive types, such as int
-      # if not util.is_class_name(tname): return
       if is_defined(tname): return
       logging.debug("adding virtual declaration {}".format(tname))
       cls = Clazz(name=tname)
+      # to avoid weird subtyping, e.g., int < Object
+      if tname in C.primitives: cls.sup = None
       decls[repr(cls)] = cls
       # add declarations in nested generics or arrays
       if util.is_collection(tname):

@@ -165,7 +165,8 @@ def merge_tmpls(prv, elt):
 
   # merge classes
   for cls2 in tmpl2.classes:
-    if cls2.name == C.J.OBJ: continue # skip Object
+    # skip java.lang.* and java.util.*
+    if cls2.pkg in ["java.lang", "java.util"]: continue
     cls1 = class_lookup(cls2.name)
     # TODO: this case never happens now because we don't use reducer.remove_cls
     if not cls1: tmpl.classes.append(cls2)
