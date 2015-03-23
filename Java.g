@@ -345,6 +345,8 @@ modifier
     |   'transient'
     |   'volatile'
     |   'strictfp'
+    |   'generator'
+    |   'harness'
     ;
 
 packageOrTypeName
