@@ -144,11 +144,23 @@ def sanitize_ty(tname):
   return _tname.replace('?', C.J.OBJ)
 
 
+# convert type name to JVM notation
+# e.g., x.y.Z -> Lx/y/Z;
+@takes(unicode)
+@returns(unicode)
+def toJVM(tname):
+  if is_class_name(tname.split('.')[-1]):
+    return u'L' + tname.replace('.','/') + u';'
+  elif is_array(tname):
+    return u'[' + toJVM(componentType(tname))
+  else: return tname
+
+
 # default value of the given time, depending on framework
 _default_values = {
   C.J.i: u"0",
-  C.J.z: u"false",
-  u"default": u"null"
+  C.J.z: C.J.FALSE,
+  u"default": C.J.N
 }
 @takes(str, unicode, unicode)
 @returns(unicode)

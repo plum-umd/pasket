@@ -4,6 +4,7 @@ import lib.const as C
 import lib.visit as v
 
 from .. import util
+from ..meta import class_lookup
 from ..meta.template import Template
 from ..meta.clazz import Clazz
 from ..meta.method import Method
@@ -37,7 +38,9 @@ class SemanticChecker(object):
     if node.clazz.is_itf: return
     # method without any proper return statement
     if not node.is_init and node.typ != C.J.v and not node.has_return:
-      v = util.default_value(self._cmd, node.typ, node.name)
+      cls = class_lookup(node.typ)
+      if not cls: return
+      v = util.default_value(self._cmd, cls.JVM_notation, node.name)
       node.body += to_statements(node, u"return {};".format(v))
       logging.debug("filling return value for {}: {}".format(node.signature, v))
 
