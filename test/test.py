@@ -82,7 +82,7 @@ class TestPatterns(unittest.TestCase):
         
         # Copy java directory to pasket directory
         os.chdir(res_dir)
-        subprocess.call(["./rename.sh", '_'.join(names)])
+        subprocess.call(["./rename-gui.sh"])
         os.chdir("..")
     
     def check_word_finder(self, p, names):
