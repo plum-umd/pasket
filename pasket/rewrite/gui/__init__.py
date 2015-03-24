@@ -23,8 +23,8 @@ acc_conf_uni = {
 
 # configuration for the accessor pattern (of Map<K,V> type)
 acc_conf_map = {
-  "JCompoment": (0, 1, 1), # (get|set)InputMap
-  "ActionMap": (0, 1, 1), # get, put
+  "JCompoment": (-1, 1, 1), # (get|set)InputMap
+  "ActionMap": (-1, 1, 1), # get, put
 }
 
 # configuration for the observer pattern
