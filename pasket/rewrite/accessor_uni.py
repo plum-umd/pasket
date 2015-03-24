@@ -488,6 +488,12 @@ class AccessorUni(object):
         args = ", ".join([fid, unicode(node.id), C.J.THIS, unicode(node.params[i][1])])
         node.body += to_statements(node, u"{}.{}({});".format(self.aux_name, mname, args))
         logging.debug("{}.{} => {}.{}".format(cname, node.name, self.aux_name, mname))
+      # hack for DefaultListModel; will fix
+      if not node.params:
+        typ = u"{}<{}>".format(C.J.LST, C.J.OBJ)
+        node.body += to_statements(node, u"""
+          {0} {1} = ({0})this;
+          {1}.{2} = new {3}();""".format(C.ADP.AUX, C.ADP.tmp, C.ADP.adaptee, typ))
       return
     
     # getter candidate

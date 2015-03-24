@@ -75,7 +75,8 @@ C.acc_roles = [C.ACC.CONS, C.ACC.GET, C.ACC.SET, C.ACC.GS]
 # role variables for the adapter pattern
 
 C.ADP = enum(AUX=u"AuxAdapter", \
-    ADPT="adapter", ADPE="adaptee", FLD=u"_adpt_ins")
+    ADPT="adapter", ADPE="adaptee", FLD=u"_adpt_ins", \
+    adaptee=u"_adaptee", tmp=u"__tmp__")
 
 C.adp_roles = [C.ADP.ADPT, C.ADP.ADPE, C.ADP.FLD]
 

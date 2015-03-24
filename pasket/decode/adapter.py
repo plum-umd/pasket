@@ -21,7 +21,7 @@ class Adapter(object):
 
   ## hole assignments for roles
   ## glblInit_accessor_????,StmtAssign,accessor_???? = n
-  regex_role = r"(({})_{}).* = (\d+)$".format('|'.join(C.adp_roles), __aux_name)
+  regex_role = r"(({})_(\S+)_(\d+)_{}).* = (\d+)$".format('|'.join(C.adp_roles), __aux_name)
 
   @staticmethod
   def simple_role_of_interest(msg):
@@ -30,7 +30,7 @@ class Adapter(object):
   # add a mapping from role variable to its value chosen by sketch
   def add_simple_role(self, msg):
     m = re.match(Adapter.regex_role, msg)
-    v, n = m.group(1), m.group(3)
+    v, n = m.group(1), m.group(5)
     self._role[v] = n
 
   # initializer
@@ -120,28 +120,25 @@ class Adapter(object):
       adpt[key] = {}
       adpe[key] = {}
       adpf[key] = {}
-      for x in range(self._adp_conf[key]):
+      for x in range(self._adp_conf[key][0]):
         adpt[key][x] = find_mtd_role('_'.join([C.ADP.ADPT, key, str(x)]))
         adpe[key][x] = find_mtd_role('_'.join([C.ADP.ADPE, key, str(x)]))
         adpf[key][x] = find_mtd_role('_'.join([C.ADP.FLD, key, str(x)]))
-
-    print adpt
-    print adpe
-    print adpf    
 
     self._adapter[aux.name] = adpt
     self._adaptee[aux.name] = adpe
 
     # insert code snippets for adapter
     for key in self._adp_conf.iterkeys():
-      for x in range(self._adp_conf[key]): 
-        adpt_cls = adpt[key][x].clazz
-        for init in adpt_cls.inits:
-          for n, t in enumerate(init.param_typs):
-            Adapter.add_prvt_fld(adpt_cls, adpt_cls.name, t, n)
-          Adapter.def_constructor(init, adpt_cls)
+      for x in range(self._adp_conf[key][0]): 
+        if adpt[key][x]: 
+          adpt_cls = adpt[key][x].clazz
+          for init in adpt_cls.inits:
+            for n, t in enumerate(init.param_typs):
+              Adapter.add_prvt_fld(adpt_cls, adpt_cls.name, t, n)
+            Adapter.def_constructor(init, adpt_cls)
 
-        Adapter.def_adapter(adpt[key][x], adpe[key][x], adpf[key][x])
+          Adapter.def_adapter(adpt[key][x], adpe[key][x], adpf[key][x])
 
     # remove Aux class
     node.classes.remove(aux)

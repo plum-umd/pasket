@@ -41,8 +41,9 @@ sng_conf = [
   C.GUI.TOOL # getDefaultToolkit
 ]
 
+# number of instances and number of args
 adp_conf = {
-  "InvocationEvent": 1,
-  "ListModel": 3,
-  "JList": 1
+  "InvocationEvent": (1, 0),
+  "DefaultListModel": (3, 1),
+  "JList": (1, 1)
 }
