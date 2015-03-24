@@ -228,17 +228,17 @@ def to_java(cmd, java_dir, tmpls, output_paths, patterns):
       logging.info("decoding {} pattern for {}".format(p, demo))
       tmpl.accept(p2v[p])
 
-    # final semantic checking
-    logging.info("semantics checking")
-    _visitors = []
-    _visitors.append(Collection())
-    _visitors.append(SemanticChecker(cmd))
-    map(lambda vis: tmpl.accept(vis), _visitors)
-
     tmpl.freeze()
 
   ## merge multiple synthesis results
   tmpl, _ = reduce(merge_tmpls, zip(tmpls, p2vs), (None, {}))
+
+  # final semantic checking
+  logging.info("semantics checking")
+  _visitors = []
+  _visitors.append(Collection())
+  _visitors.append(SemanticChecker(cmd))
+  map(lambda vis: tmpl.accept(vis), _visitors)
 
   ## statistics
   counter = EmptyFinder()
