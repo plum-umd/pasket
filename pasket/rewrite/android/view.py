@@ -8,7 +8,7 @@ from ...meta.clazz import Clazz
 from ...meta.method import Method
 from ...meta.field import Field
 from ...meta.statement import Statement, to_statements
-from ...meta.expression import Expression
+from ...meta.expression import Expression, to_expression
 
 class View(object):
 
@@ -24,9 +24,9 @@ class View(object):
   def visit(self, node): pass
 
   @staticmethod
-  def add_fld(cls, ty, nm):
+  def add_fld(cls, ty, nm, init=None):
     logging.debug("adding field {}.{} of type {}".format(cls.name, nm, ty))
-    fld = Field(clazz=cls, typ=ty, name=nm)
+    fld = Field(clazz=cls, typ=ty, name=nm, init=init)
     cls.add_flds([fld])
     cls.init_fld(fld)
     return fld
@@ -36,7 +36,8 @@ class View(object):
     cname = node.name
     # a field for View id
     if cname == C.ADR.VIEW:
-      fld = View.add_fld(node, C.J.i, u"_vid")
+      no_id = to_expression(u"View.NO_ID")
+      fld = View.add_fld(node, C.J.i, u"_vid", no_id)
       setattr(node, "vid", fld)
 
     # (for recursive hierarchy buildup)
