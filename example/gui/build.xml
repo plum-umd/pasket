@@ -16,12 +16,9 @@
   <property name="build.dir" location="build"/>
   <property name="lib.dir" location="lib"/>
   <property name="jpf.dir" location="${user.home}/Downloads/jpf"/>
-
-<!--
   <path id="lib.jars">
     <fileset dir="${lib.dir}" includes="**/*.jar"/>
   </path>
--->
 
   <path id="jpf.jars">
     <fileset dir="${jpf.dir}/jpf-core" includes="**/*.jar"/>
@@ -53,9 +50,7 @@
     <sequential>
       <javac srcdir="@{src}" destdir="${build.dir}" debug="on">
         <classpath>
-<!--
           <path refid="lib.jars"/>
--->
           <path refid="jpf.jars"/>
         </classpath>
       </javac>
@@ -67,7 +62,7 @@
     <macro-compile src="${source.dir}"/>
   </target>
 
-  <target name="apps" depends="calc, celsius, guessing, lunar, drawing, vote"/>
+  <target name="apps" depends="calc, celsius, guessing, lunar, drawing, words, vote"/>
 
   <!-- Calculator -->
   <target name="calc" depends="init" description="Calculator">
@@ -92,6 +87,14 @@
   <!-- Simple Drawing Tool -->
   <target name="drawing" depends="init" description="Simple Drawing Tool">
     <macro-compile src="SimpleDrawingTool"/>
+  </target>
+
+  <!-- Word Finder -->
+  <target name="words" depends="init" description="Word Finder">
+    <macro-compile src="WordFinder/src"/>
+    <copy todir="${build.dir}">
+      <fileset dir="WordFinder" includes="**/*.txt"/>
+    </copy>
   </target>
 
   <!-- Vote Dialog -->

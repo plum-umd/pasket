@@ -44,6 +44,7 @@ Possible design patterns, swing tutorials, and applications are:
     - guessing
     - lunar
     - drawing
+    - words
     - vote
     - ...
 
