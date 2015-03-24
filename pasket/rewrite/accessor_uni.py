@@ -388,6 +388,8 @@ class AccessorUni(object):
     def gs_match(c):
       return map(lambda i: "assert subcls(argType(" + getattr(aux, '_'.join([C.ACC.SET, c, str(i)]))+", 0), retType(" + getattr(aux, '_'.join([C.ACC.GET, c, str(i)])) + "));", range(conf[c][2]))
     def gs_type_match(c):
+      if conf[c][0] < 0: return []
+      else:
         return map(lambda i: "assert argType(" + getattr(aux, '_'.join([C.ACC.CONS, c])) + ", " + getattr(aux, '_'.join([C.ACC.GS, c, str(i)]))+") == retType(" + getattr(aux, '_'.join([C.ACC.GET, c, str(i)]))+");", range(conf[c][1]))
     checkers.extend(reduce(lambda x,y: x+y, map(getter_sig, conf.iterkeys()), []))
     checkers.extend(reduce(lambda x,y: x+y, map(setter_sig, conf.iterkeys()), []))
