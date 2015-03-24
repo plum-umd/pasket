@@ -12,6 +12,9 @@ public class View {
   public int getPaddingRight();
   public int getPaddingBottom();
 
+  public boolean isEnabled();
+  public void setEnabled(boolean enabled);
+
   public final static int VISIBLE = 0;
   public final static int INVISIBLE = 4;
   public final static int GONE = 8;

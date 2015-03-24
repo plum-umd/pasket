@@ -20,6 +20,8 @@ public class ViewGroup extends View {
 
   public static class MarginLayoutParams extends ViewGroup.LayoutParams {
     public MarginLayoutParams(int width, int height);
+
+    public void setMargins(int left, int top, int right, int bottom);
   }
 
 }
