@@ -56,7 +56,7 @@ class Singleton(object):
 
   @staticmethod
   def is_candidate_mtd(mtd):
-    return not mtd.is_init and mtd.is_static and \
+    return not mtd.is_init and mtd.is_static and not mtd.annos and \
         len(mtd.params) == 0 and mtd.typ == mtd.clazz.name
 
   @staticmethod
@@ -209,7 +209,7 @@ class Singleton(object):
       mname = u"getterInOne"
       args = u", ".join([unicode(node.id)])
       call = u"return {}({});".format(u".".join([self._aux_name, mname]), args)
-      node.body += to_statements(node, call)
+      node.body = to_statements(node, call) # overwrite
       logging.debug("{}.{} => {}.{}".format(cname, node.name, self._aux_name, mname))
 
   @v.when(Statement)
