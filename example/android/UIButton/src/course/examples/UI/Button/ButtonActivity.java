@@ -18,12 +18,14 @@ public class ButtonActivity extends Activity {
 
         final Button button = (Button) findViewById(R.id.button);
 
-        button.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				button.setText("Got Pressed:" + ++count);
-				}
-		});
+        if (button.isEnabled()) {
+          button.setOnClickListener(new OnClickListener() {
+              @Override
+              public void onClick(View v) {
+                button.setText("Got Pressed:" + ++count);
+              }
+            });
+        }
     }
 
   @Override
