@@ -323,6 +323,18 @@ class Clazz(v.BaseNode):
     # double-check it refers to the same class
     assert self._name == other.name
 
+    # merge inner declarations
+    for inner_o in other.inners:
+      needs_merge = True
+      for inner_me in self._inners:
+        if inner_me.name == inner_o.name:
+          needs_merge = False
+          inner_me.merge(inner_o)
+
+      if needs_merge:
+        logging.debug("merging: {} -> {}".format(inner_o.name, self._name))
+        self._inners.append(inner_o)
+
     # merge fields
     for fld_o in other.flds:
       fld_me = self.fld_by_name(fld_o.name)

@@ -265,8 +265,8 @@ class Observer(object):
       logging.debug("handle: {}.{}".format(handle.clazz.name, handle.name))
       logging.debug("update: {}.{}".format(update.clazz.name, update.name))
 
-      if attach: self._attach[aux.name] = attach
-      if detach: self._detach[aux.name] = detach
+      self._attach[aux.name] = attach
+      self._detach[aux.name] = detach
       self._handle[aux.name] = handle
 
       # concretize @Subject if an interface is chosen

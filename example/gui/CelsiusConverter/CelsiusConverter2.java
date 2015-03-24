@@ -17,7 +17,8 @@ public class CelsiusConverter2 implements ActionListener {
     JFrame converterFrame;
     JPanel converterPanel;
     JFormattedTextField tempCelsius;
-    JLabel celsiusLabel, fahrenheitLabel;
+    JLabel celsiusLabel;
+    JLabel fahrenheitLabel;
     JButton convertTemp;
 
     public CelsiusConverter2() {

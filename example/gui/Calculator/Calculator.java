@@ -46,16 +46,21 @@ public class Calculator extends JFrame implements ActionListener{
 	final int ERROR_MODE = 2;
 	int displayMode;
 
-	boolean clearOnNextDigit, percent;
+	boolean clearOnNextDigit;
+	boolean percent;
 	double lastNumber;
 	String lastOperator;
 
-	private JMenu jmenuFile, jmenuHelp;
-	private JMenuItem jmenuitemExit, jmenuitemAbout;
+	private JMenu jmenuFile;
+	private JMenu jmenuHelp;
+	private JMenuItem jmenuitemExit;
+	private JMenuItem jmenuitemAbout;
 	
 	private JLabel jlbOutput;
 	private JButton jbnButtons[];
-	private JPanel jplMaster, jplBackSpace, jplControl;
+	private JPanel jplMaster;
+	private JPanel jplBackSpace;
+	private JPanel jplControl;
 	
 	/*
 	 * Font(String name, int style, int size)

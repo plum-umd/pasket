@@ -4,5 +4,6 @@
   "guessing": {"main": "MVCGame", "src": "GuessingGame"},
   "lunar": {"main": "LunarPhases", "src": "LunarPhases"},
   "drawing": {"main": "graph.SimpleDrawingTool", "src": "SimpleDrawingTool"},
+  "words": {"main": "words.WordFinder", "src": "WordFinder/src"},
   "vote": {"main": "VoteDialog", "src": "VoteDialog"}
 }

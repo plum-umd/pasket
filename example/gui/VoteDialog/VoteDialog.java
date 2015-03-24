@@ -69,9 +69,15 @@ public class VoteDialog extends JPanel {
             "<html>Candidate 4: <font color=maroon>Duke the Java<font size=-2><sup>TM</sup></font size> Platform Mascot</font></html>");
         radioButtons[3].setActionCommand(yncCommand);
 
-
+/*
         for (int i = 0; i < numButtons; i++) {
             group.add(radioButtons[i]);
+        }
+*/
+        int i = 0;
+        while (i < numButtons) {
+            group.add(radioButtons[i]);
+            i = i + 1;
         }
 
         //Select the first button by default.
@@ -163,9 +169,15 @@ public class VoteDialog extends JPanel {
 
         box.setLayout(new BoxLayout(box, BoxLayout.PAGE_AXIS));
         box.add(label);
-
+/*
         for (int i = 0; i < numChoices; i++) {
             box.add(radioButtons[i]);
+        }
+*/
+        int i = 0;
+        while (i < numChoices) {
+            box.add(radioButtons[i]);
+            i = i + 1;
         }
 
         JPanel pane = new JPanel(new BorderLayout());
