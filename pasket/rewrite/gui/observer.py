@@ -268,9 +268,9 @@ class Observer(object):
           assert {hdl} != {aux.detach};
         """.format(**locals())
       return constraints
-    if conf[0] < 2:
+    if conf[0] == 1:
       body += handle_related(aux, aux.handle)
-    else:
+    elif conf[0] >= 2:
       for i in xrange(conf[0]):
         aux_hdl = getattr(aux, "handle_"+str(i))
         body += handle_related(aux, aux_hdl)
@@ -473,11 +473,12 @@ class Observer(object):
       setattr(aux, "mtd_handle_"+str(i), handle_i)
       return handle_i
 
-    if conf[0] < 2:
+    if conf[0] == 0: return
+    elif conf[0] == 1:
       cnt = Observer.__cnt
       body = handle_body(aux, aux.update)
       handle.body = to_statements(handle, body)
-    else:
+    elif conf[0] >= 2:
       aux.add_mtds(map(handle_mtd, range(conf[0])))
       evt_cls = class_lookup(aux.evt.name)
       const_flds = []
@@ -527,7 +528,8 @@ class Observer(object):
       f = getattr(aux, "mtd_"+role).name
       return u"if (mtd_id == {v}) {aname}.{f}({args});".format(**locals())
 
-    roles = [C.OBS.H]
+    roles = []
+    if conf[0] >= 1: roles.append(C.OBS.H)
     if conf[0] >= 2: map(lambda i: roles.append('_'.join([C.OBS.H, str(i)])), range(conf[0]))
     if conf[1] > 0: roles.append(C.OBS.A)
     if conf[2] > 0: roles.append(C.OBS.D)
@@ -557,9 +559,11 @@ class Observer(object):
     # set role variables
     def set_role(role):
       setattr(aux, role, '_'.join([role, aux.name]))
-    for r in C.obs_roles:
+    for r in C.obs_roles:  
       if r == C.OBS.H or r == C.OBS.U:
-        if conf[0] < 2: set_role(r)
+        if conf[0] == 0:
+          if r == C.OBS.U: set_role(r)
+        elif conf[0] == 1: set_role(r)
         else:
           set_role(r)
           map(lambda i: set_role('_'.join([r, str(i)])), range(conf[0]))
@@ -603,7 +607,9 @@ class Observer(object):
     if conf[1] > 0: mtd_vars.append(C.OBS.A)
     if conf[2] > 0: mtd_vars.append(C.OBS.D)
     for r in [C.OBS.H, C.OBS.U]:
-      if conf[0] < 2: mtd_vars.append(r)
+      if conf[0] == 0:
+        if r == C.OBS.U: mtd_vars.append(r)
+      elif conf[0] == 1: mtd_vars.append(r)
       else: map(lambda i: mtd_vars.append('_'.join([r, str(i)])), range(conf[0]))
     mtds = util.flatten(map(partial(self.get_candidate_mtds, aux), clss))
     mtd_ids = map(get_id, mtds)
@@ -622,7 +628,7 @@ class Observer(object):
     Observer.check_rule2(aux, conf)
 
     if conf[0] >= 2: self.egetter(aux, clss)
-    Observer.handle(aux, conf)
+    if conf[0] >= 1: Observer.handle(aux, conf)
     Observer.attach(aux)
     Observer.detach(aux)
     Observer.subjectCall(aux, conf)
@@ -686,6 +692,7 @@ class Observer(object):
         switches = u''
         for event, i in self._tmpl.events.iteritems():
           if event not in self._clss: continue
+          if self._obs_conf[event][0] == 0: continue
           cls_h = class_lookup(self._evts[event])
           cls_h_name = cls_h.name
           reflect = cls_h.reflect.name

@@ -27,13 +27,14 @@ acc_conf_map = {
   "ActionMap": (0, 1, 1), # get, put
 }
 
-# configuration for the observer pattern
+# configuration for the observer pattern:
+# number of handle/attach/detach methods
 obs_conf = {
   "ActionEvent": (1, 1, 1),
   "ItemEvent": (1, 1, 1),
   "ChangeEvent": (1, 1, 1),
   "DocumentEvent": (3, 1, 1), # (change|insert|remove)
-  "ListSelectionEvent": (1, 1, 1),
+  "ListSelectionEvent": (0, 1, 1),
 }
 
 # configuration for the singleton pattern
@@ -44,6 +45,6 @@ sng_conf = [
 # number of instances and number of args
 adp_conf = {
   "InvocationEvent": (1, 0),
-  "DefaultListModel": (3, 1),
-  "JList": (1, 1)
+  "DefaultListModel": (3, 1)
+  #"JList": (1, 1)
 }
