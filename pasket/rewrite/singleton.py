@@ -166,10 +166,9 @@ class Singleton(object):
       return u"assert (argNum("+getattr(aux, '_'.join([C.SNG.GET, c]))+")) == 0;"
     checkers.extend(map(getter_sig, conf))
 
-    def uniqueness(c1, c2):
+    for c1, c2 in permutations(conf, 2):
       _c1, _c2 = map(lambda c: getattr(aux, '_'.join([C.SNG.SNG, c])), [c1, c2])
-      return u"assert {} != {};".format(_c1, _c2)
-    checkers.extend(map(uniqueness, permutations(conf, 2)))
+      checkers.append(u"assert {} != {};".format(_c1, _c2))
 
     rg_chk.body += to_statements(rg_chk, u'\n'.join(checkers))
     aux.add_mtds([rg_chk])
