@@ -1,5 +1,6 @@
 import operator as op
 from functools import partial
+from itertools import permutations
 import logging
 
 import lib.const as C
@@ -156,7 +157,7 @@ class Singleton(object):
     aux.add_flds(map(aux_int_mtd, rv_gtts))
 
     # other semantics checks
-    # such as ownership and signature types
+    # such as ownership, signature types, and uniqueness
     def owner_range(c):
       return u"assert "+getattr(aux, '_'.join([C.SNG.SNG, c]))+" == belongsTo("+getattr(aux, '_'.join([C.SNG.GET, c]))+");"
     checkers.extend(map(owner_range, conf))
@@ -164,6 +165,11 @@ class Singleton(object):
     def getter_sig(c):
       return u"assert (argNum("+getattr(aux, '_'.join([C.SNG.GET, c]))+")) == 0;"
     checkers.extend(map(getter_sig, conf))
+
+    def uniqueness(c1, c2):
+      _c1, _c2 = map(lambda c: getattr(aux, '_'.join([C.SNG.SNG, c])), [c1, c2])
+      return u"assert {} != {};".format(_c1, _c2)
+    checkers.extend(map(uniqueness, permutations(conf, 2)))
 
     rg_chk.body += to_statements(rg_chk, u'\n'.join(checkers))
     aux.add_mtds([rg_chk])
