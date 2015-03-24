@@ -19,13 +19,17 @@ public class LunarPhases implements ActionListener {
     final static int NUM_IMAGES = 8;
     final static int START_INDEX = 3;
 
-    ImageIcon[] images = new ImageIcon[NUM_IMAGES];
-    JPanel mainPanel, selectPanel, displayPanel;
+    ImageIcon[] images;
+    JPanel mainPanel;
+    JPanel selectPanel;
+    JPanel displayPanel;
 
     JComboBox phaseChoices = null;
     JLabel phaseIconLabel = null;
 
     public LunarPhases() {
+        images = new ImageIcon[NUM_IMAGES];
+
         //Create the phase selection and display panels.
         selectPanel = new JPanel();
         displayPanel = new JPanel();
@@ -48,8 +52,13 @@ public class LunarPhases implements ActionListener {
      */
     private void addWidgets() {
         //Get the images and put them into an array of ImageIcons.
-        for (int i = 0; i < NUM_IMAGES; i++) {
+        //for (int i = 0; i < NUM_IMAGES; i++) {
+        //    images[i] = createImageIcon("/images/image" + i + ".jpg");
+        //}
+        int i = 0;
+        while (i < NUM_IMAGES) {
             images[i] = createImageIcon("/images/image" + i + ".jpg");
+            i = i + 1;
         }
 
         /*
