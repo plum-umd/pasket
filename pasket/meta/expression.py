@@ -367,6 +367,7 @@ def parse_e(node, cls=None):
 
   # (E... new Clazz (ARGUMENT ...) ('{' (DECL ...)* '}')?)
   # (E... new typ([])* '{' ... '}')
+  # (E... new typ '[' sz ']')
   elif _nodes[0].getText() == C.J.NEW:
     is_init = util.exists(lambda n: n.getText() == C.T.ARG, _nodes)
     if is_init: # class <init>
@@ -389,7 +390,7 @@ def parse_e(node, cls=None):
         e = gen_E_new(c)
     else: # array initialization
       for i, n in enumerate(_nodes):
-        if n.getText() == '{':
+        if n.getText() == '{' or n.getText() == '[':
           t_node = util.mk_v_node_w_children(_nodes[1:i])
           init_node = util.mk_v_node_w_children(_nodes[i:])
           break

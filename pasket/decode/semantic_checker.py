@@ -10,7 +10,7 @@ from ..meta.clazz import Clazz
 from ..meta.method import Method
 from ..meta.field import Field
 from ..meta.statement import Statement, to_statements
-from ..meta.expression import Expression, gen_E_c
+from ..meta.expression import Expression, to_expression
 
 class SemanticChecker(object):
 
@@ -30,7 +30,13 @@ class SemanticChecker(object):
   def visit(self, node): pass
 
   @v.when(Field)
-  def visit(self, node): pass
+  def visit(self, node):
+    # uninitialized array
+    if util.is_array(node.typ) and not node.init:
+      comp_typ = util.componentType(node.typ)
+      N = 100
+      node.init = to_expression(u"new {} [ {} ]".format(comp_typ, N))
+
 
   @v.when(Method)
   def visit(self, node):
@@ -62,7 +68,7 @@ class SemanticChecker(object):
   @v.when(Expression)
   def visit(self, node):
     # if a hole is still there, replace it with any number
-    if node.kind == C.E.HOLE: return gen_E_c(u"0")
+    if node.kind == C.E.HOLE: return to_expression(u"0")
 
     return node
 
