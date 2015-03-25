@@ -143,7 +143,7 @@ class Adapter(object):
 
     c_to_e = lambda c: to_expression(unicode(c))
 
-    mtds = util.flatten(map(Adapter.get_candidate_mtds, filter(self.is_candidate_cls, self._clss)))
+    mtds = util.flatten(map(Adapter.get_candidate_mtds, self._clss))
 
     ## range check
     rg_chk = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"checkRange")
