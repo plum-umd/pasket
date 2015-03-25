@@ -1152,10 +1152,15 @@ def gen_smpl_sk(sk_path, smpl, tmpl, main):
     for val in io.vals:
       kind = sample.kind(val)
       if type(kind) is type: val = str(val)
+
       # every occurrence of constant string will be uniquely allocated,
       # hence different hash => assign unique obj_cnt
-      if util.is_str(unicode(val)) or \
-          val not in objs: # this object (or primitive value) never occurs
+      # also, primitive value doesn't have hash,
+      # so we can't compare via obj array; just assign unique obj_cnt
+
+      # 1) primitive, including string
+      # 2) this object never occurs
+      if type(kind) is type or val not in objs:
         obj_cnt = obj_cnt + 1
         objs[val] = obj_cnt
       vals.append(str(objs[val]))
@@ -1371,7 +1376,7 @@ def to_sk(cmd, smpls, tmpl, sk_dir):
   n_evts = sample.max_evts(smpls)
   if cmd == "android":
     n_views = sample.max_views(smpls)
-    magic_S = max(3, n_evts + 1, n_views)
+    magic_S = max(5, n_evts + 1, n_views + 1)
   else:
     magic_S = max(5, n_evts + 1) # at least 5, just in case
 
