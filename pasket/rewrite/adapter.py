@@ -108,7 +108,11 @@ class Adapter(object):
         # if there is no implementer for this method in interface, ignore it
         if cls.is_itf and not cls.subs: return u''
         if len(mtd.params) != 0 or mtd.typ != C.J.v: return u''
-        call = u"if ({} != null) {}.{}.{}();".format(callee, callee, rcv, mtd.name)
+        call = u"""
+          if ({0} != null && {0}.{1} != null) {{
+            {0}.{1}.{2}();
+          }}
+        """.format(callee, rcv, mtd.name)
         adaptee_id = getattr(aux, "adaptee")
         return u"if ({adaptee_id} == {mtd.id}) {{ {call} }}".format(**locals())
       invocations = filter(None, map(invoke, mtds))
