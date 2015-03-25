@@ -286,7 +286,9 @@ class AccessorUni(object):
 
     rv_cons = []
     for c in conf:
-      rv_cons.append('_'.join([C.ACC.CONS, c]))
+      if conf[c][0] >= 0:
+        rv_cons.append('_'.join([C.ACC.CONS, c]))
+
     #constructor_args = []
     #for c in conf:
     #  new_args = map(lambda n: '_'.join([C.ACC.CONS, c, str(n)]), range(conf[c][0]))
