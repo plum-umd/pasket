@@ -70,7 +70,7 @@ class Adapter(object):
   @staticmethod
   def def_adapter(adapter, adaptee, adpfield):
     logging.debug("adding adapter code into {}".format(repr(adapter)))
-    rcv = u"{}_{}_{}".format(C.ADP.FLD, adpfield.id, adapter.clazz.name)
+    rcv = u"{}_{}_{}".format(C.ADP.FLD, adpfield, adapter.clazz.name)
     adpe_call = u"{}.{}();".format(rcv, adaptee.name)
     adapter.body = to_statements(adapter, adpe_call)
 
@@ -109,6 +109,7 @@ class Adapter(object):
     find_mtd_role = partial(find_role, methods(), aux_name)
       
     adpt, adpe, adpf = map(find_mtd_role, C.adp_roles)
+    adpf = int(self._role['_'.join([C.ADP.FLD, aux_name])])
     logging.debug("adapter: {}".format(repr(adpt)))
     logging.debug("adaptee: {}".format(repr(adpe)))
 
