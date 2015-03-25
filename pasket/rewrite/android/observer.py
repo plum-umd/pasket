@@ -588,7 +588,7 @@ class Observer(object):
     aux.add_flds([role_var_evt])
 
     ## range check
-    gen_range = lambda ids: gen_E_gen(map(c_to_e, ids))
+    gen_range = lambda ids: gen_E_gen(map(c_to_e, util.rm_dup(ids)))
     get_id = op.attrgetter("id")
 
     # range check for classes

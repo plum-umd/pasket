@@ -329,7 +329,7 @@ class AccessorUni(object):
     ## range check
     rg_chk = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"checkRange")
     checkers = []
-    gen_range = lambda ids: gen_E_gen(map(c_to_e, ids))
+    gen_range = lambda ids: gen_E_gen(map(c_to_e, util.rm_dup(ids)))
     get_id = op.attrgetter("id")
 
     # range check for accessors
