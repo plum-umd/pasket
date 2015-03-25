@@ -40,6 +40,11 @@ class View(object):
       fld = View.add_fld(node, C.J.i, u"_vid", no_id)
       setattr(node, "vid", fld)
 
+    # hash table
+    if cname == C.ADR.WMG:
+      fld = View.add_fld(node, u"View[]", u"_views")
+      setattr(node, "views", fld)
+
     # (for recursive hierarchy buildup)
     ## a field of List type to hold children View's
     #elif cname in [C.ADR.VG, C.ADR.WIN]:
@@ -86,6 +91,31 @@ class View(object):
 
     #self._recursive_hierarchy(node)
     self._flat_views(node)
+    self._hashing(node)
+
+
+  def _hashing(self, node):
+    cname = node.clazz.name
+    mname = node.name
+
+    if cname == C.ADR.WMG:
+      fld = getattr(node.clazz, "views")
+      if mname.startswith("find"+C.ADR.VIEW):
+        _, _id = node.params[0]
+        body = u"""
+          if ({1} < 0) return null;
+          return {0}[{1} % 100];
+        """.format(fld.name, _id)
+        node.body = to_statements(node, body)
+
+      elif mname == "addView" and len(node.params) == 2 and \
+          node.param_typs[0] == C.J.i:
+        _, _id = node.params[0]
+        _, _v = node.params[1]
+        body = u"""
+          {0}[{1} % 100] = {2};
+        """.format(fld.name, _id, _v)
+        node.body = to_statements(node, body)
 
 
   def _flat_views(self, node):

@@ -1376,7 +1376,7 @@ def to_sk(cmd, smpls, tmpl, sk_dir):
   n_evts = sample.max_evts(smpls)
   if cmd == "android":
     n_views = sample.max_views(smpls)
-    magic_S = max(5, n_evts + 1, n_views + 1)
+    magic_S = max(3, n_evts + 1, n_views)
   else:
     magic_S = max(5, n_evts + 1) # at least 5, just in case
 

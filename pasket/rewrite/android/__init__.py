@@ -26,7 +26,7 @@ acc_conf_uni = {
 # configuration for the accessor pattern (of Map<K,V> type)
 acc_conf_map = {
   #C.ADR.BDL: (-1, 1, 1), # (get|put)*
-  C.ADR.WMG: (-1, 1, 1), # addView, findViewById
+  #C.ADR.WMG: (-1, 1, 1), # addView, findViewById
   C.ADR.SSM: (-1, 1, 1), # getService, registerService
 }
 
