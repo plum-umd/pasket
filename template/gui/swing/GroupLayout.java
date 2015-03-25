@@ -6,6 +6,8 @@ public class GroupLayout implements LayoutManager {
 
   public GroupLayout(Container host);
 
+  public void addLayoutComponent(String name, Component comp);
+
   public enum Alignment {
     LEADING,
     TRAILING,
