@@ -16,7 +16,7 @@ public class String implements CharSequence {
     }
 
     public String toString() {
-        return _value;
+        return this;
     }
 
     public boolean equals(String s) {

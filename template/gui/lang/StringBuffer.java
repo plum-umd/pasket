@@ -5,7 +5,7 @@ public class StringBuffer implements CharSequence {
   int _count;
 
   public StringBuffer(String str) {
-    _value = str;
+    _value = str._value;
     _count = str.length();
   }
 
@@ -14,7 +14,7 @@ public class StringBuffer implements CharSequence {
   }
 
   public String toString() {
-    return _value;
+    return new String(_value, 0, _count);
   }
 
   public void setCharAt(int i, char c) {
