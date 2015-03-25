@@ -277,8 +277,9 @@ class Clazz(v.BaseNode):
 
     m_printer = str
     if s_printer: m_printer = lambda mtd: mtd.__str__(partial(s_printer, mtd))
+    clinit, mtds = util.partition(op.attrgetter("is_clinit"), self._mtds)
     if self._kind != C.T.ENUM:
-      buf.write('\n'.join(map(m_printer, self._mtds)) + '\n')
+      buf.write('\n'.join(map(m_printer, mtds)) + '\n')
 
     buf.write('\n'.join(map(str, self._inners)))
     buf.write("\n}\n")
