@@ -355,6 +355,11 @@ class Observer(object):
         new = u"rcv.{}(".format(handle.name)
         concrete = call.replace(old, new)
 
+        #ad-hoc replacement, will fix
+        old = u"{0}.reflect({0}.handle_{0}, rcv_0, ".format(aux_name)
+        new = u"rcv_0.{}(".format(handle.name)
+        concrete = call.replace(old, new)
+
         # TODO: more precise sig match
         l_param = concrete.find('(')
         r_param = concrete.rfind(')')
