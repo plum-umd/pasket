@@ -94,8 +94,11 @@ class AccessorAdHoc(object):
 
     ##
     ## add super() into <init>
+    ## 1) if it has an approriate super class
+    ## 2)     and does not have super()
     ##
-    if node.is_init and cls.sup and cls.sup != C.J.OBJ:
+    if node.is_init and cls.sup and cls.sup != C.J.OBJ and \
+        (not node.body or not str(node.body[0]).startswith(C.J.SUP)):
       sup_init = find_mtd_by_sig(cls.sup, cls.sup, node.param_typs)
       if sup_init: # sig-matched super()
         args = sig_match(sup_init.params, node.params)
