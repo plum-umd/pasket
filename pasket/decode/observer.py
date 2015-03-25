@@ -351,14 +351,18 @@ class Observer(object):
         _id = self._role['_'.join([C.OBS.H, aux_name])]
         handle = methods()[int(_id)]
 
-        old = u"{0}.reflect({0}.handle_{0}, rcv, ".format(aux_name)
-        new = u"rcv.{}(".format(handle.name)
-        concrete = call.replace(old, new)
+        if "rcv, " in call: # no suffix
+          old = u"{0}.reflect({0}.handle_{0}, rcv, ".format(aux_name)
+          new = u"rcv.{}(".format(handle.name)
+          concrete = call.replace(old, new)
 
-        #ad-hoc replacement, will fix
-        old = u"{0}.reflect({0}.handle_{0}, rcv_0, ".format(aux_name)
-        new = u"rcv_0.{}(".format(handle.name)
-        concrete = call.replace(old, new)
+        else: # w/ suffix
+          m = re.search(r"rcv_(\d+)", call)
+          if m:
+            suffix = m.group(1)
+            old = u"{0}.reflect({0}.handle_{0}, rcv_{1}, ".format(aux_name, suffix)
+            new = u"rcv_{1}.{0}(".format(handle.name, suffix)
+            concrete = call.replace(old, new)
 
         # TODO: more precise sig match
         l_param = concrete.find('(')
