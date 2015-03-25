@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from itertools import combinations
+
 import logging
 import os
 import sys
@@ -14,7 +16,7 @@ from ...meta.template import Template
 from ...meta.clazz import Clazz
 from ...meta.method import Method
 from ...meta.field import Field
-from ...meta.statement import Statement
+from ...meta.statement import Statement, to_statements
 from ...meta.expression import Expression, gen_E_hole
 
 class R(object):
@@ -104,6 +106,7 @@ def generate_R(tmpl):
   collector.build_R()
 
   cls_R = Clazz(name=u"R", mods=C.PBST)
+  holes = []
 
   def dfs(cursor):
     if type(cursor) is dict:
@@ -118,10 +121,20 @@ def generate_R(tmpl):
       def leaf_hole(elt):
         hole = gen_E_hole()
         fld_elt = Field(clazz=cls_R, mods=C.PBST, name=unicode(elt), typ=C.J.i, init=hole)
+        holes.append(elt)
         return fld_elt
       cls_R.add_flds(map(leaf_hole, cursor))
 
   dfs(collector.Rs)
+
+  rg_chk = Method(clazz=cls_R, mods=[C.mod.ST, C.mod.HN], name=u"checkRange")
+  checkers = []
+
+  for f1, f2 in combinations(holes, 2):
+    checkers.append(u"assert {} != {};".format(f1, f2))
+
+  rg_chk.body += to_statements(rg_chk, u'\n'.join(checkers))
+  cls_R.add_mtds([rg_chk])
 
   tmpl.add_classes([cls_R])
 
