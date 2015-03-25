@@ -1,6 +1,6 @@
 import operator as op
 from functools import partial
-from itertools import permutations
+from itertools import combinations
 import logging
 
 import lib.const as C
@@ -166,7 +166,7 @@ class Singleton(object):
       return u"assert (argNum("+getattr(aux, '_'.join([C.SNG.GET, c]))+")) == 0;"
     checkers.extend(map(getter_sig, conf))
 
-    for c1, c2 in permutations(conf, 2):
+    for c1, c2 in combinations(conf, 2):
       _c1, _c2 = map(lambda c: getattr(aux, '_'.join([C.SNG.SNG, c])), [c1, c2])
       checkers.append(u"assert {} != {};".format(_c1, _c2))
 
