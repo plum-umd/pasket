@@ -92,7 +92,7 @@ def main():
   else: # android, gui, or pattern
     if opt.sim or opt.sanity:
       if opt.sanity: opt.sim = opt.pattern[-1]
-      import spec.test as test
+      import pasket.test as test
       return test.test(opt.cmd, opt.smpl, opt.tmpl, opt.pattern, opt.output, opt.sim)
     else:
       import pasket 
