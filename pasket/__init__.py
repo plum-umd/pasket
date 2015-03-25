@@ -162,6 +162,11 @@ def configure(opt):
   conf["p_cpus"] = opt.p_cpus
   conf["verbose"] = opt.verbose
 
+def no_encoding():
+  conf["encoding"] = False
+  
+def no_sketch():
+  conf["sketch"] = False
 
 @takes(str, list_of(str), list_of(str), list_of(str), str, optional(str))
 @returns(int)
@@ -187,7 +192,7 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
         C.P.BLD, C.P.FAC, C.P.SNG, C.P.PRX, C.P.OBS, C.P.STA]
 
   opts = [] ## sketch options
-  if conf["verbose"]: opts.extend(["-V", "10"])
+  if "verbose" in conf.keys() and conf["verbose"]: opts.extend(["-V", "10"])
   # place to keep sketch's temporary files
   opts.extend(["--fe-tempdir", out_dir])
   opts.append("--fe-keep-tmp")
