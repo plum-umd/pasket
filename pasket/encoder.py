@@ -1419,9 +1419,10 @@ def to_sk(cmd, smpls, tmpl, sk_dir):
   # sample.sk that imports all the other sketch files
   buf = cStringIO.StringIO()
 
-  # --bnd-cbits: the number of bits for integer holes
-  bits = max(5, int(math.ceil(math.log(len(methods()), 2))))
-  buf.write("pragma options \"--bnd-cbits {}\";\n".format(bits))
+  # deprecated as we use regex generator for class/method roles
+  ## --bnd-cbits: the number of bits for integer holes
+  #bits = max(5, int(math.ceil(math.log(len(methods()), 2))))
+  #buf.write("pragma options \"--bnd-cbits {}\";\n".format(bits))
 
   # --bnd-unroll-amnt: the unroll amount for loops
   unroll_amnt = max(n_params, magic_S)
