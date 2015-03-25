@@ -8,6 +8,7 @@ import lib.visit as v
 from .. import add_artifacts
 from .. import util
 from .. import sample
+from ..meta import class_lookup
 from ..meta.template import Template
 from ..meta.clazz import Clazz
 from ..meta.method import Method
@@ -19,6 +20,7 @@ class Adapter(object):
 
   def __init__(self, smpls):
     self._smpls = smpls
+    self._smpl_clss = map(class_lookup, sample.decls(smpls).keys())
 
     self._clss = []
     self._aux_name = C.ADP.AUX
@@ -53,9 +55,13 @@ class Adapter(object):
       self._clss.append(cls)
 
   # assume methods that participate will be neither <init> nor static
+  def is_candidate_cls(self, cls):
+    return util.exists(lambda c: c <= cls, self._smpl_clss)
+
+  # assume methods that participate will be neither <init> nor static
   @staticmethod
   def is_candidate_mtd(mtd):
-    return not mtd.is_init and not mtd.is_static
+    return not mtd.is_init and not mtd.is_static and not mtd.params
 
   # retrieve candidate methods (in general)
   @staticmethod
@@ -137,7 +143,7 @@ class Adapter(object):
 
     c_to_e = lambda c: to_expression(unicode(c))
 
-    mtds = util.flatten(map(Adapter.get_candidate_mtds, self._clss))
+    mtds = util.flatten(map(Adapter.get_candidate_mtds, filter(self.is_candidate_cls, self._clss)))
 
     ## range check
     rg_chk = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"checkRange")
