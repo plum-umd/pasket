@@ -34,8 +34,8 @@ class SemanticChecker(object):
     # uninitialized array
     if util.is_array(node.typ) and not node.init:
       comp_typ = util.componentType(node.typ)
-      N = 100
-      node.init = to_expression(u"new {} [ {} ]".format(comp_typ, N))
+      magic_S = 256 # 0x100
+      node.init = to_expression(u"new {} [ {} ]".format(comp_typ, magic_S))
 
 
   @v.when(Method)
