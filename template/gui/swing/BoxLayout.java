@@ -8,5 +8,5 @@ public class BoxLayout implements LayoutManager {
 
   public BoxLayout(Container target, int axis);
 
-  void addLayoutComponent(String name, Component comp);
+  public void addLayoutComponent(String name, Component comp);
 }
