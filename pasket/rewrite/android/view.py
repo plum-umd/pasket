@@ -98,14 +98,16 @@ class View(object):
     cname = node.clazz.name
     mname = node.name
 
+    magic_S = 256 # 0x100
+
     if cname == C.ADR.WMG:
       fld = getattr(node.clazz, "views")
       if mname.startswith("find"+C.ADR.VIEW):
         _, _id = node.params[0]
         body = u"""
-          if ({1} < 0) return null;
-          return {0}[{1} % 100];
-        """.format(fld.name, _id)
+          int _{1} = {1} + {2};
+          return {0}[_{1} % {2}];
+        """.format(fld.name, _id, magic_S)
         node.body = to_statements(node, body)
 
       elif mname == "addView" and len(node.params) == 2 and \
@@ -113,8 +115,9 @@ class View(object):
         _, _id = node.params[0]
         _, _v = node.params[1]
         body = u"""
-          {0}[{1} % 100] = {2};
-        """.format(fld.name, _id, _v)
+          int _{1} = {1} + {3};
+          {0}[_{1} % {3}] = {2};
+        """.format(fld.name, _id, _v, magic_S)
         node.body = to_statements(node, body)
 
 
