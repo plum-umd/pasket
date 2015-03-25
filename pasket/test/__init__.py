@@ -5,7 +5,7 @@ import logging
 from lib.typecheck import *
 
 from .. import util
-from .. import no_sketch, main
+from .. import main
 
 def is_event(mname):
   return util.is_class_name(mname) and "Event" in mname
@@ -21,7 +21,7 @@ smpl_dir = os.path.join(root_dir, "sample")
 @returns(int)
 def test(cmd, smpl_paths, tmpl_paths, patterns, out_dir, demo):
   # run the main process to obtain a synthesized model
-  no_sketch()
+  #no_sketch()
   res = main(cmd, smpl_paths, tmpl_paths, patterns, out_dir)
   if res: return res
 
