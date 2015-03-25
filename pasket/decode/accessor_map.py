@@ -185,11 +185,9 @@ class AccessorMap(object):
       for e in gs[k].iterkeys():
         getr = getters[k][e]
         setr = setters[k][e] if e in setters[k].keys() else None
-        effective = False
-        if self._cmd == "android": effective = True
-        elif self._cmd == "gui":
-          effective = getr.id in self._invoked
-          if not effective: effective = setr and setr.id in self._invoked
+
+        effective = getr.id in self._invoked
+        if not effective: effective = setr and setr.id in self._invoked
 
         if effective:
           if len(getr.params) < 1:
@@ -231,7 +229,7 @@ class AccessorMap(object):
         logging.debug("removing {}".format(call))
         if "setterInOne" in call or "SetterInOne" in call:
           ## Aux.....setterInOne(...);
-          return to_statements(self._cur_mtd, u"if (null != null) return;")
+          return []
         else:
           ## Aux...constructor...
           return []
