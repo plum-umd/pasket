@@ -317,7 +317,7 @@ class Observer(object):
       node.name = subj.lower()
 
   # Aux...subjectCall(...);
-  regex_one = r"^{}\S+\.subjectCall\(.*\);$".format(C.OBS.AUX)
+  regex_one = r"{}\S+\.subjectCall\(.*\);".format(C.OBS.AUX)
 
   @v.when(Method)
   def visit(self, node):
@@ -329,14 +329,17 @@ class Observer(object):
       def tmp_filter(st): return C.OBS.tmp not in str(st)
       node.body = filter(tmp_filter, node.body)
 
-    else: # node.is_init
+    else: # not <init>
       # remove subjectCall() call
-      s = unicode(node.body[0])
-      m = re.match(Observer.regex_one, s)
-      if m:
-        logging.debug("at {}, removing {}".format(node.name, s))
-        # assume that call is the only statement in the method
-        node.body.pop(0)
+      def filter_subjectCall(s):
+        _s = unicode(s)
+        m = re.search(Observer.regex_one, _s)
+        if m:
+          logging.debug("at {}, removing\n{}".format(node.name, s))
+          return None
+        else: return s
+
+      node.body = util.ffilter(map(filter_subjectCall, node.body))
 
   @v.when(Statement)
   def visit(self, node):
