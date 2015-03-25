@@ -62,6 +62,11 @@ class SemanticChecker(object):
     if node.clazz.name == C.ADR.HDL and "dispatch" in node.name:
       node.body = []
 
+    # at the end, fill bogus statment into the empty body
+    # so as to not be ignored by loggeragent
+    if not node.body:
+      node.body = to_statements(node, u"if (null != null) return;")
+
   @v.when(Statement)
   def visit(self, node): return [node]
 
