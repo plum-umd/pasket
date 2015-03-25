@@ -262,6 +262,7 @@ class Template(v.BaseNode):
       sups = map(util.sanitize_ty, cls.itfs)
       if cls.sup: sups.append(util.sanitize_ty(cls.sup))
       for sup in clss:
+        if sup == cls: continue
         if sup.name in sups or repr(sup) in sups:
           if cls not in sup.subs: sup.subs.append(cls)
 
