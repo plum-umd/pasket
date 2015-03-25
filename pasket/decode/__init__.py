@@ -119,7 +119,7 @@ def merge_tmpls(prv, elt):
           for attr in attrs:
             obj1 = getattr(obs1, attr)[aux1]
             obj2 = getattr(obs2, attr)[aux2]
-            assert obj1.name == obj2.name
+            assert not (obj1 and obj2) or obj1.name == obj2.name
         except AssertionError:
           logging.error("solution conflict on {}".format(attr))
           logging.error("{} != {}".format(obj1.name, obj2.name))
