@@ -352,8 +352,8 @@ _s_flds = {} # { cname.fname : accessor }
 def to_v_struct(cls):
   cls_v = Clazz(name=cls.name)
 
-  #fld_ty = Field(clazz=cls_v, typ=C.J.i, name=u"kind")
-  #cls_v.flds.append(fld_ty)
+  fld_ty = Field(clazz=cls_v, typ=C.J.i, name=u"__cid")
+  cls_v.flds.append(fld_ty)
 
   global _ty, _flds, _s_flds
   @takes(dict_of(unicode, Field), Clazz)
@@ -640,7 +640,8 @@ def trans_e(mtd, e):
     elif e.id in [C.J.THIS, C.J.SUP]: buf.write(C.SK.self)
     elif util.is_str(e.id): # constant string, such as "Hello, World"
       str_init = trans_mname(C.J.STR, C.J.STR, [u"char[]", C.J.i, C.J.i])
-      buf.write("{}(new Object(hash=nonce()), {}, 0, {})".format(str_init, e.id, len(e.id)))
+      s_hash = hash(e.id) % 256 # hash string value itself
+      buf.write("{}(new Object(hash={}), {}, 0, {})".format(str_init, s_hash, e.id, len(e.id)))
     else: buf.write(e.id)
 
   elif e.kind == C.E.UOP:
@@ -1107,8 +1108,12 @@ def gen_smpl_sk(sk_path, smpl, tmpl, main):
     int[P] log = { 0 };
   """)
   global _mids
-  objs = { C.J.N: 0 } # { @Obj...aaa : 1, @Obj...bbb : 2, ... }
   obj_cnt = 0
+  objs = { C.J.N: 0, C.J.FALSE: 0, C.J.TRUE: 1, } # { @Obj...aaa : 2, ... }
+  for i in xrange(10):
+    objs[str(i)] = i
+    obj_cnt = obj_cnt + 1
+
   call_stack = []
   for io in smpl.IOs:
     # ignore <init>
@@ -1158,9 +1163,10 @@ def gen_smpl_sk(sk_path, smpl, tmpl, main):
       # also, primitive value doesn't have hash,
       # so we can't compare via obj array; just assign unique obj_cnt
 
-      # 1) primitive, including string
+      ## 1) primitive, including string
       # 2) this object never occurs
-      if type(kind) is type or val not in objs:
+      #if type(kind) is type or val not in objs:
+      if val not in objs:
         obj_cnt = obj_cnt + 1
         objs[val] = obj_cnt
       vals.append(str(objs[val]))
@@ -1295,7 +1301,7 @@ def gen_log_sk(sk_dir, tmpl):
   buf.write("""
     // factory of Object
     Object alloc(int ty) {{
-      Object {0} = new Object(hash=nonce());
+      Object {0} = new Object(hash=nonce(), __cid=ty);
       {1}
       return {0};
     }}

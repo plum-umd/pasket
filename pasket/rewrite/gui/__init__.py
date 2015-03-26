@@ -18,7 +18,7 @@ acc_conf_uni = {
   "DefaultDocumentEvent": (4, 1, 0), # getType
   "ListSelectionEvent": (4, 3, 0), # get((First|Last)Index|ValueIsAdjusting)
 
-  "JButton": (2, 1, 1), # (get|set)ActionCommand
+  "AbstractButton": (-1, 1, 1), # (get|set)ActionCommand
 }
 
 # configuration for the accessor pattern (of Map<K,V> type)
