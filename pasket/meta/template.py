@@ -266,27 +266,27 @@ class Template(v.BaseNode):
         if sup.name in sups or repr(sup) in sups:
           if cls not in sup.subs: sup.subs.append(cls)
 
-    # discard interfaces that have no implementers, without constants
-    for itf in ifilter(op.attrgetter("is_itf"), clss):
-      if not itf.subs and not itf.flds:
-        logging.debug("discarding {} with no implementers".format(repr(itf)))
-        if itf in self._classes:
-          self._classes.remove(itf)
-        elif itf.outer: # inner interface
-          itf.outer.inners.remove(itf)
-        del decls[repr(itf)]
+    ## discard interfaces that have no implementers, without constants
+    #for itf in ifilter(op.attrgetter("is_itf"), clss):
+    #  if not itf.subs and not itf.flds:
+    #    logging.debug("discarding {} with no implementers".format(repr(itf)))
+    #    if itf in self._classes:
+    #      self._classes.remove(itf)
+    #    elif itf.outer: # inner interface
+    #      itf.outer.inners.remove(itf)
+    #    del decls[repr(itf)]
 
-    # some interfaces might have been discarded, hence retrieve classes again
-    clss = util.flatten_classes(self._classes, "inners")
+    ## some interfaces might have been discarded, hence retrieve classes again
+    #clss = util.flatten_classes(self._classes, "inners")
 
-    # discard methods that refer to undefined types
-    for cls in clss:
-      for mtd in cls.mtds[:]: # to remove items, should use a shallow copy
-        def undefined_type( (ty, _) ): return not is_defined(ty)
-        if util.exists(undefined_type, mtd.params):
-          ty, _ = util.find(undefined_type, mtd.params)
-          logging.debug("discarding {} due to lack of {}".format(mtd.name, ty))
-          cls.mtds.remove(mtd)
+    ## discard methods that refer to undefined types
+    #for cls in clss:
+    #  for mtd in cls.mtds[:]: # to remove items, should use a shallow copy
+    #    def undefined_type( (ty, _) ): return not is_defined(ty)
+    #    if util.exists(undefined_type, mtd.params):
+    #      ty, _ = util.find(undefined_type, mtd.params)
+    #      logging.debug("discarding {} due to lack of {}".format(mtd.name, ty))
+    #      cls.mtds.remove(mtd)
 
   # invoke Clazz.mtds_w_anno for all classes
   @takes("Template", callable)
