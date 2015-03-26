@@ -33,7 +33,7 @@ class AccessorMap(object):
 
   ## hole assignments for roles
   ## glblInit_accessor_????,StmtAssign,accessor_???? = n
-  regex_role = r"(({})_\S+_\d+_{}).* = (\d+)$".format('|'.join(C.acc_roles), __aux_name)
+  regex_role = r"(({})_\S+_{})__.* = (\d+)$".format('|'.join(C.acc_roles), __aux_name)
 
   @staticmethod
   def simple_role_of_interest(msg):
