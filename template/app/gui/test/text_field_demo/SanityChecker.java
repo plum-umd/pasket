@@ -10,16 +10,16 @@ import pasket.java.awt.event.*;
 
 
 class SwingEventHandler implements EventHandler {
-    AdaptedButtonDemo demo;
-    public SwingEventHandler(AdaptedButtonDemo abd) {
-        demo = abd;
+    AdaptedTextFieldDemo demo;
+    public SwingEventHandler(AdaptedTextFieldDemo tfd) {
+        demo = tfd;
     }
     
     public void handleEvent (String line) {
         if (line.endsWith("doClick()")) {
             String action = line.substring(0, line.indexOf("."));
-            JButton temp = getButton(action);
-            ActionEvent evt = new ActionEvent(temp, 0, temp.getActionCommand());
+            JTextField temp = getTextField(action);
+            ItemEvent evt = new ItemEvent(temp, 0, null, 2);
             /*
             ActionListener[] listeners = temp.getActionListeners();
             for (int i = 0; i < listeners.length; i++) {
@@ -30,18 +30,20 @@ class SwingEventHandler implements EventHandler {
         return;
     }
     
-    private JButton getButton(String command) {
-        if (command.equals("$Disabled")) return demo.b1;
-        else if (command.equals("$Enable")) return demo.b3;
+    private JCheckBox getTextField(String command) {
+        if (command.equals("$Chin")) return demo.chinButton;
+        else if (command.equals("$Glasses")) return demo.glassesButton;
+        else if (command.equals("$Hair")) return demo.hairButton;
+        else if (command.equals("$Teeth")) return demo.teethButton;
         else return null;
     }
 }
 
 public class SanityChecker {
     static SwingEventHandler seh;
-    public static SwingEventHandler getEventHandler(AdaptedButtonDemo abd) {
+    public static SwingEventHandler getEventHandler(AdaptedTextFieldDemo tfd) {
         if (seh == null)
-            seh = new SwingEventHandler(abd);
+            seh = new SwingEventHandler(tfd);
         return seh;
     }
     
@@ -66,25 +68,21 @@ public class SanityChecker {
         loggerBuilder.directory(new File("."));
         //loggerBuilder.inheritIO();
         //loggerBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-        File temp = new File("temp_button_demo.txt");
+        File temp = new File("temp.txt");
         loggerBuilder.redirectError(temp);
         Process logger = loggerBuilder.start();
         logger.waitFor();
         
         Queue<String> records = getInfo(temp, demo);
-	if (records == null)
+        if (records == null)
             return;
-        //temp.delete();
-
-	System.out.println(temp);
-	System.out.println(demo);
+        temp.delete();
+        
         
         File[] samples = smpl_dir.toFile().listFiles();
-	
         for (File child : samples) {
             String fname = child.getName();
             if (fname.startsWith("sample")) {
-		
                 //Queue<String> orig_sample = toQueue(child);
                 Queue<String> mcs = extractMethodCalls(child, demo);
                 Queue<String> mcalls = SampleProcessor.process(mcs);
@@ -99,17 +97,12 @@ public class SanityChecker {
                 recarray = records.toArray(recarray);
                 int i = 0;
                 String simulator;
-		
                 if (demo.endsWith("demo"))
                     simulator = "Main.simulate";
                 else
                     simulator = "Main." + demo + "_main" + num + "()";
-
-                while (!recarray[i++].contains(simulator)) {
-		    System.out.println(recarray[i]);
+                while (!recarray[i++].contains(simulator))
                     continue;
-		}
-		
                 while (!recarray[i].contains(simulator)){
                     curr_log.add(recarray[i++].trim().replaceAll("Adapted", "swings." + demo + "."));
                 }
@@ -118,7 +111,6 @@ public class SanityChecker {
                 System.out.println("[debug] curr_log: " + curr_log);
                 Assert.assertTrue("failure", included(mcalls, curr_log));
                 System.out.println("Pass!");
-		
             }
         }
         
@@ -232,7 +224,7 @@ public class SanityChecker {
                 System.out.println("Exception thrown!");
                 return null;
             }
-            if (curr.contains("INFO: ")) output.add(curr.substring(6).trim().replaceAll("patterns." + pattern + ".", "").replaceAll("pasket.", ""));
+            else if (curr.contains("INFO: ")) output.add(curr.substring(6).trim().replaceAll("patterns." + pattern + ".", "").replaceAll("pasket.", ""));
         }
         return output;
     }
@@ -295,16 +287,7 @@ public class SanityChecker {
             return (s.contains("addObserver") || s.contains("dateChanged"));
         else if (pattern.endsWith("demo"))
             return ((s.contains("javax.swing") || s.contains("java.awt"))
-                    && (! s.contains("invokeLater(")) && (! s.contains("pack"))
-			//&& (! s.contains("setDefaultCloseOperation"))
-			//&& (! s.contains("setVerticalTextPosition"))
-			//&& (! s.contains("setHorizontalTextPosition"))
-			//&& (! s.contains("setMnemonic"))
-			//&& (! s.contains("setEnabled"))
-			//&& (! s.contains("setToolTipText"))
-			//&& (! s.contains("setContentPane"))
-			//&& (! s.contains("setVisible")) 
-			 );
+                    && (! s.contains("invokeLater(")) && (! s.contains("pack")) );
         else return false;
     }
     

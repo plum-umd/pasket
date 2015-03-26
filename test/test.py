@@ -68,6 +68,7 @@ class TestPatterns(unittest.TestCase):
             os.chdir("..")
     
     def run_pasket(self, p, names):
+        
         # Run translation to sketch and then run sketch
         if (p == "pattern"):
             smpl = [os.path.join(smpl_dir, p, names)]
