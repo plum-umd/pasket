@@ -91,13 +91,13 @@ class Singleton(object):
   # getter will be invoked here
   @staticmethod
   def getter_in_one(aux, conf):
-    params = [ (C.J.i, u"mtd_id") ]
+    params = [ (C.J.i, u"mtd_id"), (C.J.i, u"cls_id") ]
     one = Method(clazz=aux, mods=C.PBST, typ=C.J.OBJ, params=params, name=u"getterInOne")
     def getter_switch(c):
       aname = aux.name
       v = getattr(aux, '_'.join([C.SNG.GET, c]))
       f = getattr(aux, "gttr").name
-      args = getattr(aux, '_'.join([C.SNG.SNG, c]))
+      args = u"cls_id" #getattr(aux, '_'.join([C.SNG.SNG, c]))
       return u"if (mtd_id == {v}) return {aname}.{f}({args});".format(**locals())
     one_body = "\nelse ".join(map(getter_switch, conf)+[u"return null;"])
     one.body = to_statements(one, one_body)
@@ -207,7 +207,7 @@ class Singleton(object):
     # getter candidate
     if Singleton.is_candidate_mtd(node):
       mname = u"getterInOne"
-      args = u", ".join([unicode(node.id)])
+      args = u", ".join([unicode(node.id), unicode(node.clazz.id)])
       call = u"return {}({});".format(u".".join([self._aux_name, mname]), args)
       node.body += to_statements(node, call)
       logging.debug("{}.{} => {}.{}".format(cname, node.name, self._aux_name, mname))
