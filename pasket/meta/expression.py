@@ -388,9 +388,14 @@ def parse_e(node, cls=None):
         c_node = util.mk_v_node_w_children(_nodes[1:])
         c = curried_e(c_node)
         e = gen_E_new(c)
-    else: # array initialization
+    else: # array (w/ initial values)
+      w_init_vals = util.exists(lambda n: n.getText() in ['{', '}'], _nodes)
+      if w_init_vals:
+        what_to_find = '{' # starting point of initial values
+      else:
+        what_to_find = '[' # starting point of array size
       for i, n in enumerate(_nodes):
-        if n.getText() == '{' or n.getText() == '[':
+        if n.getText() == what_to_find:
           t_node = util.mk_v_node_w_children(_nodes[1:i])
           init_node = util.mk_v_node_w_children(_nodes[i:])
           break
