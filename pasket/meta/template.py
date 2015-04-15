@@ -249,13 +249,15 @@ class Template(v.BaseNode):
   # find methods with @Harness
   # if called with a specific name, will returns the exact method
   @takes("Template", optional(str))
-  @returns(list_of(Method))
+  @returns( (list_of(Method), Method) )
   def harness(self, name=None):
     if name:
       h_finder = lambda anno: anno.by_attr({"name": C.A.HARNESS, "f": name})
     else:
       h_finder = lambda anno: anno.by_name(C.A.HARNESS)
-    return self.mtds_w_anno(h_finder)
+    mtds = self.mtds_w_anno(h_finder)
+    if mtds and name: return mtds[0]
+    else: return mtds
 
   # find main()
   @property
