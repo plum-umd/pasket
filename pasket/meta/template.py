@@ -372,12 +372,12 @@ if __name__ == "__main__":
     parser.error("incorrect number of arguments")
 
   pwd = os.path.dirname(__file__)
-  spec_dir = os.path.join(pwd, "..")
-  root_dir = os.path.join(spec_dir, "..")
+  src_dir = os.path.join(pwd, "..")
+  root_dir = os.path.join(src_dir, "..")
   sys.path.append(root_dir)
 
   ## logging configuration
-  logging.config.fileConfig(os.path.join(spec_dir, "logging.conf"))
+  logging.config.fileConfig(os.path.join(src_dir, "logging.conf"))
   logging.getLogger().setLevel(logging.DEBUG)
 
   tmpl_files = []
