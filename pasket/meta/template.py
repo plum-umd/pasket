@@ -31,7 +31,7 @@ class Template(v.BaseNode):
 
     fields_reset()
     methods_reset()
-    classes_reset() 
+    classes_reset()
     self._frozen = False
 
     # class declarations in this template
@@ -293,27 +293,33 @@ class Template(v.BaseNode):
   @returns(list_of(Method))
   def mtds_w_anno(self, cmp_anno):
     mtdss = map(lambda cls: cls.mtds_w_anno(cmp_anno), self._classes)
-    return filter(None, util.flatten(mtdss))
+    return util.ffilter(util.flatten(mtdss))
 
   # find methods with @Harness
   # if called with a specific name, will returns the exact method
   @takes("Template", optional(str))
-  @returns( (list_of(Method), Method) )
+  @returns(list_of(Method))
   def harness(self, name=None):
     if name:
       h_finder = lambda anno: anno.by_attr({"name": C.A.HARNESS, "f": name})
     else:
       h_finder = lambda anno: anno.by_name(C.A.HARNESS)
-    return self.mtds_w_anno(h_finder)[0]
+    return self.mtds_w_anno(h_finder)
 
   # find main()
   @property
   def main(self):
+    mtds = []
     # assume *main* is not defined in inner classes
     for cls in self._classes:
       for mtd in cls.mtds:
-        if C.mod.ST in mtd.mods and mtd.name == C.J.MAIN: return mtd
-    return None
+        if C.mod.ST in mtd.mods and mtd.name == C.J.MAIN:
+          mtds.append(mtd)
+    n = len(mtds)
+    if n > 1:
+      raise Exception("multiple main()s", mtds)
+    elif 1 == n: return mtds[0]
+    else: return None
 
   # find the class to which main() belongs
   @property
