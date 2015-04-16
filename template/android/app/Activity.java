@@ -8,7 +8,7 @@ public class Activity extends ContextThemeWrapper {
 
   public void setContentView(int layoutResID);
   public void setContentView(View view);
-  public void setContentView(View view, View.LayoutParams params);
+  public void setContentView(View view, ViewGroup.LayoutParams params);
 
   public View findViewById(int id);
 

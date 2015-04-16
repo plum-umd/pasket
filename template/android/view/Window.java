@@ -9,15 +9,15 @@ public class Window {
 /*
   public abstract void setContentView(int layoutResID);
   public abstract void setContentView(View view);
-  public abstract void setContentView(View view, View.LayoutParams params);
+  public abstract void setContentView(View view, ViewGroup.LayoutParams params);
 
-  public abstract void addContentView(View view, View.LayoutParams params);
+  public abstract void addContentView(View view, ViewGroup.LayoutParams params);
 */
 
   public void setContentView(int layoutResID);
   public void setContentView(View view);
-  public void setContentView(View view, View.LayoutParams params);
+  public void setContentView(View view, ViewGroup.LayoutParams params);
 
-  public void addContentView(View view, View.LayoutParams params);
+  public void addContentView(View view, ViewGroup.LayoutParams params);
 
 }
