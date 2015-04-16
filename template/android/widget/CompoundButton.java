@@ -6,7 +6,7 @@ public abstract class CompoundButton extends Button {
 
   @ObserverPattern(MotionEvent)
   public static interface OnCheckedChangeListener {
-    public void onCheckedChanged(CompundButton buttonView, boolean isChecked);
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked);
   }
 
   public void setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener listener);
