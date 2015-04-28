@@ -23,7 +23,7 @@
         > javax.swing.JButton.setActionCommand(javax.swing.JButton@69709808, "disable")
         < javax.swing.JButton.setActionCommand()
         > javax.swing.JButton.getActionCommand(javax.swing.JButton@69709808)
-        < javax.swing.JButton.setActionCommand("disable")
+        < javax.swing.JButton.getActionCommand("disable")
         > javax.swing.JButton.setVerticalTextPosition(javax.swing.JButton@1965391223, 3)
         < javax.swing.JButton.setVerticalTextPosition()
         > javax.swing.JButton.setHorizontalTextPosition(javax.swing.JButton@1965391223, 0)
