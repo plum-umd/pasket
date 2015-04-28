@@ -3,4 +3,4 @@ ant clean
 rm -rf java*
 rm -rf sk*
 rm -rf tmp/*
-rm -r *.txt log/*.txt
+rm -rf *.txt log/*.txt
