@@ -628,7 +628,8 @@ def trans_e(mtd, e):
   elif e.kind == C.E.ID:
     if hasattr(e, "ty"): buf.write(trans_ty(e.ty) + ' ')
     fld = None
-    if mtd: fld = find_fld(mtd.clazz.name, e.id)
+    if mtd and e.id not in mtd.param_vars:
+      fld = find_fld(mtd.clazz.name, e.id)
     if fld: # fname -> self.new_fname (unless the field is static)
       new_fname = trans_fname(fld.clazz.name, e.id, fld.is_static)
       if fld.is_static:
@@ -662,7 +663,7 @@ def trans_e(mtd, e):
       new_fname = trans_fname(rcv_ty, e.re.id, fld.is_static)
       if fld.is_static:
         # access to the static field inside the same class
-        if mtd and rcv_ty == mtd.clazz.name: buf.write(e.id)
+        if mtd and rcv_ty == mtd.clazz.name: buf.write(e.re.id)
         # o.w., e.g., static constant in an interface, call the accessor
         else: buf.write(new_fname + "()")
       else: buf.write('.'.join([curried(e.le), new_fname]))
