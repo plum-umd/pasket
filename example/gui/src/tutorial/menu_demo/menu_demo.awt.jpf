@@ -1,0 +1,3 @@
+# run ${jpf-symbc}/bin/jpf with this config
+xmpl = menu_demo
+@include=../tutorial.awt.jpf
