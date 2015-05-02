@@ -24,7 +24,7 @@ public class String implements CharSequence {
     }
 
     public int indexOf(String str) {
-        return indexOf(ch, 0);
+        return indexOf(str, 0);
     }
 
     public int indexOf(String str, int fromIndex) {
