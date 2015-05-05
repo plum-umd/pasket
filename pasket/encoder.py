@@ -630,6 +630,14 @@ def trans_e(mtd, e):
       else:
         buf.write("{}({},{})".format(trans_mname(C.J.STR, u"equals"), le, re))
 
+  elif e.kind == C.E.GEN:
+    if e.es:
+      buf.write("{| ")
+      buf.write(" | ".join(map(curried, e.es)))
+      buf.write(" |}")
+    else:
+      buf.write(C.T.HOLE)
+
   elif e.kind == C.E.ID:
     if hasattr(e, "ty"): buf.write(trans_ty(e.ty) + ' ')
     fld = None
