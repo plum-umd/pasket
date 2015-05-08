@@ -46,6 +46,12 @@
  * for richer template
  *   modified the grammars about expressions
  *
+ * Jinseong Jeon, Feb 2015 -- May 2015
+ * desugared 'switch' statement
+ * hoisted more Sketch features
+ *   such as modifiers 'harness' and 'generator',
+ *   'assume' statement, and regular expression generator
+ *
  */
 grammar Java;
 options {
@@ -82,6 +88,9 @@ tokens {
   CAST;
 
   HOLE = '??';
+  REG_L = '{|';
+  REG_R = '|}';
+  REGEN;
 }
 
 @lexer::init {
@@ -527,6 +536,8 @@ localVariableDeclaration
 
 statement
     :   block
+    |   'assume' expression (':' expression)? ';'
+    ->  ^(STAT 'assume' expression (':' expression)? ';')
     |   'assert' expression (':' expression)? ';'
     ->  ^(STAT 'assert' expression (':' expression)? ';')
     |   'if' parExpression statement ('else' statement)?
@@ -610,6 +621,15 @@ parExpression
 
 expressionList
     :   expression (','! expression)*
+    ;
+
+regExpression
+    :   REG_L regexList REG_R
+    ->  ^(REGEN regexList)
+    ;
+
+regexList
+    :   expression ('|'! expression)*
     ;
 
 statementExpression
@@ -749,6 +769,7 @@ primary
     |   primitiveType ('[' ']')* '.' 'class'
     |   'void' '.' 'class'
     |   HOLE
+    |   regExpression
     ;
 
 annoIdentifier

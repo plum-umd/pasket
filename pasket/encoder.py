@@ -297,6 +297,11 @@ def col_to_struct(cls):
           for (i = 0; lst.elts[i] != null && i < S; i++) {{
             if (lst.elts[i] == elt) {{
               lst.elts[i] = null;
+              int j;
+              for (j = i + 1; lst.elts[j] != null && j < lst.idx; j++) {{
+                lst.elts[j-1] = lst.elts[j];
+              }}
+              lst.idx = (lst.idx - 1) % S;
               return true;
             }}
           }}
@@ -312,8 +317,8 @@ def col_to_struct(cls):
             res = lst.elts[index];
             lst.elts[index] = null;
             int i;
-            for (i = index; lst.elts[i] != null && i < lst.idx; i++) {{
-              lst.elts[i] = lst.elts[i+1];
+            for (i = index + 1; lst.elts[i] != null && i < lst.idx; i++) {{
+              lst.elts[i-1] = lst.elts[i];
             }}
             lst.idx = (lst.idx - 1) % S;
           }}
@@ -625,10 +630,19 @@ def trans_e(mtd, e):
       else:
         buf.write("{}({},{})".format(trans_mname(C.J.STR, u"equals"), le, re))
 
+  elif e.kind == C.E.GEN:
+    if e.es:
+      buf.write("{| ")
+      buf.write(" | ".join(map(curried, e.es)))
+      buf.write(" |}")
+    else:
+      buf.write(C.T.HOLE)
+
   elif e.kind == C.E.ID:
     if hasattr(e, "ty"): buf.write(trans_ty(e.ty) + ' ')
     fld = None
-    if mtd: fld = find_fld(mtd.clazz.name, e.id)
+    if mtd and e.id not in mtd.param_vars:
+      fld = find_fld(mtd.clazz.name, e.id)
     if fld: # fname -> self.new_fname (unless the field is static)
       new_fname = trans_fname(fld.clazz.name, e.id, fld.is_static)
       if fld.is_static:
@@ -662,7 +676,7 @@ def trans_e(mtd, e):
       new_fname = trans_fname(rcv_ty, e.re.id, fld.is_static)
       if fld.is_static:
         # access to the static field inside the same class
-        if mtd and rcv_ty == mtd.clazz.name: buf.write(e.id)
+        if mtd and rcv_ty == mtd.clazz.name: buf.write(e.re.id)
         # o.w., e.g., static constant in an interface, call the accessor
         else: buf.write(new_fname + "()")
       else: buf.write('.'.join([curried(e.le), new_fname]))
