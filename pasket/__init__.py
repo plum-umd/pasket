@@ -168,6 +168,9 @@ def no_encoding():
 def no_sketch():
   conf["sketch"] = False
 
+def all_swing():
+  conf["pattern"] = ["button_demo", "checkbox_demo", "filechooser_demo"]
+         
 @takes(str, list_of(str), list_of(str), list_of(str), str, optional(str))
 @returns(int)
 def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
