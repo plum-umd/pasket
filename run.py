@@ -93,6 +93,8 @@ def main():
     if opt.sim or opt.sanity:
       if opt.sanity: opt.sim = opt.pattern[-1]
       import pasket.test as test
+      import pasket
+      pasket.configure(opt)
       return test.test(opt.cmd, opt.smpl, opt.tmpl, opt.pattern, opt.output, opt.sim)
     else:
       import pasket 
