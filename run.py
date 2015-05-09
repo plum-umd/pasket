@@ -51,6 +51,9 @@ def main():
   parser.add_option("--p_cpus",
     action="store", dest="p_cpus", default=None, type="int",
     help="the number of cores to use for parallel running")
+  parser.add_option("--ntimes",
+    action="store", dest="ntimes", default=None, type="int",
+    help="number of rounds on a single sketch-backend invocation")
   parser.add_option("--simulate",
     action="store", dest="sim", default=None,
     help="what to simulate")

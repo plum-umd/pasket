@@ -160,6 +160,7 @@ def configure(opt):
   conf["randdegree"] = opt.randdegree
   conf["parallel"] = opt.parallel
   conf["p_cpus"] = opt.p_cpus
+  conf["ntimes"] = opt.ntimes
   conf["verbose"] = opt.verbose
 
 def no_encoding():
@@ -287,6 +288,8 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
         _opts.append("--slv-parallel")
         if conf["p_cpus"]:
           _opts.extend(["--slv-p-cpus", str(conf["p_cpus"])])
+        if conf["ntimes"]:
+          _opts.extend(["--slv-ntimes", str(conf["ntimes"])])
         if conf["randdegree"]: # assume FIXED strategy
           _opts.extend(["--slv-randdegree", str(conf["randdegree"])])
         else: # adaptive concretization
