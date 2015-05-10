@@ -352,6 +352,16 @@ class AccessorUni(object):
       map(lambda m: [aux_range(C.ACC.SET, c, m, mtds, 1, True)], range(conf[c][2]))
     map(mtd_range, conf.iterkeys())
 
+    # disjoint getters
+    for v in range(len(rv_gtts)):
+      for w in range(v):
+        checkers.append("assert " + getattr(aux, rv_gtts[v]) + " != " + getattr(aux, rv_gtts[w]) + ";")
+
+    # disjoint setters
+    for v in range(len(rv_stts)):
+      for w in range(v):
+        checkers.append("assert " + getattr(aux, rv_stts[v]) + " != " + getattr(aux, rv_stts[w]) + ";")
+    
     # range check for gs: as an index, shouldn't be negative
     def gs_positive(role):
       rv = getattr(aux, role)
@@ -484,8 +494,13 @@ class AccessorUni(object):
     if cname in self._acc_default: return
  
     # constructors
+    used_args = []
+    if node.body and node.body[0].kind == C.S.EXP and node.body[0].e.has_call: 
+      used_args = map(str, node.body[0].e.a)
     if node.is_init:
       for i in xrange(len(node.params)):
+        if str(node.params[i][1]) in used_args:
+          continue
         shorty = util.to_shorty_sk(node.params[i][0])
         mname = shorty + u"constructorInOne"
         fid = unicode(i)

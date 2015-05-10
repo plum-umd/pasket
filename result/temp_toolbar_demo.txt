@@ -1,0 +1,283 @@
+Start at Tue Apr 28 18:20:21 EDT 2015
+Apr 28, 2015 6:20:21 PM Main main
+INFO: > Main.main([/afs/csail.mit.edu/u/x/xkqiu/git/pasket/result/java/toolbar_demo_1.es])
+Apr 28, 2015 6:20:21 PM Main simulate
+INFO: > Main.simulate("/afs/csail.mit.edu/u/x/xkqiu/git/pasket/result/java/toolbar_demo_1.es")
+Apr 28, 2015 6:20:21 PM AdaptedToolBarDemo main
+INFO: > AdaptedToolBarDemo.main()
+Apr 28, 2015 6:20:21 PM AdaptedToolBarDemo createAndShowGUI
+INFO: > AdaptedToolBarDemo.createAndShowGUI()
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JFrame@82209511)
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.JFrame setDefaultCloseOperation
+INFO: > pasket.javax.swing.JFrame.setDefaultCloseOperation(pasket.javax.swing.JFrame@82209511, 3)
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.JFrame setDefaultCloseOperation
+INFO: < pasket.javax.swing.JFrame.setDefaultCloseOperation()
+Apr 28, 2015 6:20:21 PM AdaptedToolBarDemo <init>
+INFO: > AdaptedToolBarDemo.AdaptedToolBarDemo()
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(AdaptedToolBarDemo@518126160)
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JToolBar@140686497)
+Apr 28, 2015 6:20:21 PM AdaptedToolBarDemo addButtons
+INFO: > AdaptedToolBarDemo.addButtons(AdaptedToolBarDemo@518126160, pasket.javax.swing.JToolBar@140686497)
+Apr 28, 2015 6:20:21 PM AdaptedToolBarDemo makeNavigationButton
+INFO: > AdaptedToolBarDemo.makeNavigationButton(AdaptedToolBarDemo@518126160, "Back24", "previous", "Back to previous something-or-other", "Previous")
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.AbstractButton <init>
+INFO: > pasket.javax.swing.AbstractButton.AbstractButton()
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JButton@878101666)
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.AbstractButton <init>
+INFO: < pasket.javax.swing.AbstractButton.AbstractButton(pasket.javax.swing.JButton@878101666)
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.AbstractButton setActionCommand
+INFO: > pasket.javax.swing.AbstractButton.setActionCommand(pasket.javax.swing.JButton@878101666, "previous")
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.AbstractButton setActionCommand
+INFO: < pasket.javax.swing.AbstractButton.setActionCommand()
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.JComponent setToolTipText
+INFO: > pasket.javax.swing.JComponent.setToolTipText(pasket.javax.swing.JButton@878101666, "Back to previous something-or-other")
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.JComponent setToolTipText
+INFO: < pasket.javax.swing.JComponent.setToolTipText()
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: > pasket.javax.swing.AbstractButton.addActionListener(pasket.javax.swing.JButton@878101666, AdaptedToolBarDemo@518126160)
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: < pasket.javax.swing.AbstractButton.addActionListener()
+Apr 28, 2015 6:20:21 PM AdaptedToolBarDemo makeNavigationButton
+INFO: < AdaptedToolBarDemo.makeNavigationButton(pasket.javax.swing.JButton@878101666)
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JToolBar@140686497, pasket.javax.swing.JButton@878101666)
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JButton@878101666)
+Apr 28, 2015 6:20:21 PM AdaptedToolBarDemo makeNavigationButton
+INFO: > AdaptedToolBarDemo.makeNavigationButton(AdaptedToolBarDemo@518126160, "Up24", "up", "Up to something-or-other", "Up")
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.AbstractButton <init>
+INFO: > pasket.javax.swing.AbstractButton.AbstractButton()
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JButton@747078278)
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.AbstractButton <init>
+INFO: < pasket.javax.swing.AbstractButton.AbstractButton(pasket.javax.swing.JButton@747078278)
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.AbstractButton setActionCommand
+INFO: > pasket.javax.swing.AbstractButton.setActionCommand(pasket.javax.swing.JButton@747078278, "up")
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.AbstractButton setActionCommand
+INFO: < pasket.javax.swing.AbstractButton.setActionCommand()
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.JComponent setToolTipText
+INFO: > pasket.javax.swing.JComponent.setToolTipText(pasket.javax.swing.JButton@747078278, "Up to something-or-other")
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.JComponent setToolTipText
+INFO: < pasket.javax.swing.JComponent.setToolTipText()
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: > pasket.javax.swing.AbstractButton.addActionListener(pasket.javax.swing.JButton@747078278, AdaptedToolBarDemo@518126160)
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: < pasket.javax.swing.AbstractButton.addActionListener()
+Apr 28, 2015 6:20:21 PM AdaptedToolBarDemo makeNavigationButton
+INFO: < AdaptedToolBarDemo.makeNavigationButton(pasket.javax.swing.JButton@747078278)
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JToolBar@140686497, pasket.javax.swing.JButton@747078278)
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JButton@747078278)
+Apr 28, 2015 6:20:21 PM AdaptedToolBarDemo makeNavigationButton
+INFO: > AdaptedToolBarDemo.makeNavigationButton(AdaptedToolBarDemo@518126160, "Forward24", "next", "Forward to something-or-other", "Next")
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.AbstractButton <init>
+INFO: > pasket.javax.swing.AbstractButton.AbstractButton()
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JButton@1955217984)
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.AbstractButton <init>
+INFO: < pasket.javax.swing.AbstractButton.AbstractButton(pasket.javax.swing.JButton@1955217984)
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.AbstractButton setActionCommand
+INFO: > pasket.javax.swing.AbstractButton.setActionCommand(pasket.javax.swing.JButton@1955217984, "next")
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.AbstractButton setActionCommand
+INFO: < pasket.javax.swing.AbstractButton.setActionCommand()
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.JComponent setToolTipText
+INFO: > pasket.javax.swing.JComponent.setToolTipText(pasket.javax.swing.JButton@1955217984, "Forward to something-or-other")
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.JComponent setToolTipText
+INFO: < pasket.javax.swing.JComponent.setToolTipText()
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: > pasket.javax.swing.AbstractButton.addActionListener(pasket.javax.swing.JButton@1955217984, AdaptedToolBarDemo@518126160)
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: < pasket.javax.swing.AbstractButton.addActionListener()
+Apr 28, 2015 6:20:21 PM AdaptedToolBarDemo makeNavigationButton
+INFO: < AdaptedToolBarDemo.makeNavigationButton(pasket.javax.swing.JButton@1955217984)
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JToolBar@140686497, pasket.javax.swing.JButton@1955217984)
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JButton@1955217984)
+Apr 28, 2015 6:20:21 PM AdaptedToolBarDemo addButtons
+INFO: < AdaptedToolBarDemo.addButtons()
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.text.JTextComponent <init>
+INFO: > pasket.javax.swing.text.JTextComponent.JTextComponent()
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JTextArea@1418513383)
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.text.AbstractDocument <init>
+INFO: > pasket.javax.swing.text.AbstractDocument.AbstractDocument()
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.text.AbstractDocument <init>
+INFO: < pasket.javax.swing.text.AbstractDocument.AbstractDocument(pasket.javax.swing.text.PlainDocument@656552001)
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Insets <init>
+INFO: > pasket.java.awt.Insets.Insets(0, 0, 0, 0)
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Insets <init>
+INFO: < pasket.java.awt.Insets.Insets(pasket.java.awt.Insets@1875299991)
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.text.DefaultHighlighter <init>
+INFO: > pasket.javax.swing.text.DefaultHighlighter.DefaultHighlighter()
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.text.DefaultHighlighter <init>
+INFO: < pasket.javax.swing.text.DefaultHighlighter.DefaultHighlighter(pasket.javax.swing.text.DefaultHighlighter@742166006)
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.text.JTextComponent <init>
+INFO: < pasket.javax.swing.text.JTextComponent.JTextComponent(pasket.javax.swing.JTextArea@1418513383)
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.text.JTextComponent setEditable
+INFO: > pasket.javax.swing.text.JTextComponent.setEditable(pasket.javax.swing.JTextArea@1418513383, false)
+Apr 28, 2015 6:20:21 PM pasket.javax.swing.text.JTextComponent setEditable
+INFO: < pasket.javax.swing.text.JTextComponent.setEditable()
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JScrollPane@1856044016)
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(AdaptedToolBarDemo@518126160, pasket.javax.swing.JToolBar@140686497)
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JToolBar@140686497)
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(AdaptedToolBarDemo@518126160, pasket.javax.swing.JScrollPane@1856044016)
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JScrollPane@1856044016)
+Apr 28, 2015 6:20:21 PM AdaptedToolBarDemo <init>
+INFO: < AdaptedToolBarDemo.AdaptedToolBarDemo(AdaptedToolBarDemo@518126160)
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JFrame@82209511, AdaptedToolBarDemo@518126160)
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(AdaptedToolBarDemo@518126160)
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Window pack
+INFO: > pasket.java.awt.Window.pack(pasket.javax.swing.JFrame@82209511)
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Window pack
+INFO: < pasket.java.awt.Window.pack()
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Component setVisible
+INFO: > pasket.java.awt.Component.setVisible(pasket.javax.swing.JFrame@82209511, true)
+Apr 28, 2015 6:20:21 PM pasket.java.awt.Component setVisible
+INFO: < pasket.java.awt.Component.setVisible()
+Apr 28, 2015 6:20:21 PM AdaptedToolBarDemo createAndShowGUI
+INFO: < AdaptedToolBarDemo.createAndShowGUI()
+Apr 28, 2015 6:20:21 PM AdaptedToolBarDemo main
+INFO: < AdaptedToolBarDemo.main()
+Apr 28, 2015 6:20:21 PM AdaptedToolBarDemo getToolBarDemo
+INFO: > AdaptedToolBarDemo.getToolBarDemo()
+Apr 28, 2015 6:20:21 PM AdaptedToolBarDemo getToolBarDemo
+INFO: < AdaptedToolBarDemo.getToolBarDemo(AdaptedToolBarDemo@518126160)
+Could not log assertTrue,  exception : org.junit.Assert
+Apr 28, 2015 6:20:22 PM SanityChecker getEventHandler
+INFO: > SanityChecker.getEventHandler(AdaptedToolBarDemo@518126160)
+Apr 28, 2015 6:20:22 PM SwingEventHandler <init>
+INFO: > SwingEventHandler.SwingEventHandler(AdaptedToolBarDemo@518126160)
+Apr 28, 2015 6:20:22 PM SwingEventHandler <init>
+INFO: < SwingEventHandler.SwingEventHandler(SwingEventHandler@2010890340)
+Apr 28, 2015 6:20:22 PM SanityChecker getEventHandler
+INFO: < SanityChecker.getEventHandler(SwingEventHandler@2010890340)
+Apr 28, 2015 6:20:22 PM SwingEventHandler handleEvent
+INFO: > SwingEventHandler.handleEvent(SwingEventHandler@2010890340, "$Next.doClick()")
+Apr 28, 2015 6:20:22 PM SwingEventHandler getButton
+INFO: > SwingEventHandler.getButton(SwingEventHandler@2010890340, "$Next")
+Apr 28, 2015 6:20:22 PM SwingEventHandler getButton
+INFO: < SwingEventHandler.getButton(pasket.javax.swing.JButton@1955217984)
+Apr 28, 2015 6:20:22 PM SwingEventHandler getCommand
+INFO: > SwingEventHandler.getCommand(SwingEventHandler@2010890340, "$Next")
+Apr 28, 2015 6:20:22 PM SwingEventHandler getCommand
+INFO: < SwingEventHandler.getCommand("next")
+Apr 28, 2015 6:20:22 PM pasket.java.awt.event.ActionEvent <init>
+INFO: > pasket.java.awt.event.ActionEvent.ActionEvent(pasket.javax.swing.JButton@1955217984, 0, "next")
+Apr 28, 2015 6:20:22 PM pasket.java.awt.AWTEvent <init>
+INFO: > pasket.java.awt.AWTEvent.AWTEvent(pasket.javax.swing.JButton@1955217984, 0)
+Apr 28, 2015 6:20:22 PM pasket.java.util.EventObject <init>
+INFO: > pasket.java.util.EventObject.EventObject(pasket.javax.swing.JButton@1955217984)
+Apr 28, 2015 6:20:22 PM pasket.java.util.EventObject <init>
+INFO: < pasket.java.util.EventObject.EventObject(pasket.java.awt.event.ActionEvent@1121114311)
+Apr 28, 2015 6:20:22 PM pasket.java.awt.AWTEvent <init>
+INFO: < pasket.java.awt.AWTEvent.AWTEvent(pasket.java.awt.event.ActionEvent@1121114311)
+Apr 28, 2015 6:20:22 PM pasket.java.awt.event.ActionEvent <init>
+INFO: < pasket.java.awt.event.ActionEvent.ActionEvent(pasket.java.awt.event.ActionEvent@1121114311)
+Apr 28, 2015 6:20:22 PM pasket.javax.swing.AbstractButton dispatchEvent
+INFO: > pasket.javax.swing.AbstractButton.dispatchEvent(pasket.javax.swing.JButton@1955217984, pasket.java.awt.event.ActionEvent@1121114311)
+Apr 28, 2015 6:20:22 PM AdaptedToolBarDemo actionPerformed
+INFO: > AdaptedToolBarDemo.actionPerformed(AdaptedToolBarDemo@518126160, pasket.java.awt.event.ActionEvent@1121114311)
+Apr 28, 2015 6:20:22 PM pasket.java.awt.event.ActionEvent getActionCommand
+INFO: > pasket.java.awt.event.ActionEvent.getActionCommand(pasket.java.awt.event.ActionEvent@1121114311)
+Apr 28, 2015 6:20:22 PM pasket.java.awt.event.ActionEvent getActionCommand
+INFO: < pasket.java.awt.event.ActionEvent.getActionCommand("next")
+Apr 28, 2015 6:20:22 PM AdaptedToolBarDemo displayResult
+INFO: > AdaptedToolBarDemo.displayResult(AdaptedToolBarDemo@518126160, "taken you to the next <something>.")
+Apr 28, 2015 6:20:22 PM pasket.javax.swing.JTextArea append
+INFO: > pasket.javax.swing.JTextArea.append(pasket.javax.swing.JTextArea@1418513383, "taken you to the next <something>.")
+Apr 28, 2015 6:20:22 PM pasket.javax.swing.text.JTextComponent setText
+INFO: > pasket.javax.swing.text.JTextComponent.setText(pasket.javax.swing.JTextArea@1418513383, "taken you to the next <something>.")
+Apr 28, 2015 6:20:22 PM pasket.javax.swing.text.JTextComponent setText
+INFO: < pasket.javax.swing.text.JTextComponent.setText()
+Apr 28, 2015 6:20:22 PM pasket.javax.swing.JTextArea append
+INFO: < pasket.javax.swing.JTextArea.append()
+Apr 28, 2015 6:20:22 PM AdaptedToolBarDemo displayResult
+INFO: < AdaptedToolBarDemo.displayResult()
+Apr 28, 2015 6:20:22 PM AdaptedToolBarDemo actionPerformed
+INFO: < AdaptedToolBarDemo.actionPerformed()
+Apr 28, 2015 6:20:22 PM pasket.javax.swing.AbstractButton dispatchEvent
+INFO: < pasket.javax.swing.AbstractButton.dispatchEvent()
+Apr 28, 2015 6:20:22 PM SwingEventHandler handleEvent
+INFO: < SwingEventHandler.handleEvent()
+Apr 28, 2015 6:20:22 PM SwingEventHandler handleEvent
+INFO: > SwingEventHandler.handleEvent(SwingEventHandler@2010890340, "$Previous.doClick()")
+Apr 28, 2015 6:20:22 PM SwingEventHandler getButton
+INFO: > SwingEventHandler.getButton(SwingEventHandler@2010890340, "$Previous")
+Apr 28, 2015 6:20:22 PM SwingEventHandler getButton
+INFO: < SwingEventHandler.getButton(pasket.javax.swing.JButton@878101666)
+Apr 28, 2015 6:20:22 PM SwingEventHandler getCommand
+INFO: > SwingEventHandler.getCommand(SwingEventHandler@2010890340, "$Previous")
+Apr 28, 2015 6:20:22 PM SwingEventHandler getCommand
+INFO: < SwingEventHandler.getCommand("previous")
+Apr 28, 2015 6:20:22 PM pasket.java.awt.event.ActionEvent <init>
+INFO: > pasket.java.awt.event.ActionEvent.ActionEvent(pasket.javax.swing.JButton@878101666, 0, "previous")
+Apr 28, 2015 6:20:22 PM pasket.java.awt.AWTEvent <init>
+INFO: > pasket.java.awt.AWTEvent.AWTEvent(pasket.javax.swing.JButton@878101666, 0)
+Apr 28, 2015 6:20:22 PM pasket.java.util.EventObject <init>
+INFO: > pasket.java.util.EventObject.EventObject(pasket.javax.swing.JButton@878101666)
+Apr 28, 2015 6:20:22 PM pasket.java.util.EventObject <init>
+INFO: < pasket.java.util.EventObject.EventObject(pasket.java.awt.event.ActionEvent@1377432416)
+Apr 28, 2015 6:20:22 PM pasket.java.awt.AWTEvent <init>
+INFO: < pasket.java.awt.AWTEvent.AWTEvent(pasket.java.awt.event.ActionEvent@1377432416)
+Apr 28, 2015 6:20:22 PM pasket.java.awt.event.ActionEvent <init>
+INFO: < pasket.java.awt.event.ActionEvent.ActionEvent(pasket.java.awt.event.ActionEvent@1377432416)
+Apr 28, 2015 6:20:22 PM pasket.javax.swing.AbstractButton dispatchEvent
+INFO: > pasket.javax.swing.AbstractButton.dispatchEvent(pasket.javax.swing.JButton@878101666, pasket.java.awt.event.ActionEvent@1377432416)
+Apr 28, 2015 6:20:22 PM AdaptedToolBarDemo actionPerformed
+INFO: > AdaptedToolBarDemo.actionPerformed(AdaptedToolBarDemo@518126160, pasket.java.awt.event.ActionEvent@1377432416)
+Apr 28, 2015 6:20:22 PM pasket.java.awt.event.ActionEvent getActionCommand
+INFO: > pasket.java.awt.event.ActionEvent.getActionCommand(pasket.java.awt.event.ActionEvent@1377432416)
+Apr 28, 2015 6:20:22 PM pasket.java.awt.event.ActionEvent getActionCommand
+INFO: < pasket.java.awt.event.ActionEvent.getActionCommand("previous")
+Apr 28, 2015 6:20:22 PM AdaptedToolBarDemo displayResult
+INFO: > AdaptedToolBarDemo.displayResult(AdaptedToolBarDemo@518126160, "taken you to the previous <something>.")
+Apr 28, 2015 6:20:22 PM pasket.javax.swing.JTextArea append
+INFO: > pasket.javax.swing.JTextArea.append(pasket.javax.swing.JTextArea@1418513383, "taken you to the previous <something>.")
+Apr 28, 2015 6:20:22 PM pasket.javax.swing.text.JTextComponent setText
+INFO: > pasket.javax.swing.text.JTextComponent.setText(pasket.javax.swing.JTextArea@1418513383, "taken you to the previous <something>.")
+Apr 28, 2015 6:20:22 PM pasket.javax.swing.text.JTextComponent setText
+INFO: < pasket.javax.swing.text.JTextComponent.setText()
+Apr 28, 2015 6:20:22 PM pasket.javax.swing.JTextArea append
+INFO: < pasket.javax.swing.JTextArea.append()
+Apr 28, 2015 6:20:22 PM AdaptedToolBarDemo displayResult
+INFO: < AdaptedToolBarDemo.displayResult()
+Apr 28, 2015 6:20:22 PM AdaptedToolBarDemo actionPerformed
+INFO: < AdaptedToolBarDemo.actionPerformed()
+Apr 28, 2015 6:20:22 PM pasket.javax.swing.AbstractButton dispatchEvent
+INFO: < pasket.javax.swing.AbstractButton.dispatchEvent()
+Apr 28, 2015 6:20:22 PM SwingEventHandler handleEvent
+INFO: < SwingEventHandler.handleEvent()
+Apr 28, 2015 6:20:22 PM Main simulate
+INFO: < Main.simulate()
+Apr 28, 2015 6:20:22 PM Main main
+INFO: < Main.main()
+Stop at Tue Apr 28 18:20:22 EDT 2015

@@ -19,7 +19,7 @@ class SwingEventHandler implements EventHandler {
         if (line.endsWith("doClick()")) {
             String action = line.substring(0, line.indexOf("."));
             JCheckBox temp = getCheckBox(action);
-            ItemEvent evt = new ItemEvent(temp, 0, null, 2);
+            ItemEvent evt = new ItemEvent(temp, 0, null, 1);
             /*
             ActionListener[] listeners = temp.getActionListeners();
             for (int i = 0; i < listeners.length; i++) {
@@ -76,7 +76,7 @@ public class SanityChecker {
         Queue<String> records = getInfo(temp, demo);
         if (records == null)
             return;
-        temp.delete();
+        //temp.delete();
         
         
         File[] samples = smpl_dir.toFile().listFiles();
@@ -216,7 +216,7 @@ public class SanityChecker {
     public Queue<String> getInfo(File f, String pattern)
     throws FileNotFoundException {
         Queue<String> output = new ArrayDeque<String>();
-        
+       
         Scanner sc = new Scanner(f);
         while (sc.hasNextLine()) {
             String curr = sc.nextLine();

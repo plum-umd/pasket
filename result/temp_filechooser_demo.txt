@@ -1,0 +1,231 @@
+Start at Tue Apr 28 19:58:39 EDT 2015
+Apr 28, 2015 7:58:40 PM Main main
+INFO: > Main.main([/afs/csail.mit.edu/u/x/xkqiu/git/pasket/result/java/filechooser_demo_1.es])
+Apr 28, 2015 7:58:40 PM Main simulate
+INFO: > Main.simulate("/afs/csail.mit.edu/u/x/xkqiu/git/pasket/result/java/filechooser_demo_1.es")
+Apr 28, 2015 7:58:40 PM AdaptedFileChooserDemo main
+INFO: > AdaptedFileChooserDemo.main()
+Apr 28, 2015 7:58:40 PM AdaptedFileChooserDemo createAndShowGUI
+INFO: > AdaptedFileChooserDemo.createAndShowGUI()
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JFrame@1040512666)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.JFrame setDefaultCloseOperation
+INFO: > pasket.javax.swing.JFrame.setDefaultCloseOperation(pasket.javax.swing.JFrame@1040512666, 3)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.JFrame setDefaultCloseOperation
+INFO: < pasket.javax.swing.JFrame.setDefaultCloseOperation()
+Apr 28, 2015 7:58:40 PM AdaptedFileChooserDemo <init>
+INFO: > AdaptedFileChooserDemo.AdaptedFileChooserDemo()
+Apr 28, 2015 7:58:40 PM pasket.java.awt.BorderLayout <init>
+INFO: > pasket.java.awt.BorderLayout.BorderLayout()
+Apr 28, 2015 7:58:40 PM pasket.java.awt.BorderLayout <init>
+INFO: < pasket.java.awt.BorderLayout.BorderLayout(pasket.java.awt.BorderLayout@138459732)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(AdaptedFileChooserDemo@1920227426)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.text.JTextComponent <init>
+INFO: > pasket.javax.swing.text.JTextComponent.JTextComponent()
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JTextArea@1445130383)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.text.AbstractDocument <init>
+INFO: > pasket.javax.swing.text.AbstractDocument.AbstractDocument()
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.text.AbstractDocument <init>
+INFO: < pasket.javax.swing.text.AbstractDocument.AbstractDocument(pasket.javax.swing.text.PlainDocument@1724482638)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Insets <init>
+INFO: > pasket.java.awt.Insets.Insets(0, 0, 0, 0)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Insets <init>
+INFO: < pasket.java.awt.Insets.Insets(pasket.java.awt.Insets@898502521)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.text.DefaultHighlighter <init>
+INFO: > pasket.javax.swing.text.DefaultHighlighter.DefaultHighlighter()
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.text.DefaultHighlighter <init>
+INFO: < pasket.javax.swing.text.DefaultHighlighter.DefaultHighlighter(pasket.javax.swing.text.DefaultHighlighter@780877208)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.text.JTextComponent <init>
+INFO: < pasket.javax.swing.text.JTextComponent.JTextComponent(pasket.javax.swing.JTextArea@1445130383)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Insets <init>
+INFO: > pasket.java.awt.Insets.Insets(5, 5, 5, 5)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Insets <init>
+INFO: < pasket.java.awt.Insets.Insets(pasket.java.awt.Insets@930668039)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.text.JTextComponent setMargin
+INFO: > pasket.javax.swing.text.JTextComponent.setMargin(pasket.javax.swing.JTextArea@1445130383, pasket.java.awt.Insets@930668039)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.text.JTextComponent setMargin
+INFO: < pasket.javax.swing.text.JTextComponent.setMargin()
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.text.JTextComponent setEditable
+INFO: > pasket.javax.swing.text.JTextComponent.setEditable(pasket.javax.swing.JTextArea@1445130383, false)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.text.JTextComponent setEditable
+INFO: < pasket.javax.swing.text.JTextComponent.setEditable()
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JScrollPane@742166006)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JFileChooser@2066687094)
+Apr 28, 2015 7:58:40 PM AdaptedFileChooserDemo createImageIcon
+INFO: > AdaptedFileChooserDemo.createImageIcon("images/Open16.gif")
+Apr 28, 2015 7:58:40 PM AdaptedFileChooserDemo createImageIcon
+INFO: < AdaptedFileChooserDemo.createImageIcon(null)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.AbstractButton <init>
+INFO: > pasket.javax.swing.AbstractButton.AbstractButton()
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JButton@660544576)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.AbstractButton <init>
+INFO: < pasket.javax.swing.AbstractButton.AbstractButton(pasket.javax.swing.JButton@660544576)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.AbstractButton setActionCommand
+INFO: > pasket.javax.swing.AbstractButton.setActionCommand(pasket.javax.swing.JButton@660544576, "Open a File...")
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.AbstractButton setActionCommand
+INFO: < pasket.javax.swing.AbstractButton.setActionCommand()
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: > pasket.javax.swing.AbstractButton.addActionListener(pasket.javax.swing.JButton@660544576, AdaptedFileChooserDemo@1920227426)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: < pasket.javax.swing.AbstractButton.addActionListener()
+Apr 28, 2015 7:58:40 PM AdaptedFileChooserDemo createImageIcon
+INFO: > AdaptedFileChooserDemo.createImageIcon("images/Save16.gif")
+Apr 28, 2015 7:58:40 PM AdaptedFileChooserDemo createImageIcon
+INFO: < AdaptedFileChooserDemo.createImageIcon(null)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.AbstractButton <init>
+INFO: > pasket.javax.swing.AbstractButton.AbstractButton()
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JButton@1429717489)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.AbstractButton <init>
+INFO: < pasket.javax.swing.AbstractButton.AbstractButton(pasket.javax.swing.JButton@1429717489)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.AbstractButton setActionCommand
+INFO: > pasket.javax.swing.AbstractButton.setActionCommand(pasket.javax.swing.JButton@1429717489, "Save a File...")
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.AbstractButton setActionCommand
+INFO: < pasket.javax.swing.AbstractButton.setActionCommand()
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: > pasket.javax.swing.AbstractButton.addActionListener(pasket.javax.swing.JButton@1429717489, AdaptedFileChooserDemo@1920227426)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: < pasket.javax.swing.AbstractButton.addActionListener()
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JPanel@370787989)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JPanel@370787989, pasket.javax.swing.JButton@660544576)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JButton@660544576)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JPanel@370787989, pasket.javax.swing.JButton@1429717489)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JButton@1429717489)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(AdaptedFileChooserDemo@1920227426, pasket.javax.swing.JPanel@370787989)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JPanel@370787989)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(AdaptedFileChooserDemo@1920227426, pasket.javax.swing.JScrollPane@742166006)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JScrollPane@742166006)
+Apr 28, 2015 7:58:40 PM AdaptedFileChooserDemo <init>
+INFO: < AdaptedFileChooserDemo.AdaptedFileChooserDemo(AdaptedFileChooserDemo@1920227426)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JFrame@1040512666, AdaptedFileChooserDemo@1920227426)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(AdaptedFileChooserDemo@1920227426)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Window pack
+INFO: > pasket.java.awt.Window.pack(pasket.javax.swing.JFrame@1040512666)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Window pack
+INFO: < pasket.java.awt.Window.pack()
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Component setVisible
+INFO: > pasket.java.awt.Component.setVisible(pasket.javax.swing.JFrame@1040512666, true)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.Component setVisible
+INFO: < pasket.java.awt.Component.setVisible()
+Apr 28, 2015 7:58:40 PM AdaptedFileChooserDemo createAndShowGUI
+INFO: < AdaptedFileChooserDemo.createAndShowGUI()
+Apr 28, 2015 7:58:40 PM AdaptedFileChooserDemo main
+INFO: < AdaptedFileChooserDemo.main()
+Apr 28, 2015 7:58:40 PM AdaptedFileChooserDemo getFileChooserDemo
+INFO: > AdaptedFileChooserDemo.getFileChooserDemo()
+Apr 28, 2015 7:58:40 PM AdaptedFileChooserDemo getFileChooserDemo
+INFO: < AdaptedFileChooserDemo.getFileChooserDemo(AdaptedFileChooserDemo@1920227426)
+Could not log assertTrue,  exception : org.junit.Assert
+Apr 28, 2015 7:58:40 PM SanityChecker getEventHandler
+INFO: > SanityChecker.getEventHandler(AdaptedFileChooserDemo@1920227426)
+Apr 28, 2015 7:58:40 PM SwingEventHandler <init>
+INFO: > SwingEventHandler.SwingEventHandler(AdaptedFileChooserDemo@1920227426)
+Apr 28, 2015 7:58:40 PM SwingEventHandler <init>
+INFO: < SwingEventHandler.SwingEventHandler(SwingEventHandler@661063884)
+Apr 28, 2015 7:58:40 PM SanityChecker getEventHandler
+INFO: < SanityChecker.getEventHandler(SwingEventHandler@661063884)
+Apr 28, 2015 7:58:40 PM SwingEventHandler handleEvent
+INFO: > SwingEventHandler.handleEvent(SwingEventHandler@661063884, "$Open.doClick()")
+Apr 28, 2015 7:58:40 PM SwingEventHandler getButton
+INFO: > SwingEventHandler.getButton(SwingEventHandler@661063884, "$Open")
+Apr 28, 2015 7:58:40 PM SwingEventHandler getButton
+INFO: < SwingEventHandler.getButton(pasket.javax.swing.JButton@660544576)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.AbstractButton getActionCommand
+INFO: > pasket.javax.swing.AbstractButton.getActionCommand(pasket.javax.swing.JButton@660544576)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.AbstractButton getActionCommand
+INFO: < pasket.javax.swing.AbstractButton.getActionCommand("Open a File...")
+Apr 28, 2015 7:58:40 PM pasket.java.awt.event.ActionEvent <init>
+INFO: > pasket.java.awt.event.ActionEvent.ActionEvent(pasket.javax.swing.JButton@660544576, 0, "Open a File...")
+Apr 28, 2015 7:58:40 PM pasket.java.awt.AWTEvent <init>
+INFO: > pasket.java.awt.AWTEvent.AWTEvent(pasket.javax.swing.JButton@660544576, 0)
+Apr 28, 2015 7:58:40 PM pasket.java.util.EventObject <init>
+INFO: > pasket.java.util.EventObject.EventObject(pasket.javax.swing.JButton@660544576)
+Apr 28, 2015 7:58:40 PM pasket.java.util.EventObject <init>
+INFO: < pasket.java.util.EventObject.EventObject(pasket.java.awt.event.ActionEvent@263476109)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.AWTEvent <init>
+INFO: < pasket.java.awt.AWTEvent.AWTEvent(pasket.java.awt.event.ActionEvent@263476109)
+Apr 28, 2015 7:58:40 PM pasket.java.awt.event.ActionEvent <init>
+INFO: < pasket.java.awt.event.ActionEvent.ActionEvent(pasket.java.awt.event.ActionEvent@263476109)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.AbstractButton dispatchEvent
+INFO: > pasket.javax.swing.AbstractButton.dispatchEvent(pasket.javax.swing.JButton@660544576, pasket.java.awt.event.ActionEvent@263476109)
+Apr 28, 2015 7:58:40 PM AdaptedFileChooserDemo actionPerformed
+INFO: > AdaptedFileChooserDemo.actionPerformed(AdaptedFileChooserDemo@1920227426, pasket.java.awt.event.ActionEvent@263476109)
+Apr 28, 2015 7:58:40 PM pasket.java.util.EventObject getSource
+INFO: > pasket.java.util.EventObject.getSource(pasket.java.awt.event.ActionEvent@263476109)
+Apr 28, 2015 7:58:40 PM pasket.java.util.EventObject getSource
+INFO: < pasket.java.util.EventObject.getSource(pasket.javax.swing.JButton@660544576)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.JFileChooser showOpenDialog
+INFO: > pasket.javax.swing.JFileChooser.showOpenDialog(pasket.javax.swing.JFileChooser@2066687094, AdaptedFileChooserDemo@1920227426)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.JFileChooser setDialogType
+INFO: > pasket.javax.swing.JFileChooser.setDialogType(pasket.javax.swing.JFileChooser@2066687094, 0)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.JFileChooser setDialogType
+INFO: < pasket.javax.swing.JFileChooser.setDialogType()
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.JFileChooser showDialog
+INFO: > pasket.javax.swing.JFileChooser.showDialog(pasket.javax.swing.JFileChooser@2066687094, AdaptedFileChooserDemo@1920227426, "")
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.JFileChooser showDialog
+INFO: < pasket.javax.swing.JFileChooser.showDialog(1)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.JFileChooser showOpenDialog
+INFO: < pasket.javax.swing.JFileChooser.showOpenDialog(1)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.JTextArea append
+INFO: > pasket.javax.swing.JTextArea.append(pasket.javax.swing.JTextArea@1445130383, "Open command cancelled by user.")
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.text.JTextComponent setText
+INFO: > pasket.javax.swing.text.JTextComponent.setText(pasket.javax.swing.JTextArea@1445130383, "Open command cancelled by user.")
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.text.JTextComponent setText
+INFO: < pasket.javax.swing.text.JTextComponent.setText()
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.JTextArea append
+INFO: < pasket.javax.swing.JTextArea.append()
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.text.JTextComponent getDocument
+INFO: > pasket.javax.swing.text.JTextComponent.getDocument(pasket.javax.swing.JTextArea@1445130383)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.text.JTextComponent getDocument
+INFO: < pasket.javax.swing.text.JTextComponent.getDocument(pasket.javax.swing.text.PlainDocument@1724482638)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.text.AbstractDocument getLength
+INFO: > pasket.javax.swing.text.AbstractDocument.getLength(pasket.javax.swing.text.PlainDocument@1724482638)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.text.AbstractDocument getLength
+INFO: < pasket.javax.swing.text.AbstractDocument.getLength(0)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.text.JTextComponent setCaretPosition
+INFO: > pasket.javax.swing.text.JTextComponent.setCaretPosition(pasket.javax.swing.JTextArea@1445130383, 0)
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.text.JTextComponent setCaretPosition
+INFO: < pasket.javax.swing.text.JTextComponent.setCaretPosition()
+Apr 28, 2015 7:58:40 PM AdaptedFileChooserDemo actionPerformed
+INFO: < AdaptedFileChooserDemo.actionPerformed()
+Apr 28, 2015 7:58:40 PM pasket.javax.swing.AbstractButton dispatchEvent
+INFO: < pasket.javax.swing.AbstractButton.dispatchEvent()
+Apr 28, 2015 7:58:40 PM SwingEventHandler handleEvent
+INFO: < SwingEventHandler.handleEvent()
+Apr 28, 2015 7:58:40 PM Main simulate
+INFO: < Main.simulate()
+Apr 28, 2015 7:58:40 PM Main main
+INFO: < Main.main()
+Stop at Tue Apr 28 19:58:40 EDT 2015

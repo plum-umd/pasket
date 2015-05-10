@@ -71,8 +71,14 @@ class SampleProcessor {
         l = l.replaceAll("tutorial.", "swings.");
         l = l.replaceAll("javax.swing.colorchooser.ColorSelectionModel", "javax.swing.colorchooser.DefaultColorSelectionModel");
         l = l.replaceAll("javax.swing.text.Document.getLength", "javax.swing.text.AbstractDocument.getLength");
-	l = l.replaceAll("java.util.EventObject.getSource", "java.awt.event.ActionEvent.getSource");
-        
+	//l = l.replaceAll("java.util.EventObject.getSource", "java.awt.event.ActionEvent.getSource");
+
+	l = l.replaceAll("javax.swing.JMenu\\$AccessibleJMenu", "javax.accessibility.AccessibleContext");
+	l = l.replaceAll("javax.swing.JMenuItem\\$AccessibleJMenuItem", "javax.accessibility.AccessibleContext");
+	l = l.replaceAll("javax.swing.JMenuBar.add", "java.awt.Container.add");        
+	l = l.replaceAll("javax.swing.JMenu.add", "java.awt.Container.add");        
+	//l = l.replaceAll("java.awt.Container.addSeparator", "javax.swing.JMenuItem.addSeparator");
+
         return l;
     }
 }

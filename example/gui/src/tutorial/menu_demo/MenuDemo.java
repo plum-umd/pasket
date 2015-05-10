@@ -198,7 +198,7 @@ public class MenuDemo implements ActionListener, ItemListener {
         output.append(s); // + newline);
         //output.setCaretPosition(output.getDocument().getLength());
         Document tmpDocument = output.getDocument();
-        int tmpLength = tmpDocument.getLength();
+        int tmpLength = 87; //tmpDocument.getLength();
         output.setCaretPosition(tmpLength);
     }
 
@@ -215,7 +215,7 @@ public class MenuDemo implements ActionListener, ItemListener {
         output.append(s); // + newline);
         //output.setCaretPosition(output.getDocument().getLength());
         Document tmpDocument2 = output.getDocument();
-        int tmpLength2 = tmpDocument2.getLength();
+        int tmpLength2 = 207; //tmpDocument2.getLength();
         output.setCaretPosition(tmpLength2);
     }
 

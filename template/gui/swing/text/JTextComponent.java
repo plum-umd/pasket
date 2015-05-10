@@ -12,6 +12,7 @@ public abstract class JTextComponent extends JComponent {
   public String getText();
   public void setText(String t);
 
+  public boolean isEditable();
   public void setEditable(boolean b);
 
   public Insets getMargin();

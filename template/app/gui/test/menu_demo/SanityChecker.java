@@ -16,10 +16,10 @@ class SwingEventHandler implements EventHandler {
     }
     
     public void handleEvent (String line) {
-        if (line.contains("selectAny")) {
+        if (line.contains("Both_text_and_icon")) {
             String action = line.substring(0, line.indexOf("."));
-            JMenuItem temp = demo.menuItem;
-            ActionEvent evt = new ActionEvent(temp, 0, "Both text and icon");
+            JMenuItem temp = demo.btai;
+            ActionEvent evt = new ActionEvent(temp, 0, "Both_text_and_icon");
             /*
             ActionListener[] listeners = temp.getActionListeners();
             for (int i = 0; i < listeners.length; i++) {
@@ -27,10 +27,10 @@ class SwingEventHandler implements EventHandler {
             }*/
             temp.dispatchEvent(evt);
         }
-	else if (line.contains("selny")) {
+	else if (line.contains("A_check_box_menu_item")) {
             String action = line.substring(0, line.indexOf("."));
-            JCheckBoxMenuItem temp = cbMenuItem;
-            ItemEvent evt = new ItemEvent(temp, 0, null);
+            JCheckBoxMenuItem temp = demo.acbmi;
+            ItemEvent evt = new ItemEvent(temp, 0, null, 2);
             /*
             ActionListener[] listeners = temp.getActionListeners();
             for (int i = 0; i < listeners.length; i++) {
@@ -43,14 +43,13 @@ class SwingEventHandler implements EventHandler {
     }
     
     private JMenu getMenu(String command) {
-        if (command.equals("$Pet:list")) return demo.menu;
-        else return null;
+        return null;
     }
 }
 
 public class SanityChecker {
     static SwingEventHandler seh;
-    public static SwingEventHandler getEventHandler(AdaptedComboBoxDemo cbd) {
+    public static SwingEventHandler getEventHandler(AdaptedMenuDemo cbd) {
         if (seh == null)
             seh = new SwingEventHandler(cbd);
         return seh;
@@ -77,7 +76,7 @@ public class SanityChecker {
         loggerBuilder.directory(new File("."));
         //loggerBuilder.inheritIO();
         //loggerBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-        File temp = new File("temp_combobox_demo.txt");
+        File temp = new File("temp_menu_demo.txt");
         loggerBuilder.redirectError(temp);
         Process logger = loggerBuilder.start();
         logger.waitFor();

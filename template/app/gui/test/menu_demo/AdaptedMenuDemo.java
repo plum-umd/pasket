@@ -60,6 +60,9 @@ public class AdaptedMenuDemo implements ActionListener, ItemListener {
     JTextArea output;
     JScrollPane scrollPane;
     String newline = "\n";
+
+    JMenuItem btai;
+    JCheckBoxMenuItem acbmi;
     
     public AdaptedMenuDemo() {
         output = null;
@@ -78,7 +81,7 @@ public class AdaptedMenuDemo implements ActionListener, ItemListener {
         menuBar = new JMenuBar();
 
         //Build the first menu.
-        menu = new JMenu("A Menu");
+        menu = new JMenu("A_Menu");
         menu.setMnemonic(KeyEvent.VK_A);
         /*menu.getAccessibleContext().setAccessibleDescription(
                 "The only menu in this program that has menu items");*/
@@ -87,7 +90,7 @@ public class AdaptedMenuDemo implements ActionListener, ItemListener {
         menuBar.add(menu);
 
         //a group of JMenuItems
-        menuItem = new JMenuItem("A text-only menu item",
+        menuItem = new JMenuItem("A_text-only_menu_item",
                                  KeyEvent.VK_T);
         //menuItem.setMnemonic(KeyEvent.VK_T); //used constructor instead
         /*menuItem.setAccelerator(KeyStroke.getKeyStroke(
@@ -102,10 +105,11 @@ public class AdaptedMenuDemo implements ActionListener, ItemListener {
         menu.add(menuItem);
 
         ImageIcon icon = createImageIcon("images/middle.gif");
-        menuItem = new JMenuItem("Both text and icon", icon);
+        menuItem = new JMenuItem("Both_text_and_icon", icon);
         menuItem.setMnemonic(KeyEvent.VK_B);
         menuItem.addActionListener(this);
         menu.add(menuItem);
+        btai = menuItem;
 
         menuItem = new JMenuItem(icon);
         menuItem.setMnemonic(KeyEvent.VK_D);
@@ -116,14 +120,14 @@ public class AdaptedMenuDemo implements ActionListener, ItemListener {
         menu.addSeparator();
         ButtonGroup group = new ButtonGroup();
 
-        rbMenuItem = new JRadioButtonMenuItem("A radio button menu item");
+        rbMenuItem = new JRadioButtonMenuItem("A_radio_button_menu_item");
         rbMenuItem.setSelected(true);
         rbMenuItem.setMnemonic(KeyEvent.VK_R);
         group.add(rbMenuItem);
         rbMenuItem.addActionListener(this);
         menu.add(rbMenuItem);
 
-        rbMenuItem = new JRadioButtonMenuItem("Another one");
+        rbMenuItem = new JRadioButtonMenuItem("Another_one");
         rbMenuItem.setMnemonic(KeyEvent.VK_O);
         group.add(rbMenuItem);
         rbMenuItem.addActionListener(this);
@@ -131,22 +135,23 @@ public class AdaptedMenuDemo implements ActionListener, ItemListener {
 
         //a group of check box menu items
         menu.addSeparator();
-        cbMenuItem = new JCheckBoxMenuItem("A check box menu item");
+        cbMenuItem = new JCheckBoxMenuItem("A_check_box_menu_item");
         cbMenuItem.setMnemonic(KeyEvent.VK_C);
         cbMenuItem.addItemListener(this);
         menu.add(cbMenuItem);
+	acbmi = cbMenuItem;
 
-        cbMenuItem = new JCheckBoxMenuItem("Another one");
+        cbMenuItem = new JCheckBoxMenuItem("Another_one");
         cbMenuItem.setMnemonic(KeyEvent.VK_H);
         cbMenuItem.addItemListener(this);
         menu.add(cbMenuItem);
 
         //a submenu
         menu.addSeparator();
-        submenu = new JMenu("A submenu");
+        submenu = new JMenu("A_submenu");
         submenu.setMnemonic(KeyEvent.VK_S);
 
-        menuItem = new JMenuItem("An item in the submenu");
+        menuItem = new JMenuItem("An_item_in_the_submenu");
         /*menuItem.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_2, ActionEvent.ALT_MASK));*/
         KeyStroke tmpStroke2 = KeyStroke.getKeyStroke(
@@ -155,13 +160,13 @@ public class AdaptedMenuDemo implements ActionListener, ItemListener {
         menuItem.addActionListener(this);
         submenu.add(menuItem);
 
-        menuItem = new JMenuItem("Another item");
+        menuItem = new JMenuItem("Another_item");
         menuItem.addActionListener(this);
         submenu.add(menuItem);
         menu.add(submenu);
 
         //Build second menu in the menu bar.
-        menu = new JMenu("Another Menu");
+        menu = new JMenu("Another_Menu");
         menu.setMnemonic(KeyEvent.VK_N);
         /*menu.getAccessibleContext().setAccessibleDescription(
                 "This menu does nothing");*/
@@ -199,8 +204,9 @@ public class AdaptedMenuDemo implements ActionListener, ItemListener {
         output.append(s); // + newline);
         //output.setCaretPosition(output.getDocument().getLength());
         Document tmpDocument = output.getDocument();
-        int tmpLength = tmpDocument.getLength();
-        output.setCaretPosition(tmpLength);
+        //int tmpLength = tmpDocument.getLength();
+        //output.setCaretPosition(tmpLength);
+        output.setCaretPosition(87);
     }
 
     public void itemStateChanged(ItemEvent e) {
@@ -216,8 +222,9 @@ public class AdaptedMenuDemo implements ActionListener, ItemListener {
         output.append(s); // + newline);
         //output.setCaretPosition(output.getDocument().getLength());
         Document tmpDocument2 = output.getDocument();
-        int tmpLength2 = tmpDocument2.getLength();
-        output.setCaretPosition(tmpLength2);
+        //int tmpLength2 = tmpDocument2.getLength();
+        //output.setCaretPosition(tmpLength2);
+        output.setCaretPosition(207);
     }
 
     // Returns just the class name -- no package info.
@@ -252,17 +259,19 @@ public class AdaptedMenuDemo implements ActionListener, ItemListener {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //Create and set up the content pane.
-        AdaptedMenuDemo demo = new AdaptedMenuDemo();
+        AdaptedMenuDemo mdd = new AdaptedMenuDemo();
         //frame.setJMenuBar(demo.createMenuBar());
-        JMenuBar tmpBar = demo.createMenuBar();
+        JMenuBar tmpBar = mdd.createMenuBar();
         frame.setJMenuBar(tmpBar);
         //frame.setContentPane(demo.createContentPane());
-        Container tmpPane = demo.createContentPane();
+        Container tmpPane = mdd.createContentPane();
         frame.setContentPane(tmpPane);
 
         //Display the window.
         frame.setSize(450, 260);
         frame.setVisible(true);
+
+	md = mdd;
     }
 
     public static void main() {

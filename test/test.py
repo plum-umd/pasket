@@ -79,6 +79,7 @@ class TestPatterns(unittest.TestCase):
 
         pasket.no_encoding()
         pasket.no_sketch()
+        pasket.all_swing()
         pasket.main(p, smpl, tmpl, names, res_dir)
         
         # Copy java directory to pasket directory

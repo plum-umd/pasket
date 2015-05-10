@@ -4,7 +4,7 @@ import lib.const as C
 acc_default = [
   C.GUI.TOOL, # EventQueue
   "JColorChooser", # ColorSelectionModel
-  "JTextComponent", # Document
+  #"JTextComponent", # Document
   "JMenuItem", "JMenu" # AccessibleContext
 ]
 
@@ -19,6 +19,9 @@ acc_conf_uni = {
   "ListSelectionEvent": (4, 3, 0), # get((First|Last)Index|ValueIsAdjusting)
 
   "AbstractButton": (-1, 1, 1), # (get|set)ActionCommand
+
+  "JTextComponent": (-1, 4, 4), #(get|set)(Document|Editable|CaretPosition)
+  #"Document": (-1, 1, 0), #getLength
 }
 
 # configuration for the accessor pattern (of Map<K,V> type)

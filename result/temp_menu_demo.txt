@@ -1,0 +1,643 @@
+Start at Sat May 09 19:28:05 EDT 2015
+May 09, 2015 7:28:05 PM Main main
+INFO: > Main.main([/afs/csail.mit.edu/u/x/xkqiu/git/pasket/result/java/menu_demo_1.es])
+May 09, 2015 7:28:05 PM Main simulate
+INFO: > Main.simulate("/afs/csail.mit.edu/u/x/xkqiu/git/pasket/result/java/menu_demo_1.es")
+May 09, 2015 7:28:05 PM AdaptedMenuDemo main
+INFO: > AdaptedMenuDemo.main()
+May 09, 2015 7:28:05 PM AdaptedMenuDemo createAndShowGUI
+INFO: > AdaptedMenuDemo.createAndShowGUI()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JFrame@656552001)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JFrame setDefaultCloseOperation
+INFO: > pasket.javax.swing.JFrame.setDefaultCloseOperation(pasket.javax.swing.JFrame@656552001, 3)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JFrame setDefaultCloseOperation
+INFO: < pasket.javax.swing.JFrame.setDefaultCloseOperation()
+May 09, 2015 7:28:05 PM AdaptedMenuDemo <init>
+INFO: > AdaptedMenuDemo.AdaptedMenuDemo()
+May 09, 2015 7:28:05 PM AdaptedMenuDemo <init>
+INFO: < AdaptedMenuDemo.AdaptedMenuDemo(AdaptedMenuDemo@26864743)
+May 09, 2015 7:28:05 PM AdaptedMenuDemo createMenuBar
+INFO: > AdaptedMenuDemo.createMenuBar(AdaptedMenuDemo@26864743)
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JMenuBar@1875299991)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenu <init>
+INFO: > pasket.javax.swing.JMenu.JMenu("A_Menu")
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: > pasket.javax.swing.JMenuItem.JMenuItem("A_Menu")
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: > pasket.javax.swing.AbstractButton.AbstractButton()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JMenu@1958285852)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: < pasket.javax.swing.AbstractButton.AbstractButton(pasket.javax.swing.JMenu@1958285852)
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: > pasket.java.awt.AWTKeyStroke.AWTKeyStroke()
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: < pasket.java.awt.AWTKeyStroke.AWTKeyStroke(pasket.javax.swing.KeyStroke@999041066)
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: > pasket.javax.accessibility.AccessibleContext.AccessibleContext()
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: < pasket.javax.accessibility.AccessibleContext.AccessibleContext(pasket.javax.accessibility.AccessibleContext@1975057906)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: < pasket.javax.swing.JMenuItem.JMenuItem(pasket.javax.swing.JMenu@1958285852)
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: > pasket.javax.accessibility.AccessibleContext.AccessibleContext()
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: < pasket.javax.accessibility.AccessibleContext.AccessibleContext(pasket.javax.accessibility.AccessibleContext@1143494463)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenu <init>
+INFO: < pasket.javax.swing.JMenu.JMenu(pasket.javax.swing.JMenu@1958285852)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setMnemonic
+INFO: > pasket.javax.swing.AbstractButton.setMnemonic(pasket.javax.swing.JMenu@1958285852, 65)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setMnemonic
+INFO: < pasket.javax.swing.AbstractButton.setMnemonic()
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenu getAccessibleContext
+INFO: > pasket.javax.swing.JMenu.getAccessibleContext(pasket.javax.swing.JMenu@1958285852)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenu getAccessibleContext
+INFO: < pasket.javax.swing.JMenu.getAccessibleContext(pasket.javax.accessibility.AccessibleContext@1143494463)
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext setAccessibleDescription
+INFO: > pasket.javax.accessibility.AccessibleContext.setAccessibleDescription(pasket.javax.accessibility.AccessibleContext@1143494463, "The only menu in this program that has menu items")
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext setAccessibleDescription
+INFO: < pasket.javax.accessibility.AccessibleContext.setAccessibleDescription()
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JMenuBar@1875299991, pasket.javax.swing.JMenu@1958285852)
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JMenu@1958285852)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: > pasket.javax.swing.JMenuItem.JMenuItem("A_text-only_menu_item", 84)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: > pasket.javax.swing.AbstractButton.AbstractButton()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JMenuItem@895452683)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: < pasket.javax.swing.AbstractButton.AbstractButton(pasket.javax.swing.JMenuItem@895452683)
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: > pasket.java.awt.AWTKeyStroke.AWTKeyStroke()
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: < pasket.java.awt.AWTKeyStroke.AWTKeyStroke(pasket.javax.swing.KeyStroke@307845005)
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: > pasket.javax.accessibility.AccessibleContext.AccessibleContext()
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: < pasket.javax.accessibility.AccessibleContext.AccessibleContext(pasket.javax.accessibility.AccessibleContext@662893412)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: < pasket.javax.swing.JMenuItem.JMenuItem(pasket.javax.swing.JMenuItem@895452683)
+May 09, 2015 7:28:05 PM pasket.javax.swing.KeyStroke getKeyStroke
+INFO: > pasket.javax.swing.KeyStroke.getKeyStroke(49, 8)
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: > pasket.java.awt.AWTKeyStroke.AWTKeyStroke()
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: < pasket.java.awt.AWTKeyStroke.AWTKeyStroke(pasket.javax.swing.KeyStroke@104414848)
+May 09, 2015 7:28:05 PM pasket.javax.swing.KeyStroke getKeyStroke
+INFO: < pasket.javax.swing.KeyStroke.getKeyStroke(pasket.javax.swing.KeyStroke@104414848)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem setAccelerator
+INFO: > pasket.javax.swing.JMenuItem.setAccelerator(pasket.javax.swing.JMenuItem@895452683, pasket.javax.swing.KeyStroke@104414848)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem setAccelerator
+INFO: < pasket.javax.swing.JMenuItem.setAccelerator()
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem getAccessibleContext
+INFO: > pasket.javax.swing.JMenuItem.getAccessibleContext(pasket.javax.swing.JMenuItem@895452683)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem getAccessibleContext
+INFO: < pasket.javax.swing.JMenuItem.getAccessibleContext(pasket.javax.accessibility.AccessibleContext@662893412)
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext setAccessibleDescription
+INFO: > pasket.javax.accessibility.AccessibleContext.setAccessibleDescription(pasket.javax.accessibility.AccessibleContext@662893412, "This doesn't really do anything")
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext setAccessibleDescription
+INFO: < pasket.javax.accessibility.AccessibleContext.setAccessibleDescription()
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: > pasket.javax.swing.AbstractButton.addActionListener(pasket.javax.swing.JMenuItem@895452683, AdaptedMenuDemo@26864743)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: < pasket.javax.swing.AbstractButton.addActionListener()
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JMenu@1958285852, pasket.javax.swing.JMenuItem@895452683)
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JMenuItem@895452683)
+May 09, 2015 7:28:05 PM AdaptedMenuDemo createImageIcon
+INFO: > AdaptedMenuDemo.createImageIcon("images/middle.gif")
+May 09, 2015 7:28:05 PM AdaptedMenuDemo createImageIcon
+INFO: < AdaptedMenuDemo.createImageIcon(null)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: > pasket.javax.swing.JMenuItem.JMenuItem("Both_text_and_icon", null)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: > pasket.javax.swing.AbstractButton.AbstractButton()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JMenuItem@406210737)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: < pasket.javax.swing.AbstractButton.AbstractButton(pasket.javax.swing.JMenuItem@406210737)
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: > pasket.java.awt.AWTKeyStroke.AWTKeyStroke()
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: < pasket.java.awt.AWTKeyStroke.AWTKeyStroke(pasket.javax.swing.KeyStroke@333342946)
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: > pasket.javax.accessibility.AccessibleContext.AccessibleContext()
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: < pasket.javax.accessibility.AccessibleContext.AccessibleContext(pasket.javax.accessibility.AccessibleContext@1857542046)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: < pasket.javax.swing.JMenuItem.JMenuItem(pasket.javax.swing.JMenuItem@406210737)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setMnemonic
+INFO: > pasket.javax.swing.AbstractButton.setMnemonic(pasket.javax.swing.JMenuItem@406210737, 66)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setMnemonic
+INFO: < pasket.javax.swing.AbstractButton.setMnemonic()
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: > pasket.javax.swing.AbstractButton.addActionListener(pasket.javax.swing.JMenuItem@406210737, AdaptedMenuDemo@26864743)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: < pasket.javax.swing.AbstractButton.addActionListener()
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JMenu@1958285852, pasket.javax.swing.JMenuItem@406210737)
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JMenuItem@406210737)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: > pasket.javax.swing.JMenuItem.JMenuItem(null)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: > pasket.javax.swing.AbstractButton.AbstractButton()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JMenuItem@1739390683)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: < pasket.javax.swing.AbstractButton.AbstractButton(pasket.javax.swing.JMenuItem@1739390683)
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: > pasket.java.awt.AWTKeyStroke.AWTKeyStroke()
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: < pasket.java.awt.AWTKeyStroke.AWTKeyStroke(pasket.javax.swing.KeyStroke@244322570)
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: > pasket.javax.accessibility.AccessibleContext.AccessibleContext()
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: < pasket.javax.accessibility.AccessibleContext.AccessibleContext(pasket.javax.accessibility.AccessibleContext@340700926)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: < pasket.javax.swing.JMenuItem.JMenuItem(pasket.javax.swing.JMenuItem@1739390683)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setMnemonic
+INFO: > pasket.javax.swing.AbstractButton.setMnemonic(pasket.javax.swing.JMenuItem@1739390683, 68)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setMnemonic
+INFO: < pasket.javax.swing.AbstractButton.setMnemonic()
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: > pasket.javax.swing.AbstractButton.addActionListener(pasket.javax.swing.JMenuItem@1739390683, AdaptedMenuDemo@26864743)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: < pasket.javax.swing.AbstractButton.addActionListener()
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JMenu@1958285852, pasket.javax.swing.JMenuItem@1739390683)
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JMenuItem@1739390683)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem addSeparator
+INFO: > pasket.javax.swing.JMenuItem.addSeparator(pasket.javax.swing.JMenu@1958285852)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem addSeparator
+INFO: < pasket.javax.swing.JMenuItem.addSeparator()
+May 09, 2015 7:28:05 PM pasket.javax.swing.ButtonGroup <init>
+INFO: > pasket.javax.swing.ButtonGroup.ButtonGroup()
+May 09, 2015 7:28:05 PM pasket.javax.swing.ButtonGroup <init>
+INFO: < pasket.javax.swing.ButtonGroup.ButtonGroup(pasket.javax.swing.ButtonGroup@1155747613)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JRadioButtonMenuItem <init>
+INFO: > pasket.javax.swing.JRadioButtonMenuItem.JRadioButtonMenuItem("A_radio_button_menu_item")
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: > pasket.javax.swing.JMenuItem.JMenuItem("A_radio_button_menu_item")
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: > pasket.javax.swing.AbstractButton.AbstractButton()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JRadioButtonMenuItem@1429717489)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: < pasket.javax.swing.AbstractButton.AbstractButton(pasket.javax.swing.JRadioButtonMenuItem@1429717489)
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: > pasket.java.awt.AWTKeyStroke.AWTKeyStroke()
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: < pasket.java.awt.AWTKeyStroke.AWTKeyStroke(pasket.javax.swing.KeyStroke@1067311340)
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: > pasket.javax.accessibility.AccessibleContext.AccessibleContext()
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: < pasket.javax.accessibility.AccessibleContext.AccessibleContext(pasket.javax.accessibility.AccessibleContext@370787989)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: < pasket.javax.swing.JMenuItem.JMenuItem(pasket.javax.swing.JRadioButtonMenuItem@1429717489)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JRadioButtonMenuItem <init>
+INFO: < pasket.javax.swing.JRadioButtonMenuItem.JRadioButtonMenuItem(pasket.javax.swing.JRadioButtonMenuItem@1429717489)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setSelected
+INFO: > pasket.javax.swing.AbstractButton.setSelected(pasket.javax.swing.JRadioButtonMenuItem@1429717489, true)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setSelected
+INFO: < pasket.javax.swing.AbstractButton.setSelected()
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setMnemonic
+INFO: > pasket.javax.swing.AbstractButton.setMnemonic(pasket.javax.swing.JRadioButtonMenuItem@1429717489, 82)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setMnemonic
+INFO: < pasket.javax.swing.AbstractButton.setMnemonic()
+May 09, 2015 7:28:05 PM pasket.javax.swing.ButtonGroup add
+INFO: > pasket.javax.swing.ButtonGroup.add(pasket.javax.swing.ButtonGroup@1155747613, pasket.javax.swing.JRadioButtonMenuItem@1429717489)
+May 09, 2015 7:28:05 PM pasket.javax.swing.ButtonGroup add
+INFO: < pasket.javax.swing.ButtonGroup.add()
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: > pasket.javax.swing.AbstractButton.addActionListener(pasket.javax.swing.JRadioButtonMenuItem@1429717489, AdaptedMenuDemo@26864743)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: < pasket.javax.swing.AbstractButton.addActionListener()
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JMenu@1958285852, pasket.javax.swing.JRadioButtonMenuItem@1429717489)
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JRadioButtonMenuItem@1429717489)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JRadioButtonMenuItem <init>
+INFO: > pasket.javax.swing.JRadioButtonMenuItem.JRadioButtonMenuItem("Another_one")
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: > pasket.javax.swing.JMenuItem.JMenuItem("Another_one")
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: > pasket.javax.swing.AbstractButton.AbstractButton()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JRadioButtonMenuItem@1983671176)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: < pasket.javax.swing.AbstractButton.AbstractButton(pasket.javax.swing.JRadioButtonMenuItem@1983671176)
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: > pasket.java.awt.AWTKeyStroke.AWTKeyStroke()
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: < pasket.java.awt.AWTKeyStroke.AWTKeyStroke(pasket.javax.swing.KeyStroke@2025319004)
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: > pasket.javax.accessibility.AccessibleContext.AccessibleContext()
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: < pasket.javax.accessibility.AccessibleContext.AccessibleContext(pasket.javax.accessibility.AccessibleContext@1920695278)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: < pasket.javax.swing.JMenuItem.JMenuItem(pasket.javax.swing.JRadioButtonMenuItem@1983671176)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JRadioButtonMenuItem <init>
+INFO: < pasket.javax.swing.JRadioButtonMenuItem.JRadioButtonMenuItem(pasket.javax.swing.JRadioButtonMenuItem@1983671176)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setMnemonic
+INFO: > pasket.javax.swing.AbstractButton.setMnemonic(pasket.javax.swing.JRadioButtonMenuItem@1983671176, 79)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setMnemonic
+INFO: < pasket.javax.swing.AbstractButton.setMnemonic()
+May 09, 2015 7:28:05 PM pasket.javax.swing.ButtonGroup add
+INFO: > pasket.javax.swing.ButtonGroup.add(pasket.javax.swing.ButtonGroup@1155747613, pasket.javax.swing.JRadioButtonMenuItem@1983671176)
+May 09, 2015 7:28:05 PM pasket.javax.swing.ButtonGroup add
+INFO: < pasket.javax.swing.ButtonGroup.add()
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: > pasket.javax.swing.AbstractButton.addActionListener(pasket.javax.swing.JRadioButtonMenuItem@1983671176, AdaptedMenuDemo@26864743)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: < pasket.javax.swing.AbstractButton.addActionListener()
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JMenu@1958285852, pasket.javax.swing.JRadioButtonMenuItem@1983671176)
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JRadioButtonMenuItem@1983671176)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem addSeparator
+INFO: > pasket.javax.swing.JMenuItem.addSeparator(pasket.javax.swing.JMenu@1958285852)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem addSeparator
+INFO: < pasket.javax.swing.JMenuItem.addSeparator()
+May 09, 2015 7:28:05 PM pasket.javax.swing.JCheckBoxMenuItem <init>
+INFO: > pasket.javax.swing.JCheckBoxMenuItem.JCheckBoxMenuItem("A_check_box_menu_item")
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: > pasket.javax.swing.JMenuItem.JMenuItem("A_check_box_menu_item")
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: > pasket.javax.swing.AbstractButton.AbstractButton()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JCheckBoxMenuItem@1213637046)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: < pasket.javax.swing.AbstractButton.AbstractButton(pasket.javax.swing.JCheckBoxMenuItem@1213637046)
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: > pasket.java.awt.AWTKeyStroke.AWTKeyStroke()
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: < pasket.java.awt.AWTKeyStroke.AWTKeyStroke(pasket.javax.swing.KeyStroke@798152916)
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: > pasket.javax.accessibility.AccessibleContext.AccessibleContext()
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: < pasket.javax.accessibility.AccessibleContext.AccessibleContext(pasket.javax.accessibility.AccessibleContext@1373200050)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: < pasket.javax.swing.JMenuItem.JMenuItem(pasket.javax.swing.JCheckBoxMenuItem@1213637046)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JCheckBoxMenuItem <init>
+INFO: < pasket.javax.swing.JCheckBoxMenuItem.JCheckBoxMenuItem(pasket.javax.swing.JCheckBoxMenuItem@1213637046)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setMnemonic
+INFO: > pasket.javax.swing.AbstractButton.setMnemonic(pasket.javax.swing.JCheckBoxMenuItem@1213637046, 67)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setMnemonic
+INFO: < pasket.javax.swing.AbstractButton.setMnemonic()
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton addItemListener
+INFO: > pasket.javax.swing.AbstractButton.addItemListener(pasket.javax.swing.JCheckBoxMenuItem@1213637046, AdaptedMenuDemo@26864743)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton addItemListener
+INFO: < pasket.javax.swing.AbstractButton.addItemListener()
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JMenu@1958285852, pasket.javax.swing.JCheckBoxMenuItem@1213637046)
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JCheckBoxMenuItem@1213637046)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JCheckBoxMenuItem <init>
+INFO: > pasket.javax.swing.JCheckBoxMenuItem.JCheckBoxMenuItem("Another_one")
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: > pasket.javax.swing.JMenuItem.JMenuItem("Another_one")
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: > pasket.javax.swing.AbstractButton.AbstractButton()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JCheckBoxMenuItem@366486041)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: < pasket.javax.swing.AbstractButton.AbstractButton(pasket.javax.swing.JCheckBoxMenuItem@366486041)
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: > pasket.java.awt.AWTKeyStroke.AWTKeyStroke()
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: < pasket.java.awt.AWTKeyStroke.AWTKeyStroke(pasket.javax.swing.KeyStroke@547791491)
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: > pasket.javax.accessibility.AccessibleContext.AccessibleContext()
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: < pasket.javax.accessibility.AccessibleContext.AccessibleContext(pasket.javax.accessibility.AccessibleContext@469194548)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: < pasket.javax.swing.JMenuItem.JMenuItem(pasket.javax.swing.JCheckBoxMenuItem@366486041)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JCheckBoxMenuItem <init>
+INFO: < pasket.javax.swing.JCheckBoxMenuItem.JCheckBoxMenuItem(pasket.javax.swing.JCheckBoxMenuItem@366486041)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setMnemonic
+INFO: > pasket.javax.swing.AbstractButton.setMnemonic(pasket.javax.swing.JCheckBoxMenuItem@366486041, 72)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setMnemonic
+INFO: < pasket.javax.swing.AbstractButton.setMnemonic()
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton addItemListener
+INFO: > pasket.javax.swing.AbstractButton.addItemListener(pasket.javax.swing.JCheckBoxMenuItem@366486041, AdaptedMenuDemo@26864743)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton addItemListener
+INFO: < pasket.javax.swing.AbstractButton.addItemListener()
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JMenu@1958285852, pasket.javax.swing.JCheckBoxMenuItem@366486041)
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JCheckBoxMenuItem@366486041)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem addSeparator
+INFO: > pasket.javax.swing.JMenuItem.addSeparator(pasket.javax.swing.JMenu@1958285852)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem addSeparator
+INFO: < pasket.javax.swing.JMenuItem.addSeparator()
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenu <init>
+INFO: > pasket.javax.swing.JMenu.JMenu("A_submenu")
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: > pasket.javax.swing.JMenuItem.JMenuItem("A_submenu")
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: > pasket.javax.swing.AbstractButton.AbstractButton()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JMenu@192816452)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: < pasket.javax.swing.AbstractButton.AbstractButton(pasket.javax.swing.JMenu@192816452)
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: > pasket.java.awt.AWTKeyStroke.AWTKeyStroke()
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: < pasket.java.awt.AWTKeyStroke.AWTKeyStroke(pasket.javax.swing.KeyStroke@113285441)
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: > pasket.javax.accessibility.AccessibleContext.AccessibleContext()
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: < pasket.javax.accessibility.AccessibleContext.AccessibleContext(pasket.javax.accessibility.AccessibleContext@1317895645)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: < pasket.javax.swing.JMenuItem.JMenuItem(pasket.javax.swing.JMenu@192816452)
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: > pasket.javax.accessibility.AccessibleContext.AccessibleContext()
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: < pasket.javax.accessibility.AccessibleContext.AccessibleContext(pasket.javax.accessibility.AccessibleContext@725770357)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenu <init>
+INFO: < pasket.javax.swing.JMenu.JMenu(pasket.javax.swing.JMenu@192816452)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setMnemonic
+INFO: > pasket.javax.swing.AbstractButton.setMnemonic(pasket.javax.swing.JMenu@192816452, 83)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setMnemonic
+INFO: < pasket.javax.swing.AbstractButton.setMnemonic()
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: > pasket.javax.swing.JMenuItem.JMenuItem("An_item_in_the_submenu")
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: > pasket.javax.swing.AbstractButton.AbstractButton()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JMenuItem@315275139)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: < pasket.javax.swing.AbstractButton.AbstractButton(pasket.javax.swing.JMenuItem@315275139)
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: > pasket.java.awt.AWTKeyStroke.AWTKeyStroke()
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: < pasket.java.awt.AWTKeyStroke.AWTKeyStroke(pasket.javax.swing.KeyStroke@987104024)
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: > pasket.javax.accessibility.AccessibleContext.AccessibleContext()
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: < pasket.javax.accessibility.AccessibleContext.AccessibleContext(pasket.javax.accessibility.AccessibleContext@946158293)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: < pasket.javax.swing.JMenuItem.JMenuItem(pasket.javax.swing.JMenuItem@315275139)
+May 09, 2015 7:28:05 PM pasket.javax.swing.KeyStroke getKeyStroke
+INFO: > pasket.javax.swing.KeyStroke.getKeyStroke(50, 8)
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: > pasket.java.awt.AWTKeyStroke.AWTKeyStroke()
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: < pasket.java.awt.AWTKeyStroke.AWTKeyStroke(pasket.javax.swing.KeyStroke@2113508063)
+May 09, 2015 7:28:05 PM pasket.javax.swing.KeyStroke getKeyStroke
+INFO: < pasket.javax.swing.KeyStroke.getKeyStroke(pasket.javax.swing.KeyStroke@2113508063)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem setAccelerator
+INFO: > pasket.javax.swing.JMenuItem.setAccelerator(pasket.javax.swing.JMenuItem@315275139, pasket.javax.swing.KeyStroke@2113508063)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem setAccelerator
+INFO: < pasket.javax.swing.JMenuItem.setAccelerator()
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: > pasket.javax.swing.AbstractButton.addActionListener(pasket.javax.swing.JMenuItem@315275139, AdaptedMenuDemo@26864743)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: < pasket.javax.swing.AbstractButton.addActionListener()
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JMenu@192816452, pasket.javax.swing.JMenuItem@315275139)
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JMenuItem@315275139)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: > pasket.javax.swing.JMenuItem.JMenuItem("Another_item")
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: > pasket.javax.swing.AbstractButton.AbstractButton()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JMenuItem@203009814)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: < pasket.javax.swing.AbstractButton.AbstractButton(pasket.javax.swing.JMenuItem@203009814)
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: > pasket.java.awt.AWTKeyStroke.AWTKeyStroke()
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: < pasket.java.awt.AWTKeyStroke.AWTKeyStroke(pasket.javax.swing.KeyStroke@1781912462)
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: > pasket.javax.accessibility.AccessibleContext.AccessibleContext()
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: < pasket.javax.accessibility.AccessibleContext.AccessibleContext(pasket.javax.accessibility.AccessibleContext@1943291419)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: < pasket.javax.swing.JMenuItem.JMenuItem(pasket.javax.swing.JMenuItem@203009814)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: > pasket.javax.swing.AbstractButton.addActionListener(pasket.javax.swing.JMenuItem@203009814, AdaptedMenuDemo@26864743)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton addActionListener
+INFO: < pasket.javax.swing.AbstractButton.addActionListener()
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JMenu@192816452, pasket.javax.swing.JMenuItem@203009814)
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JMenuItem@203009814)
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JMenu@1958285852, pasket.javax.swing.JMenu@192816452)
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JMenu@192816452)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenu <init>
+INFO: > pasket.javax.swing.JMenu.JMenu("Another_Menu")
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: > pasket.javax.swing.JMenuItem.JMenuItem("Another_Menu")
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: > pasket.javax.swing.AbstractButton.AbstractButton()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JMenu@1967575557)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton <init>
+INFO: < pasket.javax.swing.AbstractButton.AbstractButton(pasket.javax.swing.JMenu@1967575557)
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: > pasket.java.awt.AWTKeyStroke.AWTKeyStroke()
+May 09, 2015 7:28:05 PM pasket.java.awt.AWTKeyStroke <init>
+INFO: < pasket.java.awt.AWTKeyStroke.AWTKeyStroke(pasket.javax.swing.KeyStroke@2089189993)
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: > pasket.javax.accessibility.AccessibleContext.AccessibleContext()
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: < pasket.javax.accessibility.AccessibleContext.AccessibleContext(pasket.javax.accessibility.AccessibleContext@1658583901)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenuItem <init>
+INFO: < pasket.javax.swing.JMenuItem.JMenuItem(pasket.javax.swing.JMenu@1967575557)
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: > pasket.javax.accessibility.AccessibleContext.AccessibleContext()
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext <init>
+INFO: < pasket.javax.accessibility.AccessibleContext.AccessibleContext(pasket.javax.accessibility.AccessibleContext@1481886047)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenu <init>
+INFO: < pasket.javax.swing.JMenu.JMenu(pasket.javax.swing.JMenu@1967575557)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setMnemonic
+INFO: > pasket.javax.swing.AbstractButton.setMnemonic(pasket.javax.swing.JMenu@1967575557, 78)
+May 09, 2015 7:28:05 PM pasket.javax.swing.AbstractButton setMnemonic
+INFO: < pasket.javax.swing.AbstractButton.setMnemonic()
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenu getAccessibleContext
+INFO: > pasket.javax.swing.JMenu.getAccessibleContext(pasket.javax.swing.JMenu@1967575557)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JMenu getAccessibleContext
+INFO: < pasket.javax.swing.JMenu.getAccessibleContext(pasket.javax.accessibility.AccessibleContext@1481886047)
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext setAccessibleDescription
+INFO: > pasket.javax.accessibility.AccessibleContext.setAccessibleDescription(pasket.javax.accessibility.AccessibleContext@1481886047, "This menu does nothing")
+May 09, 2015 7:28:05 PM pasket.javax.accessibility.AccessibleContext setAccessibleDescription
+INFO: < pasket.javax.accessibility.AccessibleContext.setAccessibleDescription()
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JMenuBar@1875299991, pasket.javax.swing.JMenu@1967575557)
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add(pasket.javax.swing.JMenu@1967575557)
+May 09, 2015 7:28:05 PM AdaptedMenuDemo createMenuBar
+INFO: < AdaptedMenuDemo.createMenuBar(pasket.javax.swing.JMenuBar@1875299991)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JFrame setJMenuBar
+INFO: > pasket.javax.swing.JFrame.setJMenuBar(pasket.javax.swing.JFrame@656552001, pasket.javax.swing.JMenuBar@1875299991)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JFrame setJMenuBar
+INFO: < pasket.javax.swing.JFrame.setJMenuBar()
+May 09, 2015 7:28:05 PM AdaptedMenuDemo createContentPane
+INFO: > AdaptedMenuDemo.createContentPane(AdaptedMenuDemo@26864743)
+May 09, 2015 7:28:05 PM pasket.java.awt.BorderLayout <init>
+INFO: > pasket.java.awt.BorderLayout.BorderLayout()
+May 09, 2015 7:28:05 PM pasket.java.awt.BorderLayout <init>
+INFO: < pasket.java.awt.BorderLayout.BorderLayout(pasket.java.awt.BorderLayout@1348051761)
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JPanel@2028169827)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JComponent setOpaque
+INFO: > pasket.javax.swing.JComponent.setOpaque(pasket.javax.swing.JPanel@2028169827, true)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JComponent setOpaque
+INFO: < pasket.javax.swing.JComponent.setOpaque()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JTextArea@47863392)
+May 09, 2015 7:28:05 PM pasket.javax.swing.text.JTextComponent setEditable
+INFO: > pasket.javax.swing.text.JTextComponent.setEditable(pasket.javax.swing.JTextArea@47863392, false)
+May 09, 2015 7:28:05 PM pasket.javax.swing.text.JTextComponent setEditable
+INFO: < pasket.javax.swing.text.JTextComponent.setEditable()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: > pasket.java.awt.Component.Component()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component <init>
+INFO: < pasket.java.awt.Component.Component(pasket.javax.swing.JScrollPane@1539121540)
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: > pasket.java.awt.Container.add(pasket.javax.swing.JPanel@2028169827, pasket.javax.swing.JScrollPane@1539121540, "Center")
+May 09, 2015 7:28:05 PM pasket.java.awt.Container add
+INFO: < pasket.java.awt.Container.add()
+May 09, 2015 7:28:05 PM AdaptedMenuDemo createContentPane
+INFO: < AdaptedMenuDemo.createContentPane(pasket.javax.swing.JPanel@2028169827)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JFrame setContentPane
+INFO: > pasket.javax.swing.JFrame.setContentPane(pasket.javax.swing.JFrame@656552001, pasket.javax.swing.JPanel@2028169827)
+May 09, 2015 7:28:05 PM pasket.javax.swing.JFrame setContentPane
+INFO: < pasket.javax.swing.JFrame.setContentPane()
+May 09, 2015 7:28:05 PM pasket.java.awt.Window setSize
+INFO: > pasket.java.awt.Window.setSize(pasket.javax.swing.JFrame@656552001, 450, 260)
+May 09, 2015 7:28:05 PM pasket.java.awt.Window setSize
+INFO: < pasket.java.awt.Window.setSize()
+May 09, 2015 7:28:05 PM pasket.java.awt.Component setVisible
+INFO: > pasket.java.awt.Component.setVisible(pasket.javax.swing.JFrame@656552001, true)
+May 09, 2015 7:28:05 PM pasket.java.awt.Component setVisible
+INFO: < pasket.java.awt.Component.setVisible()
+May 09, 2015 7:28:05 PM AdaptedMenuDemo createAndShowGUI
+INFO: < AdaptedMenuDemo.createAndShowGUI()
+May 09, 2015 7:28:05 PM AdaptedMenuDemo main
+INFO: < AdaptedMenuDemo.main()
+May 09, 2015 7:28:05 PM AdaptedMenuDemo getMenuDemo
+INFO: > AdaptedMenuDemo.getMenuDemo()
+May 09, 2015 7:28:05 PM AdaptedMenuDemo getMenuDemo
+INFO: < AdaptedMenuDemo.getMenuDemo(AdaptedMenuDemo@26864743)
+Could not log assertTrue,  exception : org.junit.Assert
+May 09, 2015 7:28:06 PM SanityChecker getEventHandler
+INFO: > SanityChecker.getEventHandler(AdaptedMenuDemo@26864743)
+May 09, 2015 7:28:06 PM SwingEventHandler <init>
+INFO: > SwingEventHandler.SwingEventHandler(AdaptedMenuDemo@26864743)
+May 09, 2015 7:28:06 PM SwingEventHandler <init>
+INFO: < SwingEventHandler.SwingEventHandler(SwingEventHandler@1382197642)
+May 09, 2015 7:28:06 PM SanityChecker getEventHandler
+INFO: < SanityChecker.getEventHandler(SwingEventHandler@1382197642)
+May 09, 2015 7:28:06 PM SwingEventHandler handleEvent
+INFO: > SwingEventHandler.handleEvent(SwingEventHandler@1382197642, "$Both_text_and_icon.doClick()")
+May 09, 2015 7:28:06 PM pasket.java.awt.event.ActionEvent <init>
+INFO: > pasket.java.awt.event.ActionEvent.ActionEvent(pasket.javax.swing.JMenuItem@406210737, 0, "Both_text_and_icon")
+May 09, 2015 7:28:06 PM pasket.java.awt.AWTEvent <init>
+INFO: > pasket.java.awt.AWTEvent.AWTEvent(pasket.javax.swing.JMenuItem@406210737, 0)
+May 09, 2015 7:28:06 PM pasket.java.util.EventObject <init>
+INFO: > pasket.java.util.EventObject.EventObject(pasket.javax.swing.JMenuItem@406210737)
+May 09, 2015 7:28:06 PM pasket.java.util.EventObject <init>
+INFO: < pasket.java.util.EventObject.EventObject(pasket.java.awt.event.ActionEvent@1300043518)
+May 09, 2015 7:28:06 PM pasket.java.awt.AWTEvent <init>
+INFO: < pasket.java.awt.AWTEvent.AWTEvent(pasket.java.awt.event.ActionEvent@1300043518)
+May 09, 2015 7:28:06 PM pasket.java.awt.event.ActionEvent <init>
+INFO: < pasket.java.awt.event.ActionEvent.ActionEvent(pasket.java.awt.event.ActionEvent@1300043518)
+May 09, 2015 7:28:06 PM pasket.javax.swing.AbstractButton dispatchEvent
+INFO: > pasket.javax.swing.AbstractButton.dispatchEvent(pasket.javax.swing.JMenuItem@406210737, pasket.java.awt.event.ActionEvent@1300043518)
+May 09, 2015 7:28:06 PM AdaptedMenuDemo actionPerformed
+INFO: > AdaptedMenuDemo.actionPerformed(AdaptedMenuDemo@26864743, pasket.java.awt.event.ActionEvent@1300043518)
+May 09, 2015 7:28:06 PM pasket.java.util.EventObject getSource
+INFO: > pasket.java.util.EventObject.getSource(pasket.java.awt.event.ActionEvent@1300043518)
+May 09, 2015 7:28:06 PM pasket.java.util.EventObject getSource
+INFO: < pasket.java.util.EventObject.getSource(pasket.javax.swing.JMenuItem@406210737)
+May 09, 2015 7:28:06 PM pasket.javax.swing.JTextArea append
+INFO: > pasket.javax.swing.JTextArea.append(pasket.javax.swing.JTextArea@47863392, "Action event detected.")
+May 09, 2015 7:28:06 PM pasket.javax.swing.text.JTextComponent setText
+INFO: > pasket.javax.swing.text.JTextComponent.setText(pasket.javax.swing.JTextArea@47863392, "Action event detected.")
+May 09, 2015 7:28:06 PM pasket.javax.swing.text.JTextComponent setText
+INFO: < pasket.javax.swing.text.JTextComponent.setText()
+May 09, 2015 7:28:06 PM pasket.javax.swing.JTextArea append
+INFO: < pasket.javax.swing.JTextArea.append()
+May 09, 2015 7:28:06 PM pasket.javax.swing.text.JTextComponent getDocument
+INFO: > pasket.javax.swing.text.JTextComponent.getDocument(pasket.javax.swing.JTextArea@47863392)
+May 09, 2015 7:28:06 PM pasket.javax.swing.text.JTextComponent getDocument
+INFO: < pasket.javax.swing.text.JTextComponent.getDocument(null)
+May 09, 2015 7:28:06 PM pasket.javax.swing.text.JTextComponent setCaretPosition
+INFO: > pasket.javax.swing.text.JTextComponent.setCaretPosition(pasket.javax.swing.JTextArea@47863392, 87)
+May 09, 2015 7:28:06 PM pasket.javax.swing.text.JTextComponent setCaretPosition
+INFO: < pasket.javax.swing.text.JTextComponent.setCaretPosition()
+May 09, 2015 7:28:06 PM AdaptedMenuDemo actionPerformed
+INFO: < AdaptedMenuDemo.actionPerformed()
+May 09, 2015 7:28:06 PM pasket.javax.swing.AbstractButton dispatchEvent
+INFO: < pasket.javax.swing.AbstractButton.dispatchEvent()
+May 09, 2015 7:28:06 PM SwingEventHandler handleEvent
+INFO: < SwingEventHandler.handleEvent()
+May 09, 2015 7:28:06 PM SwingEventHandler handleEvent
+INFO: > SwingEventHandler.handleEvent(SwingEventHandler@1382197642, "$A_check_box_menu_item.doClick()")
+May 09, 2015 7:28:06 PM pasket.java.awt.event.ItemEvent <init>
+INFO: > pasket.java.awt.event.ItemEvent.ItemEvent(pasket.javax.swing.JCheckBoxMenuItem@1213637046, 0, null, 2)
+May 09, 2015 7:28:06 PM pasket.java.awt.AWTEvent <init>
+INFO: > pasket.java.awt.AWTEvent.AWTEvent(pasket.javax.swing.JCheckBoxMenuItem@1213637046, 0)
+May 09, 2015 7:28:06 PM pasket.java.util.EventObject <init>
+INFO: > pasket.java.util.EventObject.EventObject(pasket.javax.swing.JCheckBoxMenuItem@1213637046)
+May 09, 2015 7:28:06 PM pasket.java.util.EventObject <init>
+INFO: < pasket.java.util.EventObject.EventObject(pasket.java.awt.event.ItemEvent@1289473069)
+May 09, 2015 7:28:06 PM pasket.java.awt.AWTEvent <init>
+INFO: < pasket.java.awt.AWTEvent.AWTEvent(pasket.java.awt.event.ItemEvent@1289473069)
+May 09, 2015 7:28:06 PM pasket.java.awt.event.ItemEvent <init>
+INFO: < pasket.java.awt.event.ItemEvent.ItemEvent(pasket.java.awt.event.ItemEvent@1289473069)
+May 09, 2015 7:28:06 PM pasket.javax.swing.AbstractButton dispatchEvent
+INFO: > pasket.javax.swing.AbstractButton.dispatchEvent(pasket.javax.swing.JCheckBoxMenuItem@1213637046, pasket.java.awt.event.ItemEvent@1289473069)
+May 09, 2015 7:28:06 PM pasket.javax.swing.AbstractButton dispatchEvent
+INFO: < pasket.javax.swing.AbstractButton.dispatchEvent()
+May 09, 2015 7:28:06 PM SwingEventHandler handleEvent
+INFO: < SwingEventHandler.handleEvent()
+May 09, 2015 7:28:06 PM Main simulate
+INFO: < Main.simulate()
+May 09, 2015 7:28:06 PM Main main
+INFO: < Main.main()
+Stop at Sat May 09 19:28:06 EDT 2015

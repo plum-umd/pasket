@@ -77,7 +77,7 @@ public class MenuDemo implements ActionListener, ItemListener {
         menuBar = new JMenuBar();
 
         //Build the first menu.
-        menu = new JMenu("A Menu");
+        menu = new JMenu("A_Menu");
         menu.setMnemonic(KeyEvent.VK_A);
         /*menu.getAccessibleContext().setAccessibleDescription(
                 "The only menu in this program that has menu items");*/
@@ -86,7 +86,7 @@ public class MenuDemo implements ActionListener, ItemListener {
         menuBar.add(menu);
 
         //a group of JMenuItems
-        menuItem = new JMenuItem("A text-only menu item",
+        menuItem = new JMenuItem("A_text-only_menu_item",
                                  KeyEvent.VK_T);
         //menuItem.setMnemonic(KeyEvent.VK_T); //used constructor instead
         /*menuItem.setAccelerator(KeyStroke.getKeyStroke(
@@ -101,7 +101,7 @@ public class MenuDemo implements ActionListener, ItemListener {
         menu.add(menuItem);
 
         ImageIcon icon = createImageIcon("images/middle.gif");
-        menuItem = new JMenuItem("Both text and icon", icon);
+        menuItem = new JMenuItem("Both_text_and_icon", icon);
         menuItem.setMnemonic(KeyEvent.VK_B);
         menuItem.addActionListener(this);
         menu.add(menuItem);
@@ -115,14 +115,14 @@ public class MenuDemo implements ActionListener, ItemListener {
         menu.addSeparator();
         ButtonGroup group = new ButtonGroup();
 
-        rbMenuItem = new JRadioButtonMenuItem("A radio button menu item");
+        rbMenuItem = new JRadioButtonMenuItem("A_radio_button_menu_item");
         rbMenuItem.setSelected(true);
         rbMenuItem.setMnemonic(KeyEvent.VK_R);
         group.add(rbMenuItem);
         rbMenuItem.addActionListener(this);
         menu.add(rbMenuItem);
 
-        rbMenuItem = new JRadioButtonMenuItem("Another one");
+        rbMenuItem = new JRadioButtonMenuItem("Another_one");
         rbMenuItem.setMnemonic(KeyEvent.VK_O);
         group.add(rbMenuItem);
         rbMenuItem.addActionListener(this);
@@ -130,22 +130,22 @@ public class MenuDemo implements ActionListener, ItemListener {
 
         //a group of check box menu items
         menu.addSeparator();
-        cbMenuItem = new JCheckBoxMenuItem("A check box menu item");
+        cbMenuItem = new JCheckBoxMenuItem("A_check_box_menu_item");
         cbMenuItem.setMnemonic(KeyEvent.VK_C);
         cbMenuItem.addItemListener(this);
         menu.add(cbMenuItem);
 
-        cbMenuItem = new JCheckBoxMenuItem("Another one");
+        cbMenuItem = new JCheckBoxMenuItem("Another_one");
         cbMenuItem.setMnemonic(KeyEvent.VK_H);
         cbMenuItem.addItemListener(this);
         menu.add(cbMenuItem);
 
         //a submenu
         menu.addSeparator();
-        submenu = new JMenu("A submenu");
+        submenu = new JMenu("A_submenu");
         submenu.setMnemonic(KeyEvent.VK_S);
 
-        menuItem = new JMenuItem("An item in the submenu");
+        menuItem = new JMenuItem("An_item_in_the_submenu");
         /*menuItem.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_2, ActionEvent.ALT_MASK));*/
         KeyStroke tmpStroke2 = KeyStroke.getKeyStroke(
@@ -154,13 +154,13 @@ public class MenuDemo implements ActionListener, ItemListener {
         menuItem.addActionListener(this);
         submenu.add(menuItem);
 
-        menuItem = new JMenuItem("Another item");
+        menuItem = new JMenuItem("Another_item");
         menuItem.addActionListener(this);
         submenu.add(menuItem);
         menu.add(submenu);
 
         //Build second menu in the menu bar.
-        menu = new JMenu("Another Menu");
+        menu = new JMenu("Another_Menu");
         menu.setMnemonic(KeyEvent.VK_N);
         /*menu.getAccessibleContext().setAccessibleDescription(
                 "This menu does nothing");*/
@@ -198,7 +198,7 @@ public class MenuDemo implements ActionListener, ItemListener {
         output.append(s); // + newline);
         //output.setCaretPosition(output.getDocument().getLength());
         Document tmpDocument = output.getDocument();
-        int tmpLength = tmpDocument.getLength();
+        int tmpLength = 87; //tmpDocument.getLength();
         output.setCaretPosition(tmpLength);
     }
 
@@ -215,7 +215,7 @@ public class MenuDemo implements ActionListener, ItemListener {
         output.append(s); // + newline);
         //output.setCaretPosition(output.getDocument().getLength());
         Document tmpDocument2 = output.getDocument();
-        int tmpLength2 = tmpDocument2.getLength();
+        int tmpLength2 = 207; //tmpDocument2.getLength();
         output.setCaretPosition(tmpLength2);
     }
 
