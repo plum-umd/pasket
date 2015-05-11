@@ -170,7 +170,10 @@ if __name__ == "__main__":
     help="demo name")
   parser.add_option("--parallel",
     action="store_true", dest="parallel", default=False,
-    help="run sketch in parallel")
+    help="run Sketch in parallel")
+  parser.add_option("--timeout",
+    action="store", dest="timeout", default=None, type="int",
+    help="Sketch timeout")
   parser.add_option("--p_cpus",
     action="store", dest="p_cpus", default=None, type="int",
     help="the number of cores to use for parallel running")
@@ -204,6 +207,8 @@ if __name__ == "__main__":
   _opts.append("--fe-keep-tmp")
 
   if opt.verbose: _opts.extend(["-V", "10"])
+  if opt.timeout: _opts.extend(["--slv-timeout", str(opt.timeout)])
+
   if opt.parallel:
     _opts.append("--slv-randassign")
     _opts.extend(["--bnd-dag-size", "16000000"]) # 16M ~> 8G memory

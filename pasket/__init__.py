@@ -156,6 +156,7 @@ conf = {}
 def configure(opt):
   conf["encoding"] = opt.encoding
   conf["sketch"] = opt.sketch
+  conf["timeout"] = opt.timeout
   conf["randassign"] = opt.randassign
   conf["randdegree"] = opt.randdegree
   conf["parallel"] = opt.parallel
@@ -196,7 +197,8 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
         C.P.BLD, C.P.FAC, C.P.SNG, C.P.PRX, C.P.OBS, C.P.STA]
 
   opts = [] ## sketch options
-  if "verbose" in conf.keys() and conf["verbose"]: opts.extend(["-V", "10"])
+  if conf["verbose"]: opts.extend(["-V", "10"])
+  if conf["timeout"]: opts.extend(["--slv-timeout", str(conf["timeout"])])
   # place to keep sketch's temporary files
   opts.extend(["--fe-tempdir", out_dir])
   opts.append("--fe-keep-tmp")
