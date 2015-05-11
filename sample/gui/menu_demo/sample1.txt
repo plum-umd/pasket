@@ -31,7 +31,6 @@
         > javax.swing.JMenu.add(javax.swing.JMenu@2070982037, javax.swing.JMenuItem@2807345)
         < javax.swing.JMenu.add(javax.swing.JMenuItem@2807345)
         > tutorial.menu_demo.MenuDemo.createImageIcon("images/middle.gif")
-        //< tutorial.menu_demo.MenuDemo.createImageIcon(javax.swing.ImageIcon@1364706846)
         < tutorial.menu_demo.MenuDemo.createImageIcon(null)
         > javax.swing.JMenuItem.setMnemonic(javax.swing.JMenuItem@1502610762, 66)
         < javax.swing.JMenuItem.setMnemonic()
