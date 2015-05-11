@@ -181,7 +181,7 @@ class Observer(object):
   # handle code
   @staticmethod
   def revise_handle(mtd, upd, aux, subj, obsr, evt):
-    body = '\n'.join(map(str,mtd.body))
+    body = '\n'.join(map(str, mtd.body))
 
     # rcv_Aux... -> this
     body = body.replace("rcv_"+aux.name, C.J.THIS)
@@ -287,8 +287,8 @@ class Observer(object):
       if attach: Observer.def_attach(attach, subj, obsr)
       if detach: Observer.def_detach(detach, subj, obsr)
 
-      handle.body = aux.mtd_handle.body
-      Observer.revise_handle(handle, update, aux, subj, obsr, aux.evt)
+      Observer.revise_handle(aux.mtd_handle, update, aux, subj, obsr, aux.evt)
+      handle.body += aux.mtd_handle.body
       setattr(subj, "handle", handle)
 
       old = "handleCode_{0}_{0}_{0}_{1}".format(aux.name, aux.evt.name)
