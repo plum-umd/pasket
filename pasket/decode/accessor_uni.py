@@ -140,7 +140,6 @@ class AccessorUni(object):
     find_mtd_role = partial(find_role, methods(), aux_name)
       
     cons = {}
-    print self._role
     for key in self._acc_conf.iterkeys():
       cons[key] = find_mtd_role('_'.join([C.ACC.CONS, key]))
     #cons_params = []
@@ -163,24 +162,16 @@ class AccessorUni(object):
       for x in xrange(max(self._acc_conf[key][1], self._acc_conf[key][2])):
         gs[key][x] = self._role['_'.join([C.ACC.GS, key, str(x), aux_name])]
 
-    print cons
     self._cons[aux.name] = cons
-    print getters
     self._getters[aux.name] = getters
-    print setters
     self._setters[aux.name] = setters
-    print gs
     self._gs[aux.name] = gs
-    print self._invoked
 
     # add private fields for constructors
     for k in cons.iterkeys():
       c = cons[k]
       if not c: continue
-      print "trying: " + k
-      print c.clazz.name
       if util.exists(lambda m: m.id in self._invoked, c.clazz.mtds):
-        print "cons:" + c.name
         for n, t in enumerate(c.param_typs):
           AccessorUni.add_prvt_fld(c.clazz, k, t, n)
         AccessorUni.def_constructor(c, c.clazz)
