@@ -168,7 +168,7 @@ class Observer(object):
     args = find_formals(mtd.params, [obsr.name])
     logging.debug("adding attach code into {}".format(subj.name))
     add = u"{}.add({});".format(subj.obs.name, ", ".join(args))
-    mtd.body = to_statements(mtd, add)
+    mtd.body += to_statements(mtd, add)
 
   # detach code
   @staticmethod
@@ -176,7 +176,7 @@ class Observer(object):
     args = find_formals(mtd.params, [obsr.name])
     logging.debug("adding detach code into {}".format(subj.name))
     rm = u"{}.remove({});".format(subj.obs.name, ", ".join(args))
-    mtd.body = to_statements(mtd, rm)
+    mtd.body += to_statements(mtd, rm)
 
   # handle code
   @staticmethod
@@ -196,8 +196,13 @@ class Observer(object):
 
     # List<Aux...> -> List<@Observer>
     # List<Object> -> List<@Observer>
-    body = body.replace(aux.name, obsr.name)
-    body = body.replace(C.J.OBJ, obsr.name)
+    p = "<{}>"
+    body = body.replace(p.format(aux.name), p.format(obsr.name))
+    body = body.replace(p.format(C.J.OBJ), p.format(obsr.name))
+
+    # for (Aux... o : obs) -> for (@Observer o : obs)
+    o = "{} o"
+    body = body.replace(o.format(aux.name), o.format(obsr.name))
 
     # formal parameter of event type
     args = find_formals(mtd.params, [evt.name])
@@ -287,8 +292,8 @@ class Observer(object):
       if attach: Observer.def_attach(attach, subj, obsr)
       if detach: Observer.def_detach(detach, subj, obsr)
 
-      Observer.revise_handle(aux.mtd_handle, update, aux, subj, obsr, aux.evt)
       handle.body += aux.mtd_handle.body
+      Observer.revise_handle(handle, update, aux, subj, obsr, aux.evt)
       setattr(subj, "handle", handle)
 
       old = "handleCode_{0}_{0}_{0}_{1}".format(aux.name, aux.evt.name)

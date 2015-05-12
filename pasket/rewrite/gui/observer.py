@@ -434,14 +434,17 @@ class Observer(object):
     params = Observer.mtd_params(aux)
     handle = Method(clazz=aux, mods=C.PBST, params=params, name=u"subHandleCode")
 
-    cnt = Observer.__cnt
+    cnt = Observer.fresh_cnt()
     aname = aux.name
     reflect = u"reflect" #getattr(aux, "reflect").name
     loop = u"""
-      List<Object> obs{cnt} = rcv_{aname}._obs;
-      for ({aname} o : obs{cnt}) {{
-        {aname}.{reflect}({aux.update}_{idx}, o, rcv_{aname}, ({aux.evt.name})evt);
-      }}""".format(**locals())
+      if (evt instanceof {aux.evt.name}) {{
+        List<Object> obs{cnt} = rcv_{aname}._obs;
+        for ({aname} o : obs{cnt}) {{
+          {aname}.{reflect}({aux.update}_{idx}, o, rcv_{aname}, ({aux.evt.name})evt);
+        }}
+      }}
+    """.format(**locals())
     handle.body = to_statements(handle, loop)
     aux.add_mtds([handle])
     setattr(aux, "mtd_sub_handle", handle)
@@ -459,12 +462,15 @@ class Observer(object):
 
     def handle_body(aux, role):
       aname, evtname = aux.name, aux.evt.name
-      cnt = Observer.__cnt
+      cnt = Observer.fresh_cnt()
       loop = u"""
-        List<Object> obs{cnt} = rcv_{aname}._obs;
-        for ({aname} o : obs{cnt}) {{
-          {aname}.reflect({role}, o, rcv_{aname}, ({evtname})evt);
-        }}""".format(**locals())
+        if (evt instanceof {evtname}) {{
+          List<Object> obs{cnt} = rcv_{aname}._obs;
+          for ({aname} o : obs{cnt}) {{
+            {aname}.reflect({role}, o, rcv_{aname}, ({evtname})evt);
+          }}
+        }}
+      """.format(**locals())
       return loop
     def handle_mtd(i):
       handle_i = Method(clazz=aux, mods=C.PBST, params=params, name=u"handleCode_{i}".format(**locals()))
@@ -488,7 +494,7 @@ class Observer(object):
       evt_id = getattr(aux, u"eventtype")
       get_type = u"""
         {evtyp} et = {aname}.{egetter}({evt_id}, evt);
-        """.format(**locals())
+      """.format(**locals())
 
       def handle_switch(i):
         evt_cls = class_lookup(aux.evt.name)
@@ -695,8 +701,9 @@ class Observer(object):
               {cls_h_name} rcv_{i} = ({cls_h_name}){evt}.getSource();
               //{cls_h_name} rcv_{i} = ({cls_h_name}){evt}._source;
               {cls_h_name}.{reflect}({hdl}, rcv_{i}, null, ({event}){evt});
-            }}"""
-          switches += cond_call.format(**locals())
+            }}
+          """.format(**locals())
+          switches += cond_call
 
         body = u"""
           if ({evt} == null) return;
@@ -744,7 +751,6 @@ class Observer(object):
     if node.clazz.is_itf: return
     if repr(node) in self._subj_mtds:
       cname = node.clazz.name
-      evt_passed = None
       for aux in self._subj_mtds[repr(node)]:
         logging.debug("{}.{} => {}.subjectCall".format(cname, node.name, aux.name))
         if node.is_static: params = node.params
@@ -754,8 +760,6 @@ class Observer(object):
           cls_ty = class_lookup(ty)
           # downcast AWTEvent to actual event
           if aux.evt <= cls_ty:
-            # to not dereferrence event of interface sort (e.g., DocumentEvent)
-            if cls_ty.is_class: evt_passed = nm
             one_params.append( (aux.evt.name, nm) )
           elif self.find_aux(ty):
             one_params.append( (aux.name, nm) )
@@ -763,15 +767,7 @@ class Observer(object):
             one_params.append( (ty, nm) )
 
         body = u"{};".format(call_stt(aux.one, one_params))
-        if evt_passed:
-          body = u"""
-            if ({0}_k == {1}) {{ {2} }}
-          """.format(evt_passed, self._tmpl.events[aux.evt.name], body)
         node.body = to_statements(node, body) + node.body
-
-      if evt_passed:
-        k = u"int {0}_k = {0}.kind;".format(evt_passed)
-        node.body = to_statements(node, k) + node.body
 
   @v.when(Statement)
   def visit(self, node): return [node]

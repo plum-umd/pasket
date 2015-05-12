@@ -438,10 +438,13 @@ class Observer(object):
     aname = aux.name
     reflect = u"reflect" #getattr(aux, "reflect").name
     loop = u"""
-      List<Object> obs{cnt} = rcv_{aname}._obs;
-      for ({aname} o : obs{cnt}) {{
-        {aname}.{reflect}({aux.update}_{idx}, o, rcv_{aname}, ({aux.evt.name})evt);
-      }}""".format(**locals())
+      if (evt instanceof {aux.evt.name}) {{
+        List<Object> obs{cnt} = rcv_{aname}._obs;
+        for ({aname} o : obs{cnt}) {{
+          {aname}.{reflect}({aux.update}_{idx}, o, rcv_{aname}, ({aux.evt.name})evt);
+        }}
+      }}
+    """.format(**locals())
     handle.body = to_statements(handle, loop)
     aux.add_mtds([handle])
     setattr(aux, "mtd_sub_handle", handle)
@@ -459,12 +462,15 @@ class Observer(object):
 
     def handle_body(aux, role):
       aname, evtname = aux.name, aux.evt.name
-      cnt = Observer.__cnt
+      cnt = Observer.fresh_cnt()
       loop = u"""
-        List<Object> obs{cnt} = rcv_{aname}._obs;
-        for ({aname} o : obs{cnt}) {{
-          {aname}.reflect({role}, o, rcv_{aname}, ({evtname})evt);
-        }}""".format(**locals())
+        if (evt instanceof {evtname}) {{
+          List<Object> obs{cnt} = rcv_{aname}._obs;
+          for ({aname} o : obs{cnt}) {{
+            {aname}.reflect({role}, o, rcv_{aname}, ({evtname})evt);
+          }}
+        }}
+      """.format(**locals())
       return loop
     def handle_mtd(i):
       handle_i = Method(clazz=aux, mods=C.PBST, params=params, name=u"handleCode_{i}".format(**locals()))
@@ -474,7 +480,7 @@ class Observer(object):
       return handle_i
 
     if conf[0] < 2:
-      cnt = Observer.__cnt
+      cnt = Observer.fresh_cnt()
       body = handle_body(aux, aux.update)
       handle.body = to_statements(handle, body)
     else:
@@ -488,7 +494,7 @@ class Observer(object):
       evt_id = getattr(aux, u"eventtype")
       get_type = u"""
         {evtyp} et = {aname}.{egetter}({evt_id}, evt);
-        """.format(**locals())
+      """.format(**locals())
 
       def handle_switch(i):
         evt_cls = class_lookup(aux.evt.name)
