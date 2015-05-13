@@ -4,15 +4,15 @@ package javax.swing;
 public class AbstractButton extends JComponent implements SwingConstants, ItemSelectable {
   public AbstractButton();
 
-  public void dispatchEvent(AWTEvent event); // TODO: should use Component's
-
   public void addActionListener(ActionListener l);
   public void removeActionListener(ActionListener l);
+  protected void fireActionPerformed(ActionEvent event);
   // TODO: new role: @Retrieve
   //public ActionListener[] getActionListeners();
 
   public void addItemListener(ItemListener l);
   public void removeItemListener(ItemListener l);
+  protected void fireItemStateChanged(ItemEvent event);
 
   public void setVerticalTextPosition(int textPosition);
   public void setHorizontalTextPosition(int textPosition);
