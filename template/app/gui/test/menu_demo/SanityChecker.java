@@ -25,7 +25,7 @@ class SwingEventHandler implements EventHandler {
             for (int i = 0; i < listeners.length; i++) {
                 listeners[i].actionPerformed(evt);
             }*/
-            temp.dispatchEvent(evt);
+            temp.fireActionPerformed(evt);
         }
 	else if (line.contains("A_check_box_menu_item")) {
             String action = line.substring(0, line.indexOf("."));
@@ -36,7 +36,7 @@ class SwingEventHandler implements EventHandler {
             for (int i = 0; i < listeners.length; i++) {
                 listeners[i].actionPerformed(evt);
             }*/
-            temp.dispatchEvent(evt);
+            temp.fireItemStateChanged(evt);
         }
 
         return;

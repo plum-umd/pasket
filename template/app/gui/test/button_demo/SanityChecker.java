@@ -25,7 +25,7 @@ class SwingEventHandler implements EventHandler {
             for (int i = 0; i < listeners.length; i++) {
                 listeners[i].actionPerformed(evt);
             }*/
-            temp.dispatchEvent(evt);
+            temp.fireActionPerformed(evt);
         }
         return;
     }

@@ -20,7 +20,7 @@ class SwingEventHandler implements EventHandler {
             String action = line.substring(0, line.indexOf("."));
             JButton temp = getButton(action);
             ActionEvent evt = new ActionEvent(temp, 0, getCommand(action));
-            temp.dispatchEvent(evt);
+            temp.fireActionPerformed(evt);
         }
         return;
     }

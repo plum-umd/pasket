@@ -117,7 +117,7 @@ public class FileChooserDemo extends JPanel
                 log.append("Open command cancelled by user."); // + newline);
             }
             Document tmpDoc = log.getDocument();
-            int tmpLength = tmpDoc.getLength();
+            int tmpLength = 0; //tmpDoc.getLength();
             log.setCaretPosition(tmpLength);
 
         //Handle save button action.
@@ -131,7 +131,7 @@ public class FileChooserDemo extends JPanel
                 log.append("Save command cancelled by user."); // + newline);
             }
             Document tmpDoc2 = log.getDocument();
-            int tmpLength2 = tmpDoc2.getLength();
+            int tmpLength2 = 0; //tmpDoc2.getLength();
             log.setCaretPosition(tmpLength2);
         }
     }

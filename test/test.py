@@ -78,6 +78,8 @@ class TestPatterns(unittest.TestCase):
             tmpl = [] #[os.path.join(tmpl_dir, "app", p, name), os.path.join(tmpl_dir, "gui")]
 
         pasket.no_encoding()
+        pasket.no_verbose()
+        pasket.no_timeout()
         pasket.no_sketch()
         pasket.all_swing()
         pasket.main(p, smpl, tmpl, names, res_dir)

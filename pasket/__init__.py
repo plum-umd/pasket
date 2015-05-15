@@ -167,6 +167,12 @@ def configure(opt):
 def no_encoding():
   conf["encoding"] = False
   
+def no_verbose():
+  conf["verbose"] = False
+  
+def no_timeout():
+  conf["timeout"] = None
+  
 def no_sketch():
   conf["sketch"] = False
 

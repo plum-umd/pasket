@@ -77,7 +77,7 @@ class SampleProcessor {
 	l = l.replaceAll("javax.swing.JMenuItem\\$AccessibleJMenuItem", "javax.accessibility.AccessibleContext");
 	l = l.replaceAll("javax.swing.JMenuBar.add", "java.awt.Container.add");        
 	l = l.replaceAll("javax.swing.JMenu.add", "java.awt.Container.add");        
-	//l = l.replaceAll("java.awt.Container.addSeparator", "javax.swing.JMenuItem.addSeparator");
+	l = l.replaceAll("java.awt.Container.addSeparator", "javax.swing.JMenu.addSeparator");
 
         return l;
     }

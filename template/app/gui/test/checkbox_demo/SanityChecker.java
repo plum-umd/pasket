@@ -19,13 +19,13 @@ class SwingEventHandler implements EventHandler {
         if (line.endsWith("doClick()")) {
             String action = line.substring(0, line.indexOf("."));
             JCheckBox temp = getCheckBox(action);
-            ItemEvent evt = new ItemEvent(temp, 0, null, 1);
+            ItemEvent evt = new ItemEvent(temp, 0, null, 2);
             /*
             ActionListener[] listeners = temp.getActionListeners();
             for (int i = 0; i < listeners.length; i++) {
                 listeners[i].actionPerformed(evt);
             }*/
-            temp.dispatchEvent(evt);
+            temp.fireItemStateChanged(evt);
         }
         return;
     }
