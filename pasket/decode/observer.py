@@ -390,16 +390,6 @@ class Observer(object):
       if hasattr(node.le, "ty") and C.OBS.AUX in node.le.ty:
         node.le.ty = self._subj[node.le.ty].name
 
-    # discard unnecessary statements that were suppose to add dispatchers
-    elif node.kind == C.S.IF:
-      guard = str(node.e)
-      if guard in "false":
-        logging.debug("removing true branch in {}".format(self._cur_mtd.name))
-        return node.f
-      elif guard in "true":
-        logging.debug("removing false branch in {}".format(self._cur_mtd.name))
-        return node.t
-
     elif node.kind == C.S.FOR:
       ## for (Observer o : _obs) { ... }
       ##   ->

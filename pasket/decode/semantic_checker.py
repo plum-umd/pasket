@@ -17,6 +17,8 @@ class SemanticChecker(object):
   def __init__(self, cmd):
     self._cmd = cmd
 
+    self._cur_mtd = None
+
   @v.on("node")
   def visit(self, node):
     """
@@ -37,9 +39,10 @@ class SemanticChecker(object):
       magic_S = 256 # 0x100
       node.init = to_expression(u"new {} [ {} ]".format(comp_typ, magic_S))
 
-
   @v.when(Method)
   def visit(self, node):
+    self._cur_mtd = node
+
     if node.clazz.is_aux: return
     if node.clazz.is_itf: return
 
@@ -68,7 +71,19 @@ class SemanticChecker(object):
       node.body = to_statements(node, u"if (null != null) return;")
 
   @v.when(Statement)
-  def visit(self, node): return [node]
+  def visit(self, node):
+
+    # discard unnecessary branches, if possible
+    if node.kind == C.S.IF:
+      guard = str(node.e)
+      if guard in ["0", "false"]:
+        logging.debug("removing true branch in {}".format(self._cur_mtd.name))
+        return node.f
+      elif guard in ["1", "true"]:
+        logging.debug("removing false branch in {}".format(self._cur_mtd.name))
+        return node.t
+
+    return [node]
 
   @v.when(Expression)
   def visit(self, node):
