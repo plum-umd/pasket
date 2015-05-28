@@ -90,28 +90,28 @@ class AccessorUni(object):
 
   # add a private field
   @staticmethod
-  def add_prvt_fld(acc, inst, typ, num):
-    name = u'_'.join([C.ACC.prvt, unicode(num), acc.name])
+  def add_prvt_fld(acc, k, typ, num):
+    name = u'_'.join([C.ACC.prvt, unicode(num), k])
     fld = acc.fld_by_name(name)
     if not fld:
       logging.debug("adding private field {} for {} of type {}".format(name, acc.name, typ))
       fld = Field(clazz=acc, typ=typ, name=name)
       acc.add_fld(fld)
-    setattr(acc, C.ACC.CONS+"_"+inst+"_"+str(num), fld)
+    return fld
 
   # getter code
   @staticmethod
-  def def_getter(mtd, acc, fld_id):
+  def def_getter(mtd, fld):
     logging.debug("adding getter code into {}".format(repr(mtd)))
-    get = u"return {}_{}_{};".format(C.ACC.prvt, unicode(fld_id), acc.name)
+    get = u"return {};".format(fld.name)
     mtd.body = to_statements(mtd, get)
 
   # setter code
   @staticmethod
-  def def_setter(mtd, acc, fld_id, typ):
-    args = find_formals(mtd.params, [typ])
+  def def_setter(mtd, fld, typ):
+    arg = find_formals(mtd.params, [typ])[0]
     logging.debug("adding setter code into {}".format(repr(mtd)))
-    set = u"{}_{}_{} = {};".format(C.ACC.prvt, unicode(fld_id), acc.name, args[0])
+    set = u"{} = {};".format(fld.name, arg)
     mtd.body = to_statements(mtd, set)
 
   # constructor code
@@ -128,7 +128,9 @@ class AccessorUni(object):
       try:
         _id = self._role['_'.join([role, aux_name])]
         return lst[int(_id)]
-      except KeyError: return None
+      except KeyError:
+        # ignore what Sketch thought not critical for log conformity
+        return None
 
     aux_name = self.__aux_name
     aux = class_lookup(aux_name)
@@ -160,7 +162,11 @@ class AccessorUni(object):
     for key in self._acc_conf.iterkeys():
       gs[key] = {}
       for x in xrange(max(self._acc_conf[key][1], self._acc_conf[key][2])):
-        gs[key][x] = self._role['_'.join([C.ACC.GS, key, str(x), aux_name])]
+        try:
+          gs[key][x] = self._role['_'.join([C.ACC.GS, key, str(x), aux_name])]
+        except KeyError:
+          # ignore what Sketch thought not critical for log conformity
+          pass
 
     self._cons[aux.name] = cons
     self._getters[aux.name] = getters
@@ -187,14 +193,14 @@ class AccessorUni(object):
         if not effective: effective = setr and setr.id in self._invoked
 
         if effective:
-          AccessorUni.add_prvt_fld(getr.clazz, k, getr.typ, int(gs[k][e]))
+          fld = AccessorUni.add_prvt_fld(getr.clazz, k, getr.typ, int(gs[k][e]))
           logging.debug("getter: {}_{}: {}".format(k, e, repr(getr)))
-          AccessorUni.def_getter(getr, getr.clazz, gs[k][e])
+          AccessorUni.def_getter(getr, fld)
 
           if setr:
-            AccessorUni.add_prvt_fld(setr.clazz, k, setr.param_typs[0], int(gs[k][e]))
+            fld = AccessorUni.add_prvt_fld(setr.clazz, k, setr.param_typs[0], int(gs[k][e]))
             logging.debug("setter: {}_{}: {}".format(k, e, repr(setr)))
-            AccessorUni.def_setter(setr, setr.clazz, gs[k][e], setr.param_typs[0])
+            AccessorUni.def_setter(setr, fld, setr.param_typs[0])
 
     # remove Aux class
     node.classes.remove(aux)
