@@ -1,5 +1,5 @@
 import operator as op
-from itertools import product
+from itertools import product, combinations
 from functools import partial
 import logging
 
@@ -353,14 +353,18 @@ class AccessorUni(object):
     map(mtd_range, conf.iterkeys())
 
     # disjoint getters
-    for v in range(len(rv_gtts)):
-      for w in range(v):
-        checkers.append("assert " + getattr(aux, rv_gtts[v]) + " != " + getattr(aux, rv_gtts[w]) + ";")
+    for r_i, r_j in combinations(rv_gtts, 2):
+      checkers.append("assert " + getattr(aux, r_i) + " != " + getattr(aux, r_j) + ";")
 
     # disjoint setters
-    for v in range(len(rv_stts)):
-      for w in range(v):
-        checkers.append("assert " + getattr(aux, rv_stts[v]) + " != " + getattr(aux, rv_stts[w]) + ";")
+    for r_i, r_j in combinations(rv_stts, 2):
+      checkers.append("assert " + getattr(aux, r_i) + " != " + getattr(aux, r_j) + ";")
+
+    # disjoint gs fields in the same configuration
+    for c in conf:
+      c_gs_vars = map(lambda n: '_'.join([C.ACC.GS, c, str(n)]), range(conf[c][1]))
+      for r_i, r_j in combinations(c_gs_vars, 2):
+        checkers.append("assert " + getattr(aux, r_i) + " != " + getattr(aux, r_j) + ";")
     
     # range check for gs: as an index, shouldn't be negative
     def gs_positive(role):
