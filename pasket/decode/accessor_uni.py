@@ -116,10 +116,11 @@ class AccessorUni(object):
 
   # constructor code
   @staticmethod
-  def def_constructor(mtd, acc):
+  def def_constructor(mtd, flds):
+    if len(mtd.params) != len(flds): return
     logging.debug("adding constructor code into {}".format(repr(mtd)))
-    for i, (ty, nm) in enumerate(mtd.params):
-      init = u"{}_{}_{} = {};".format(C.ACC.prvt, unicode(i), acc.name, nm)
+    for (_, nm), fld in zip(mtd.params, flds):
+      init = u"{} = {};".format(fld.name, nm)
       mtd.body += to_statements(mtd, init)
 
   @v.when(Template)
@@ -178,9 +179,11 @@ class AccessorUni(object):
       c = cons[k]
       if not c: continue
       if util.exists(lambda m: m.id in self._invoked, c.clazz.mtds):
+        flds = []
         for n, t in enumerate(c.param_typs):
-          AccessorUni.add_prvt_fld(c.clazz, k, t, n)
-        AccessorUni.def_constructor(c, c.clazz)
+          fld = AccessorUni.add_prvt_fld(c.clazz, k, t, n)
+          flds.append(fld)
+        AccessorUni.def_constructor(c, flds)
 
     # add private fields for getters/setters
     # insert or move code snippets from Aux classes to actual participants
