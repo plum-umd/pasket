@@ -62,5 +62,11 @@ For Android: refer to build.xml explanation
 
 This script will show you how big generated files are:
 
-    ....result $ ./stat.sh sk...demo
+    ...result $ ./stat.sh sk...demo
+
+* post.py
+
+This script will post-analyze output files under output/ folder:
+
+    ...result $ ./post.py
 
