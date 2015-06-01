@@ -18,7 +18,7 @@ acc_conf_uni = {
   "DefaultDocumentEvent": (4, 1, 0), # getType
   "ListSelectionEvent": (4, 3, 0), # get((First|Last)Index|ValueIsAdjusting)
 
-  "AbstractButton": (-1, 1, 1), # (get|set)ActionCommand
+  "JButton": (1, 1, 1), # (get|set)ActionCommand
 
   "JTextComponent": (-1, 4, 4), #(get|set)(Document|Editable|CaretPosition)
   #"Document": (-1, 1, 0), #getLength

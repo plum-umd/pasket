@@ -19,7 +19,7 @@ class SwingEventHandler implements EventHandler {
         if (line.endsWith("doClick()")) {
             String action = line.substring(0, line.indexOf("."));
             JButton temp = getButton(action);
-            ActionEvent evt = new ActionEvent(temp, 0, temp.getActionCommand());
+            ActionEvent evt = new ActionEvent(temp, 0, getCommand(action));
             /*
             ActionListener[] listeners = temp.getActionListeners();
             for (int i = 0; i < listeners.length; i++) {
@@ -30,6 +30,12 @@ class SwingEventHandler implements EventHandler {
         return;
     }
     
+    private String getCommand(String command) {
+        if (command.equals("$Disable")) return "disable";
+        else if (command.equals("$Enable")) return "enable";
+        else return null;
+    }
+
     private JButton getButton(String command) {
         if (command.equals("$Disable")) return demo.b1;
         else if (command.equals("$Enable")) return demo.b3;
