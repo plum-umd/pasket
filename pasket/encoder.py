@@ -724,8 +724,8 @@ def trans_e(mtd, e):
         logging = str(check_logging(mtd, mtd_callee)).lower()
     else: # mid
       mname = e.f.id
-      # pre-defined meta information
-      if mname in C.typ_arrays:
+      # pre-defined meta information or Sketch primitive functions
+      if mname in C.typ_arrays + [u"minimize"]:
         mid = mname
         rcv = None
       elif mname == C.J.SUP and mtd.is_init: # super(...) inside <init>
