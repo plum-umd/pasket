@@ -7,7 +7,7 @@ import lib.visit as v
 from .. import util
 from ..meta import class_lookup
 from ..meta.template import Template
-from ..meta.clazz import Clazz, find_mtd_by_sig
+from ..meta.clazz import Clazz, find_mtds_by_sig
 from ..meta.method import Method, sig_match
 from ..meta.field import Field
 from ..meta.statement import Statement, to_statements
@@ -99,9 +99,11 @@ class AccessorAdHoc(object):
     ##
     if node.is_init and cls.sup and cls.sup != C.J.OBJ and \
         (not node.body or not str(node.body[0]).startswith(C.J.SUP)):
-      sup_init = find_mtd_by_sig(cls.sup, cls.sup, node.param_typs)
-      if sup_init: # sig-matched super()
-        args = sig_match(sup_init.params, node.params)
+      sup_inits = find_mtds_by_sig(cls.sup, cls.sup, node.param_typs)
+      if sup_inits: # sig-matched super()
+        if 1 == len(sup_inits):
+          args = sig_match(sup_inits[0].params, node.params)
+        else: raise Exception("<init>s with same signature: {}".format(sup_inits))
       else: # try other super(...)
         sup = class_lookup(cls.sup)
         args = []

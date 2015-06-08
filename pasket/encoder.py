@@ -17,7 +17,7 @@ import util
 import sample
 from meta import methods, classes, class_lookup
 from meta.template import Template
-from meta.clazz import Clazz, find_fld, find_mtds_by_name, find_mtd_by_sig, find_base
+from meta.clazz import Clazz, find_fld, find_mtds_by_name, find_mtds_by_sig, find_base
 from meta.method import Method, sig_match
 from meta.field import Field
 from meta.statement import Statement
@@ -137,9 +137,11 @@ def trans_mname(cname, mname, arg_typs=[]):
       tr_name = trans_ty(cname)
       cls = class_lookup(tr_name)
       if cls and cls.is_aux: cname = tr_name
-    mtd = find_mtd_by_sig(cname, mname, arg_typs)
-    if mtd: r_mtd = unicode(repr(mtd))
-    else: r_mtd = '_'.join([mname, util.sanitize_ty(cname)])
+    mtds = find_mtds_by_sig(cname, mname, arg_typs)
+    if mtds and 1 == len(mtds):
+      r_mtd = unicode(repr(mtds[0]))
+    else: # ambiguous or not found
+      r_mtd = '_'.join([mname, util.sanitize_ty(cname)])
 
   r_mtd = sanitize_mname(r_mtd)
   _mtds[mid] = r_mtd
@@ -712,36 +714,68 @@ def trans_e(mtd, e):
 
   elif e.kind == C.E.CALL:
     arg_typs = map(partial(typ_of_e, mtd), e.a)
-    logging = None
+
+    def trans_call(callee, rcv_ty, rcv):
+      if callee.is_static: rcv = None
+      logging = None
+      if not util.is_collection(callee.clazz.name):
+        logging = str(check_logging(mtd, callee)).lower()
+
+      args = util.rm_none([rcv] + map(curried, e.a) + [logging])
+      mid = trans_mname(rcv_ty, callee.name, arg_typs)
+      return u"{}({})".format(mid, ", ".join(args))
+
+    def dynamic_dispatch(rcv_ty, rcv, acc, callee):
+      _dispatched = trans_call(callee, callee.clazz.name, rcv)
+      _guarded = "{}.__cid == {} ? {}".format(rcv, callee.clazz.id, _dispatched)
+      return "({} : {})".format(_guarded, acc)
+
     if e.f.kind == C.E.DOT: # rcv.mid
       rcv_ty = typ_of_e(mtd, e.f.le)
+      rcv = curried(e.f.le)
       mname = e.f.re.id
-      mtd_callee = find_mtd_by_sig(rcv_ty, mname, arg_typs)
-      if mtd_callee and mtd_callee.is_static: rcv = None
-      else: rcv = curried(e.f.le)
-      mid = trans_mname(rcv_ty, mname, arg_typs)
-      if mtd_callee and not util.is_collection(mtd_callee.clazz.name):
-        logging = str(check_logging(mtd, mtd_callee)).lower()
+      mtd_callees = find_mtds_by_sig(rcv_ty, mname, arg_typs)
+      if mtd_callees and 1 < len(mtd_callees): # needs dynamic dispatch
+        curried_dispatch = partial(dynamic_dispatch, rcv_ty, rcv)
+        # TODO: use least upper bound?
+        default_v = util.default_value(mtd_callees[0].typ)
+        buf.write(reduce(curried_dispatch, mtd_callees, default_v))
+      elif mtd_callees and 1 == len(mtd_callees):
+        mtd_callee = mtd_callees[0]
+        buf.write(trans_call(mtd_callee, rcv_ty, rcv))
+      else: # unresolved, maybe library method
+        mid = trans_mname(rcv_ty, mname, arg_typs)
+        args = util.rm_none([rcv] + map(curried, e.a))
+        buf.write("{}({})".format(mid, ", ".join(args)))
+
     else: # mid
       mname = e.f.id
       # pre-defined meta information or Sketch primitive functions
       if mname in C.typ_arrays + [u"minimize"]:
         mid = mname
         rcv = None
+        args = util.rm_none([rcv] + map(curried, e.a))
+        buf.write("{}({})".format(mid, ", ".join(args)))
       elif mname == C.J.SUP and mtd.is_init: # super(...) inside <init>
         sup = class_lookup(mtd.clazz.sup)
         mid = trans_mname(sup.name, sup.name, arg_typs)
         rcv = C.SK.self
+        args = util.rm_none([rcv] + map(curried, e.a))
+        buf.write("{}({})".format(mid, ", ".join(args)))
       else: # member methods
-        mtd_callee = find_mtd_by_sig(mtd.clazz.name, mname, arg_typs)
-        if mtd_callee and mtd_callee.is_static: rcv = None
-        else: rcv = C.SK.self
-        mid = trans_mname(mtd.clazz.name, mname, arg_typs)
-        if mtd_callee and not util.is_collection(mtd_callee.clazz.name):
-          logging = str(check_logging(mtd, mtd_callee)).lower()
-
-    args = util.rm_none([rcv] + map(curried, e.a) + [logging])
-    buf.write(mid + '(' + ", ".join(args) + ')')
+        mtd_callees = find_mtds_by_sig(mtd.clazz.name, mname, arg_typs)
+        if mtd_callees and 1 < len(mtd_callees): # needs dynamic dispatch
+          curried_dispatch = partial(dynamic_dispatch, mtd.clazz.name, C.SK.self)
+          # TODO: use least upper bound?
+          default_v = util.default_value(mtd_callees[0].typ)
+          buf.write(reduce(curried_dispatch, mtd_callees, default_v))
+        elif mtd_callees and 1 == len(mtd_callees):
+          mtd_callee = mtd_callees[0]
+          buf.write(trans_call(mtd_callee, mtd.clazz.name, C.SK.self))
+        else: # unresolved, maybe library method
+          mid = trans_mname(mtd.clazz.name, mname, arg_typs)
+          args = util.rm_none([rcv] + map(curried, e.a))
+          buf.write("{}({})".format(mid, ", ".join(args)))
 
   elif e.kind == C.E.CAST:
     # since a family of classes is merged, simply ignore the casting

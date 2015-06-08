@@ -9,7 +9,7 @@ from lib.typecheck import *
 from .. import util
 from ..meta import class_lookup, methods
 from ..meta.template import Template
-from ..meta.clazz import find_mtd_by_sig
+from ..meta.clazz import find_mtds_by_sig
 from ..meta.method import find_formals
 
 from api import APICollector
@@ -32,8 +32,8 @@ def covered(tmpl_files, demo_files):
   tmpl.accept(collector)
 
   def find_api(cname, mname, arg_typs):
-    mtd = find_mtd_by_sig(cname, mname, arg_typs)
-    if mtd: return True, [mtd]
+    mtds = find_mtds_by_sig(cname, mname, arg_typs)
+    if mtds: return True, mtds
 
     cls = class_lookup(cname)
     candidates = []
