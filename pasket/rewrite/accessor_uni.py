@@ -9,6 +9,7 @@ import lib.visit as v
 from .. import add_artifacts
 from .. import util
 from .. import sample
+from ..meta import class_lookup
 from ..meta.template import Template
 from ..meta.clazz import Clazz
 from ..meta.method import Method
@@ -27,6 +28,8 @@ class AccessorUni(object):
     self._aux_name = C.ACC.AUX+"Uni"
     self._aux = None
 
+    self._max_param = max(map(lambda (c, g, s, i): c, acc_conf.values()))
+
   @property
   def aux_name(self):
     return self._aux_name
@@ -34,6 +37,10 @@ class AccessorUni(object):
   @property
   def aux(self):
     return self._aux
+
+  @property
+  def max_param(self):
+    return self._max_param
 
   @aux.setter
   def aux(self, v):
@@ -61,7 +68,8 @@ class AccessorUni(object):
     if cls.pkg in ["java.lang"]: return False
     mtds = cls.mtds
     getter_mtds = filter(AccessorUni.is_candidate_getter, mtds)
-    cons_mtds = AccessorUni.get_candidate_inits(cls)
+    cons_mtds = filter(lambda x: x.is_init, mtds)
+    #cons_mtds = AccessorUni.get_candidate_inits(cls)
     return cls.is_class and (any(getter_mtds) or any(cons_mtds))
 
   @staticmethod
@@ -87,10 +95,27 @@ class AccessorUni(object):
       mtds = util.flatten(map(op.attrgetter("mtds"), cls.subs))
     return filter(AccessorUni.is_candidate_mtd, mtds)
 
+  @staticmethod
+  def is_container(cls):
+    name = cls.name
+    return name == u"ArrayDeque" or name == u"LinkedList" or name == u"Stack" or name == u"TreeMap" or name == u"ArrayDequeue"
+
+  # retrieve constructors
+  #@staticmethod
+  #def get_candidate_inits(cls):
+  #  return filter(lambda x: x.is_init and len(x.params) == 0 and not AccessorUni.is_container(x), cls.mtds)
+
   # retrieve constructors
   @staticmethod
-  def get_candidate_inits(cls):
-    return filter(lambda x: x.is_init, cls.mtds)
+  def get_candidate_implicits(clss, cls):
+    base_clss = map(lambda m: class_lookup(m.typ), filter(lambda m: not m.is_init and len(m.params) == 0 and m.typ != C.J.v and m.typ != C.J.i and m.typ != C.J.z, cls.mtds))
+    candidate_clss = filter(lambda c: util.exists(lambda b: c <= b, base_clss), clss)
+    real_clss = filter(lambda c: not AccessorUni.is_container(c) and c.name != C.J.I and c.name != C.J.STR and c.name != C.J.v and c.name != C.J.i and c.name != C.J.z and c.name != C.J.OBJ, candidate_clss)
+    return filter(lambda c: util.exists(lambda m: m.name == c.name and len(m.params) == 0, c.mtds), real_clss)
+
+  @staticmethod
+  def get_candidate_imp(tmpl):
+    return filter(lambda x: x.is_init and len(x.params) == 0 and not AccessorUni.is_container(x), reduce(lambda x,y: x+y, map(lambda c: c.mtds, tmpl.classes)))
 
   # add a global counter
   @staticmethod
@@ -102,11 +127,11 @@ class AccessorUni(object):
 
   # restrict call stack for the given method via a global counter
   @staticmethod
-  def limit_depth(aux, mtd, depth):
+  def limit_depth(aux, mtd, depth, rval=u''):
     fname = mtd.name + "_depth"
     AccessorUni.add_global_counter(aux, fname)
     prologue = to_statements(mtd, u"""
-      if ({fname} > {depth}) return;
+      if ({fname} > {depth}) return {rval};
       {fname} = {fname} + 1;
     """.format(**locals()))
     epilogue = to_statements(mtd, u"""
@@ -128,6 +153,11 @@ class AccessorUni(object):
   @staticmethod
   def getter_params():
     return [ (C.J.i, u"fld_id"), (C.J.i, u"mtd_id"), (C.J.OBJ, u"callee") ]
+
+  # common params for implict mapping methods
+  @staticmethod
+  def mapping_params():
+    return [ (C.J.i, u"cls_id"), (C.J.i, u"fld_id") ]
 
   # code for getting a field
   @staticmethod
@@ -238,7 +268,106 @@ class AccessorUni(object):
   @staticmethod
   def zsetter_in_one(aux, conf, fld_s, s_cnt):
     AccessorUni.__setter_in_one(aux, conf, fld_s, s_cnt, C.J.z)
-  
+
+  # methods that simulates reflection
+  @staticmethod
+  def reflect_per_cls(aux, clss, cls):
+    params = [(C.J.i, u"cons_id")]
+    reflect = Method(clazz=aux, mods=C.PBST, typ=C.J.OBJ, params=params, name=u"reflect_"+cls.name)
+    cons = AccessorUni.get_candidate_implicits(clss, cls)
+    logging.debug("{}.{} {}".format(aux.name, reflect.name, cons))
+    def invoke(cons):
+      call = "return new {}();".format(cons.name)
+      return u"if (cons_id == {cons.id}) {{ {call} }}".format(**locals())
+    invocations = filter(None, map(invoke, cons))
+    tests = u"\nelse ".join(invocations)
+    reflect.body = to_statements(reflect, tests)
+    AccessorUni.limit_depth(aux, reflect, 2, u"null")
+    aux.add_mtds([reflect])
+    setattr(aux, "reflect_"+cls.name, reflect)
+
+  # a method that simulates reflection
+  @staticmethod
+  def reflect(aux, clss):
+    map(partial(AccessorUni.reflect_per_cls, aux, clss), filter(lambda c: c.name != C.J.OBJ and c.name != C.J.i and c.name != C.J.z and not AccessorUni.is_container(c), clss))
+
+  #@staticmethod
+  #def reflect(aux, clss):
+  #  params = [(C.J.i, u"cons_id")]
+  #  reflect = Method(clazz=aux, mods=C.PBST, typ=C.J.OBJ, params=params, name=u"reflect")
+  #  def switch( cls ):
+  #    cons = AccessorUni.get_candidate_implicits(clss, cls)
+  #    logging.debug("{}.{} {}".format(aux.name, reflect.name, cons))
+  #    def invoke(cons):
+  #      call = "return new {}();".format(cons.name)
+  #      return u"if (cons_id == {cons.id}) {{ {call} }}".format(**locals())
+  #    invocations = filter(None, map(invoke, cons))
+  #    #return "\nelse ".join(invocations)
+  #    return invocations
+  #  tests = set(sum(map(switch, filter(lambda c: c.name != C.J.OBJ and c.name != C.J.i and c.name != C.J.z and not AccessorUni.is_container(c), clss)), []))
+  #  reflect.body = to_statements(reflect, u"\nelse ".join(tests))
+  #  AccessorUni.limit_depth(aux, reflect, 2, u"null")
+  #  aux.add_mtds([reflect])
+  #  setattr(aux, "reflect", reflect)
+
+  @staticmethod
+  def implicit_cls_mapping(aux, conf, cls, fld_c, c_cnt):
+    params = [ (C.J.i, u"fld_id") ]
+    one = Method(clazz=aux, mods=C.PBST, typ=C.J.i, params=params, name=u"mapToID_"+cls)
+    def implicit_map_switch(fld_id):
+      v = getattr(aux, '_'.join([C.ACC.ACC, cls]))
+      f = getattr(aux, '_'.join([C.ACC.IMP, cls, str(fld_id)]))
+      return u"if (fld_id == {fld_id}) return {f};".format(**locals())
+    one.body = to_statements(one, u"\nelse ".join(map(implicit_map_switch, range(conf[cls][0]))))
+    AccessorUni.limit_number(one, fld_c, c_cnt, u"-1")
+    aux.add_mtds([one])
+
+  @staticmethod
+  def implicit_mapping(aux, conf, fld_c, c_cnt):
+    cls = conf.keys()
+    map(lambda i: AccessorUni.implicit_cls_mapping(aux, conf, cls[i], fld_c, c_cnt), range(len(conf)))
+
+  @staticmethod
+  def implicit_in_one_per_cls(aux, conf, fld_c, c_cnt, tmpl, cls):
+    params = AccessorUni.mapping_params() + [(C.J.OBJ, u"callee")]
+    one = Method(clazz=aux, mods=C.PBST, params=params, name=u"implicitInitInOne_"+cls.name)
+    def implicit_switch_whole(cl_id):
+      clid = cl_id
+      cl = conf.keys()[cl_id]
+      aname = aux.name
+      f = getattr(aux, "sttr").name
+      reflect = getattr(aux, "reflect_"+cls.name).name
+      i = u"mapToID_{cl}(fld_id)".format(**locals())
+      args = ", ".join(map(lambda (ty, nm): nm, params[1:2] + params[:1]) + [u"callee"] + [u"{reflect}(cons_id)".format(**locals())])
+      u = getattr(aux, '_'.join([C.ACC.ACC, cl]))
+      #v = u"mapToID({clid}, fld_id)".format(**locals())
+      call = "int cons_id = mapToID_{cl}(fld_id);\n{aname}.{f}({args});".format(**locals())
+      return u"if ({u} == cls_id && ??) {{ {call} }}".format(**locals())
+    one.body = to_statements(one, "\nelse ".join(map(implicit_switch_whole, filter(lambda n: conf[conf.keys()[n]][0]>0 and conf[conf.keys()[n]][3], range(len(conf.keys()))))))
+    AccessorUni.limit_number(one, fld_c, c_cnt)
+    aux.add_mtds([one])
+
+  @staticmethod
+  def implicit_in_one(aux, conf, fld_c, c_cnt, tmpl):
+    params = AccessorUni.mapping_params() + [(C.J.OBJ, u"callee")]
+    one = Method(clazz=aux, mods=C.PBST, params=params, name=u"implicitInitInOne")
+    def implicit_switch_whole(cl_id):
+      clid = cl_id
+      cl = conf.keys()[cl_id]
+      aname = aux.name
+      f = getattr(aux, "sttr").name
+      #reflect = aux.reflect.name
+      reflect = "reflect"
+      i = u"mapToID_{cl}(fld_id)".format(**locals())
+      args = ", ".join(map(lambda (ty, nm): nm, params[1:2] + params[:1]) + [u"callee"] + [u"{reflect}(cons_id)".format(**locals())])
+      u = getattr(aux, '_'.join([C.ACC.ACC, cl]))
+      #v = u"mapToID({clid}, fld_id)".format(**locals())
+      call = "int cons_id = mapToID_{cl}(fld_id);\n{aname}.{f}({args});".format(**locals())
+      return u"if ({u} == cls_id && ??) {{ {call} }}".format(**locals())
+    one.body = to_statements(one, "\nelse ".join(map(implicit_switch_whole, filter(lambda n: conf[conf.keys()[n]][0]>0 and conf[conf.keys()[n]][3], range(len(conf.keys()))))))
+    AccessorUni.limit_number(one, fld_c, c_cnt)
+    aux.add_mtds([one])
+
   # initializer will be invoked here
   @staticmethod
   def __constructor_in_one(aux, conf, fld_c, c_cnt, ty):
@@ -296,6 +425,8 @@ class AccessorUni(object):
     
     rv_accs = map(lambda c: '_'.join([C.ACC.ACC, c]), conf.iterkeys())
 
+    def get_f_roles(name, c):
+      return map(lambda n: '_'.join([name, c, str(n)]), range(conf[c][0]))
     def get_g_roles(name, c):
       return map(lambda n: '_'.join([name, c, str(n)]), range(conf[c][1]))
     def get_s_roles(name, c):
@@ -303,6 +434,7 @@ class AccessorUni(object):
 
     rv_gtts = util.flatten(map(partial(get_g_roles, C.ACC.GET), conf.iterkeys()))
     rv_stts = util.flatten(map(partial(get_s_roles, C.ACC.SET), conf.iterkeys()))
+    rv_imp = util.flatten(map(partial(get_f_roles, C.ACC.IMP), conf.iterkeys()))
     gs_vars = util.flatten(map(partial(get_g_roles, C.ACC.GS), conf.iterkeys()))
 
     # set role variables
@@ -313,6 +445,7 @@ class AccessorUni(object):
     map(set_role, rv_accs)
     map(set_role, rv_gtts)
     map(set_role, rv_stts)
+    map(set_role, rv_imp)
     map(set_role, gs_vars)
     
     # add fields that stand for non-deterministic role choices
@@ -326,21 +459,10 @@ class AccessorUni(object):
 
     c_to_e = lambda c: to_expression(unicode(c))
 
-    ## range check
-    rg_chk = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"checkRange")
-    checkers = []
-    gen_range = lambda ids: gen_E_gen(map(c_to_e, util.rm_dup(ids)))
-    get_id = op.attrgetter("id")
-
-    # range check for accessors
-    cls_ids = map(get_id, filter(AccessorUni.is_candidate_cls, self._clss))
-    cls_init = gen_range(cls_ids)
-    aux_int_cls = partial(aux_fld, cls_init, C.J.i)
-    aux.add_flds(map(aux_int_cls, rv_accs))
-
     # range check for getter/setter
     mtds = util.flatten(map(AccessorUni.get_candidate_mtds, self._clss))
 
+    # auxiliary functions
     def aux_range(rl, c, nm, mtds, num_args, is_void):
       ids = map(get_id, filter(lambda m: len(m.params) == num_args and (m.typ == C.J.v) == is_void, mtds))
       init = gen_range(ids)
@@ -350,7 +472,39 @@ class AccessorUni(object):
     def mtd_range(c):
       map(lambda m: [aux_range(C.ACC.GET, c, m, mtds, 0, False)], range(conf[c][1]))
       map(lambda m: [aux_range(C.ACC.SET, c, m, mtds, 1, True)], range(conf[c][2]))
+
+    def imp_range(rl):
+      cand_names = map(get_name, AccessorUni.get_candidate_imp(tmpl))
+      ids = map(get_id, filter(lambda c: c.name in cand_names, self._clss))
+      init = gen_range(ids)
+      role = getattr(aux, rl)
+      aux.add_flds([aux_fld(init, C.J.i, role)])
+
+    def gs_positive(role, num):
+      rv = getattr(aux, '_'.join([C.ACC.GS, role, str(num)]))
+      argnum = conf[role][0]
+      checkers.append("assert {rv} >= 0 && {rv} < {argnum};".format(**locals()))
+
+    # range check for accessors
+    gen_range = lambda ids: gen_E_gen(map(c_to_e, util.rm_dup(ids)))
+    get_id = op.attrgetter("id")
+    get_name = op.attrgetter("name")
+    
+    cls_ids = map(get_id, filter(AccessorUni.is_candidate_cls, self._clss))
+    cls_init = gen_range(cls_ids)
+    aux_int_cls = partial(aux_fld, cls_init, C.J.i)
+    aux.add_flds(map(aux_int_cls, rv_accs))
+
+
     map(mtd_range, conf.iterkeys())
+
+    map(imp_range, rv_imp)
+
+
+    ## range check
+    rg_chk = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"checkRange")
+    checkers = []
+
 
     # disjoint getters
     for r_i, r_j in combinations(rv_gtts, 2):
@@ -360,6 +514,12 @@ class AccessorUni(object):
     for r_i, r_j in combinations(rv_stts, 2):
       checkers.append("assert " + getattr(aux, r_i) + " != " + getattr(aux, r_j) + ";")
 
+
+
+    #for c in conf:
+    #  rg_chk = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"checkRangeFor"+c)
+    #  checkers = []
+
     # disjoint gs fields in the same configuration
     for c in conf:
       c_gs_vars = map(lambda n: '_'.join([C.ACC.GS, c, str(n)]), range(conf[c][1]))
@@ -367,13 +527,11 @@ class AccessorUni(object):
         checkers.append("assert " + getattr(aux, r_i) + " != " + getattr(aux, r_j) + ";")
     
     # range check for gs: as an index, shouldn't be negative
-    def gs_positive(role):
-      rv = getattr(aux, role)
-      checkers.append("assert {} >= 0;".format(rv))
-    map(gs_positive, gs_vars)
+    map(lambda r: map(partial(gs_positive, r), range(conf[r][1])), conf.iterkeys())
 
     # range check for constructors
-    inits = util.flatten(map(AccessorUni.get_candidate_inits, self._clss))
+    inits = util.flatten(map(lambda c: filter(lambda x: x.is_init, c.mtds), self._clss))
+    #inits = util.flatten(map(AccessorUni.get_candidate_inits, self._clss))
     cons_ids = map(get_id, inits)
     cons_init = gen_range(cons_ids)
     aux_int_cons = partial(aux_fld, cons_init, C.J.i)
@@ -381,7 +539,7 @@ class AccessorUni(object):
 
     for c in conf.iterkeys():
       if conf[c][0] >= 0:
-        checkers.append("assert (argNum(" + getattr(aux, '_'.join([C.ACC.CONS, c])) + ")) == " + str(conf[c][0]) + ";")
+        checkers.append("assert (argNum(" + getattr(aux, '_'.join([C.ACC.CONS, c])) + ")) <= " + str(conf[c][0]) + ";")
         checkers.append("assert (belongsTo(" + getattr(aux, '_'.join([C.ACC.CONS, c])) + ")) == " + getattr(aux, '_'.join([C.ACC.ACC, c])) + ";")
 
     # other semantics checks
@@ -406,7 +564,9 @@ class AccessorUni(object):
     def gs_type_match(c):
       if conf[c][0] < 0: return []
       else:
-        return map(lambda i: "assert argType(" + getattr(aux, '_'.join([C.ACC.CONS, c])) + ", " + getattr(aux, '_'.join([C.ACC.GS, c, str(i)]))+") == retType(" + getattr(aux, '_'.join([C.ACC.GET, c, str(i)]))+");", range(conf[c][1]))
+	cons = getattr(aux, '_'.join([C.ACC.CONS, c]))
+	fldnum = lambda j: getattr(aux, '_'.join([C.ACC.GS, c, str(j)]))
+        return map(lambda i: "if (argNum(" + cons + ") > " + fldnum(i) + ") assert argType(" + cons + ", " + fldnum(i) + ") == retType(" + getattr(aux, '_'.join([C.ACC.GET, c, str(i)]))+");", range(conf[c][1]))
     checkers.extend(reduce(lambda x,y: x+y, map(getter_sig, conf.iterkeys()), []))
     checkers.extend(reduce(lambda x,y: x+y, map(setter_sig, conf.iterkeys()), []))
     checkers.extend(reduce(lambda x,y: x+y, map(gs_match, conf.iterkeys()), []))
@@ -420,15 +580,15 @@ class AccessorUni(object):
     # assumption: # of objects and events could be instantiated
     obj_cnt = sample.max_objs(self._smpls)
     evt_cnt = sample.max_evts(self._smpls)
-    arg_cnt = sum(map(lambda (c, g, s): c, self._acc_conf.values()))
+    arg_cnt = sum(map(lambda (c, g, s, i): c, self._acc_conf.values()))
     c_cnt = (obj_cnt + evt_cnt + 1) * arg_cnt
 
     # assumption: each getter could be invoked per event
-    g_cnt = sum(map(lambda (c, g, s): g, self._acc_conf.values()))
+    g_cnt = sum(map(lambda (c, g, s, i): g, self._acc_conf.values()))
     g_cnt = g_cnt * max(1, evt_cnt)
 
     # assumption: setter could be invoked once, excluding constructor
-    s_cnt = sum(map(lambda (c, g, s): s, self._acc_conf.values()))
+    s_cnt = sum(map(lambda (c, g, s, i): s, self._acc_conf.values()))
     s_cnt = s_cnt * max(1, evt_cnt)
     s_cnt = s_cnt + c_cnt # as constructor can call setter
 
@@ -463,6 +623,13 @@ class AccessorUni(object):
     AccessorUni.constructor_in_one(aux, conf, fld_c, c_cnt)
     AccessorUni.iconstructor_in_one(aux, conf, fld_c, c_cnt)
     AccessorUni.zconstructor_in_one(aux, conf, fld_c, c_cnt)
+    
+    # implicit constructor
+    
+    AccessorUni.reflect(aux, tmpl.classes)
+    AccessorUni.implicit_mapping(aux, conf, fld_c, c_cnt)
+    #AccessorUni.implicit_in_one(aux, conf, fld_c, c_cnt, tmpl)
+    map(lambda cls: AccessorUni.implicit_in_one_per_cls(aux, conf, fld_c, c_cnt, tmpl, cls), filter(lambda c: c.name != C.J.OBJ and not AccessorUni.is_container(c), tmpl.classes))
 
     add_artifacts([aux.name])
     return aux
@@ -501,7 +668,7 @@ class AccessorUni(object):
     used_args = []
     if node.body and node.body[0].kind == C.S.EXP and node.body[0].e.has_call: 
       used_args = map(str, node.body[0].e.a)
-    if node.is_init:
+    if node.is_init and node.name != C.J.OBJ and node.name != u"EventType" and not AccessorUni.is_container(node.clazz):
       for i in xrange(len(node.params)):
         if str(node.params[i][1]) in used_args:
           continue
@@ -511,6 +678,14 @@ class AccessorUni(object):
         args = ", ".join([fid, unicode(node.id), C.J.THIS, unicode(node.params[i][1])])
         node.body += to_statements(node, u"{}.{}({});".format(self.aux_name, mname, args))
         logging.debug("{}.{} => {}.{}".format(cname, node.name, self.aux_name, mname))
+      if not node.clazz.is_inner:
+        for j in xrange(self.max_param - len(node.params)):
+	  mname = u"implicitInitInOne_" + node.clazz.name
+	  #mname = u"implicitInitInOne"
+	  fid = unicode(j)	
+          args = ", ".join([unicode(node.clazz.id), fid, C.J.THIS])
+          node.body += to_statements(node, u"{}.{}({});".format(self.aux_name, mname, args))
+          logging.debug("{}.{} => {}.{}".format(cname, node.name, self.aux_name, mname))
       return
     
     # getter candidate

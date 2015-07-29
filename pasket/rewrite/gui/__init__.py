@@ -10,17 +10,17 @@ acc_default = [
 
 # configuration for the accessor pattern
 acc_conf_uni = {
-  "EventObject": (1, 1, 0), # getSource
-  "InvocationEvent": (2, 0, 0), # to set Runnable
+  "EventObject": (1, 1, 0, False), # getSource
+  "InvocationEvent": (2, 0, 0, False), # to set Runnable
 
-  "ActionEvent": (3, 1, 0), # getActionCommand
-  "ItemEvent": (4, 2, 0), # get(ItemSelectable|StateChange)
-  "DefaultDocumentEvent": (4, 1, 0), # getType
-  "ListSelectionEvent": (4, 3, 0), # get((First|Last)Index|ValueIsAdjusting)
+  "ActionEvent": (3, 1, 0, False), # getActionCommand
+  "ItemEvent": (4, 2, 0, False), # get(ItemSelectable|StateChange)
+  "DefaultDocumentEvent": (4, 1, 0, False), # getType
+  "ListSelectionEvent": (4, 3, 0, False), # get((First|Last)Index|ValueIsAdjusting)
 
-  "JButton": (1, 1, 1), # (get|set)ActionCommand
+  "JButton": (1, 1, 1, False), # (get|set)ActionCommand
 
-  "JTextComponent": (-1, 4, 4), #(get|set)(Document|Editable|CaretPosition)
+  "JTextComponent": (4, 4, 4, True), #(get|set)(Document|Editable|CaretPosition)
   #"Document": (-1, 1, 0), #getLength
 }
 

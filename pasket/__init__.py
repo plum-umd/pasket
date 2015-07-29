@@ -67,7 +67,7 @@ C.P = enum(BLD="builder", FAC="factory", SNG="singleton", \
 
 # role variables for the accessor pattern
 C.ACC = enum(AUX=u"AuxAccessor", \
-    ACC="accessor", CONS="cons", GET="getter", SET="setter", \
+    ACC="accessor", CONS="cons", GET="getter", SET="setter", IMP="implicit", \
     GS="gs_field", prvt=u"_prvt_fld")
 
 C.acc_roles = [C.ACC.CONS, C.ACC.GET, C.ACC.SET, C.ACC.GS]
