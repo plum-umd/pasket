@@ -66,7 +66,7 @@
 
   <!-- execute the project -->
   <target name="run" description="run the project">
-    <java classname="org.junit.runner.JUnitCore" fork="yes">
+    <java classname="org.junit.runner.JUnitCore" fork="yes" failonerror="true">
       <classpath path="${build.dir}"/>
       <classpath path="${junit.jar}"/>
       <classpath path="${hamcrest.jar}"/>

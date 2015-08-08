@@ -63,7 +63,7 @@ class TestPatterns(unittest.TestCase):
             subprocess.call(["ant", "-Ddemo="+'_'.join(names)])
             
             # Run unit tests
-            subprocess.call(["ant", "run", "-Dtest="+test])
+            subprocess.call(["ant", "-verbose", "run", "-Dtest="+test])
             
             os.chdir("..")
     

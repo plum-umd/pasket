@@ -80,7 +80,7 @@ public class TextFieldDemo extends JFrame
         painter = new DefaultHighlighter.DefaultHighlightPainter(HILIT_COLOR);
         textArea.setHighlighter(hilit);
 
-        entryBg = entry.getBackground();
+        entryBg = null; //entry.getBackground();
         entry.getDocument().addDocumentListener(this);
 /*
         InputMap im = entry.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);

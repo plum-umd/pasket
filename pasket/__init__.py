@@ -70,7 +70,7 @@ C.ACC = enum(AUX=u"AuxAccessor", \
     ACC="accessor", CONS="cons", GET="getter", SET="setter", IMP="implicit", \
     GS="gs_field", prvt=u"_prvt_fld")
 
-C.acc_roles = [C.ACC.CONS, C.ACC.GET, C.ACC.SET, C.ACC.GS]
+C.acc_roles = [C.ACC.CONS, C.ACC.GET, C.ACC.SET, C.ACC.GS, C.ACC.IMP]
 
 # role variables for the adapter pattern
 
