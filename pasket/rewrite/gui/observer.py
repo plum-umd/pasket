@@ -501,7 +501,7 @@ class Observer(object):
         evtyp = evt_cls.inners[0].name
         aname = aux.name
         reflect = u"reflect" #getattr(aux, "reflect").name
-        cns_typ = '.'.join([evtyp, const_flds[i].name])
+        cns_typ = '.'.join([aux.evt.name, evtyp, const_flds[i].name])
         hdl_id = getattr(aux, u"handle_"+unicode(i))
         params = Observer.mtd_params(aux)
         args = u", ".join(map(lambda (ty, nm): nm, params))
@@ -619,7 +619,7 @@ class Observer(object):
 
     # range check for event type getter
     if conf[0] >= 2:
-      evt_mtds = aux.evt.mtds
+      evt_mtds = filter(lambda m: class_lookup(m.typ) in aux.evt.inners, aux.evt.mtds)
       evt_mtd_init = gen_range(map(get_id, evt_mtds))
       aux.add_flds([aux_fld(evt_mtd_init, C.J.i, C.OBS.EVTTYP)])
 
