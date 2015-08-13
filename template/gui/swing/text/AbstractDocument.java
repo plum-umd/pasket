@@ -4,9 +4,9 @@ public abstract class AbstractDocument implements Document {
   public void addDocumentListener(DocumentListener listener);
   public void removeDocumentListener(DocumentListener listener);
 
-  protected void fireChangeUpdate(DocumentEvent e);
-  protected void fireInsertUpdate(DocumentEvent e);
-  protected void fireRemoveUpdate(DocumentEvent e);
+  public void fireChangeUpdate(DocumentEvent e);
+  public void fireInsertUpdate(DocumentEvent e);
+  public void fireRemoveUpdate(DocumentEvent e);
 
   public int getLength();
   public String getText(int offset, int length);

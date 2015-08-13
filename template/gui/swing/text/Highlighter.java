@@ -6,7 +6,7 @@ public interface Highlighter {
 
   public void removeAllHighlights();
 
-  public interface HighlightPainter {
+  public static interface HighlightPainter {
     public void paint(Graphics g, int p0, int p1, Shape bounds, JTextComponent c);
   }
 
