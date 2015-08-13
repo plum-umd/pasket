@@ -7,6 +7,8 @@ import java.lang.reflect.*;
 import pasket.java.awt.*;
 import pasket.javax.swing.*;
 import pasket.java.awt.event.*;
+import pasket.javax.swing.text.*;
+import pasket.javax.swing.event.*;
 
 
 class SwingEventHandler implements EventHandler {
@@ -16,27 +18,20 @@ class SwingEventHandler implements EventHandler {
     }
     
     public void handleEvent (String line) {
-        if (line.endsWith("doClick()")) {
+        if (line.endsWith("insert()")) {
             String action = line.substring(0, line.indexOf("."));
-            JTextField temp = getTextField(action);
-            ItemEvent evt = new ItemEvent(temp, 0, null, 2);
+            AbstractDocument temp = demo.getDoc();
+            AbstractDocument.DefaultDocumentEvent evt = temp.new DefaultDocumentEvent(temp, 0, 1, DocumentEvent.EventType.INSERT);
             /*
             ActionListener[] listeners = temp.getActionListeners();
             for (int i = 0; i < listeners.length; i++) {
                 listeners[i].actionPerformed(evt);
             }*/
-            temp.dispatchEvent(evt);
+            temp.fireInsertUpdate(evt);
         }
         return;
     }
     
-    private JCheckBox getTextField(String command) {
-        if (command.equals("$Chin")) return demo.chinButton;
-        else if (command.equals("$Glasses")) return demo.glassesButton;
-        else if (command.equals("$Hair")) return demo.hairButton;
-        else if (command.equals("$Teeth")) return demo.teethButton;
-        else return null;
-    }
 }
 
 public class SanityChecker {

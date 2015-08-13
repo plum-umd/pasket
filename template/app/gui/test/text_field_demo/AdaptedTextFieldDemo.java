@@ -94,6 +94,11 @@ public class AdaptedTextFieldDemo extends JFrame
      * initialize the form.
      */
 
+/* auxiliary method */
+    public AbstractDocument getDoc() {
+	return (AbstractDocument)entry.getDocument();
+    }
+
     private void initComponents() {
         entry = new JTextField();
         textArea = new JTextArea();
@@ -159,12 +164,12 @@ public class AdaptedTextFieldDemo extends JFrame
         v2.addComponent(entry, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE);
         //Add the group v2 tp the group v1
         v1.addGroup(v2);
-        v1.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED);
+        v1.addPreferredGap(pasket.javax.swing.LayoutStyle.ComponentPlacement.RELATED);
         v1.addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE);
-        v1.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED);
+        v1.addPreferredGap(pasket.javax.swing.LayoutStyle.ComponentPlacement.RELATED);
         v1.addComponent(status);
         v1.addContainerGap();
-
+	
         //Add the group v1 to the group vGroup
         vGroup.addGroup(v1);
         //Create the vertical group
@@ -241,7 +246,7 @@ public class AdaptedTextFieldDemo extends JFrame
         });
     }
 
-    public static AdaptedtextFieldDemo getTextFieldDemo() {
+    public static AdaptedTextFieldDemo getTextFieldDemo() {
 	return tfd;
     }
 

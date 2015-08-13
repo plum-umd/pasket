@@ -21,7 +21,7 @@ public class Text_field_demoTest extends SanityChecker {
     throws ClassNotFoundException, NoSuchMethodException,
     IllegalAccessException, InvocationTargetException,
     IOException, InterruptedException {
-        sanityCheck("checkbox_demo", 1);
+        sanityCheck("text_field_demo", 1);
     }
     
     
