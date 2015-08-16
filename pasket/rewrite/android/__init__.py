@@ -9,8 +9,8 @@ acc_default = [
 
 # configuration for the accessor pattern
 acc_conf_uni = {
-  C.ADR.MSG: (1, 1, 1, True), # (get|set)Target
-  C.ADR.HDL: (1, 1, 0, True), # getLooper
+  C.ADR.MSG: (1, 1, 1, False), # (get|set)Target
+  C.ADR.HDL: (1, 1, 0, False), # getLooper
 
   C.ADR.INTT: (1, 1, 0, False), # getComponent
   C.ADR.CMP: (2, 2, 0, False), # get(Class|Package)Name
