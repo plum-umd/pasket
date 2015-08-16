@@ -9,18 +9,18 @@ acc_default = [
 
 # configuration for the accessor pattern
 acc_conf_uni = {
-  C.ADR.MSG: (1, 1, 1), # (get|set)Target
-  C.ADR.HDL: (1, 1, 0), # getLooper
+  C.ADR.MSG: (1, 1, 1, True), # (get|set)Target
+  C.ADR.HDL: (1, 1, 0, True), # getLooper
 
-  C.ADR.INTT: (1, 1, 0), # getComponent
-  C.ADR.CMP: (2, 2, 0), # get(Class|Package)Name
+  C.ADR.INTT: (1, 1, 0, False), # getComponent
+  C.ADR.CMP: (2, 2, 0, False), # get(Class|Package)Name
 
-  C.ADR.VIEW: (-1, 1, 1), # (set|is)Enabled
-  u"CompoundButton": (-1, 1, 1), # (set|is)Checked
+  C.ADR.VIEW: (2, 1, 1, True), # (set|is)Enabled
+  C.ADR.CMPB: (2, 1, 1, True), # (set|is)Checked
 
-  #u"InputEvent": (1, 1, 1), # (get|set)Source <- abstract
-  u"MotionEvent": (2, 2, 1), # getAction(Masked)
-  #u"KeyEvent": (2, 2, 1), # getKeyCode
+  #u"InputEvent": (1, 1, 1, False), # (get|set)Source <- abstract
+  u"MotionEvent": (2, 2, 1, False), # getAction(Masked)
+  #u"KeyEvent": (2, 2, 1, Fasle), # getKeyCode
 }
 
 # configuration for the accessor pattern (of Map<K,V> type)

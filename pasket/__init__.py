@@ -44,7 +44,7 @@ C.GUI = enum(TOOL=u"Toolkit", QUE=u"EventQueue", \
 # constants regarding Android
 C.ADR = enum(SYS=u"SystemServer", QUE=u"MessageQueue", \
     MSG=u"Message", BDL=u"Bundle", HDL=u"Handler", LOOP=u"Looper", \
-    CMP=u"ComponentName", INTT=u"Intent", \
+    CMP=u"ComponentName", CMPB=u"CompoundButton", INTT=u"Intent", \
     CTX=u"Context", ACT=u"Activity", ACTT=u"ActivityThread", \
     VIEW=u"View", VG=u"ViewGroup", WIN=u"Window", WMG=u"WindowManagerGlobal", \
     SSM=u"SystemServiceManager", TPM=u"TelephonyManager")

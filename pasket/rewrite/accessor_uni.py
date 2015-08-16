@@ -106,7 +106,7 @@ class AccessorUni(object):
     if AccessorUni.is_container(cls) or cls.name == C.J.I or cls.name == C.J.STR or cls.name == C.J.v or cls.name == C.J.i or cls.name == C.J.z or cls.name == C.J.OBJ:
       return []
     else:
-      return filter(lambda x: x.is_init and len(x.params) + conf[c][3] == conf[c][0], cls.mtds)
+      return filter(lambda x: x.is_init and (conf[c][0] < 0 or len(x.params) + conf[c][3] == conf[c][0]), cls.mtds)
 
   # retrieve constructors
   @staticmethod
@@ -509,7 +509,10 @@ class AccessorUni(object):
     def gs_positive(role, num):
       rv = getattr(aux, '_'.join([C.ACC.GS, role, str(num)]))
       argnum = conf[role][0]
-      checkers.append("assert {rv} >= 0 && {rv} < {argnum};".format(**locals()))
+      if argnum < 0:
+        checkers.append("assert {rv} >= 0;".format(**locals()))
+      else:
+        checkers.append("assert {rv} >= 0 && {rv} < {argnum};".format(**locals()))
 
     def owner_range(rl, c, ids):
       return map(lambda i: "assert subcls("+getattr(aux, '_'.join([C.ACC.ACC, c]))+", belongsTo("+getattr(aux, '_'.join([rl, c, str(i)]))+"));", ids)
@@ -720,7 +723,7 @@ class AccessorUni(object):
         for j in xrange(max_param - len(node.params)):
 	  mname = u"implicitInitInOne_" + cls.name
 	  #mname = u"implicitInitInOne"
-	  fid = unicode(j)	
+	  fid = unicode(len(node.params) + j)	
           args = ", ".join([unicode(node.clazz.id), fid, C.J.THIS])
           node.body += to_statements(node, u"{}.{}({});".format(self.aux_name, mname, args))
           logging.debug("{}.{} => {}.{}".format(cname, node.name, self.aux_name, mname))
