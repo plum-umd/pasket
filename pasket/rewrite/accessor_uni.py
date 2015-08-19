@@ -118,7 +118,7 @@ class AccessorUni(object):
 
   @staticmethod
   def get_candidate_imp(tmpl):
-    return filter(lambda x: x.is_init and len(x.params) == 0 and not AccessorUni.is_container(x) and x.name != C.J.I and x.name != C.J.STR and x.name != C.J.v and x.name != C.J.i and x.name != C.J.z and x.name != C.J.OBJ, reduce(lambda x,y: x+y, map(lambda c: c.mtds, tmpl.classes)))
+    return filter(lambda x: x.is_init and C.mod.PB in x.mods and len(x.params) == 0 and not AccessorUni.is_container(x) and x.name != C.J.I and x.name != C.J.STR and x.name != C.J.v and x.name != C.J.i and x.name != C.J.z and x.name != C.J.OBJ, reduce(lambda x,y: x+y, map(lambda c: c.mtds, tmpl.classes)))
 
   # add a global counter
   @staticmethod
