@@ -15,7 +15,7 @@ public abstract class AbstractDocument implements Document {
   //public class DefaultDocumentEvent implements DocumentEvent {
   public class DefaultDocumentEvent extends EventObject implements DocumentEvent {
     //public DefaultDocumentEvent(int off, int len, DocumentEvent.EventType type);
-    public DefaultDocumentEvent(int off, int len, DocumentEvent.EventType type);
+    public DefaultDocumentEvent(AbstractDocument source, int off, int len, DocumentEvent.EventType type);
     public Document getDocument();
     public DocumentEvent.EventType getType();
   }
