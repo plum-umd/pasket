@@ -71,6 +71,7 @@ class SampleProcessor {
         l = l.replaceAll("tutorial.", "swings.");
         l = l.replaceAll("javax.swing.colorchooser.ColorSelectionModel", "javax.swing.colorchooser.DefaultColorSelectionModel");
         l = l.replaceAll("javax.swing.text.Document.getLength", "javax.swing.text.AbstractDocument.getLength");
+        l = l.replaceAll("javax.swing.text.Document.addDocumentListener", "javax.swing.text.AbstractDocument.addDocumentListener");
 	//l = l.replaceAll("java.util.EventObject.getSource", "java.awt.event.ActionEvent.getSource");
 
 	l = l.replaceAll("javax.swing.JMenu\\$AccessibleJMenu", "javax.accessibility.AccessibleContext");

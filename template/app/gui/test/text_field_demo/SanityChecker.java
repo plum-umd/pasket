@@ -21,7 +21,7 @@ class SwingEventHandler implements EventHandler {
         if (line.endsWith("insert()")) {
             String action = line.substring(0, line.indexOf("."));
             AbstractDocument temp = demo.getDoc();
-            AbstractDocument.DefaultDocumentEvent evt = temp.new DefaultDocumentEvent(temp, 0, 1, DocumentEvent.EventType.INSERT);
+            AbstractDocument.DefaultDocumentEvent evt = temp.new DefaultDocumentEvent(0, 1, null);
             /*
             ActionListener[] listeners = temp.getActionListeners();
             for (int i = 0; i < listeners.length; i++) {
