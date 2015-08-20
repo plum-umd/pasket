@@ -321,6 +321,7 @@ class Observer(object):
 	prm = [(subj.name, u"rcv"), (aux.evt.name, u"evt")] 
         switch_handle = Method(clazz=subj, mods=[C.mod.PB, C.mod.ST], params=prm, name=u"switchHandle")
         switch_handle.body += aux.mtd_handle.body
+	switch_handle.accept(self)
 	subj.add_mtds([switch_handle])
         setattr(subj, C.OBS.H, switch_handle)
       
@@ -464,7 +465,9 @@ class Observer(object):
         old = u"{0}.{1}({2}, evt".format(aux_name, u"egetter", evtyp_name)
         new = u"evt.{}(".format(egetter.name)
         concrete = assn.replace(old, new)
-	concrete = concrete.replace(u"EventType", egetter.typ)
+	etyp = class_lookup(egetter.typ)
+	if etyp.is_inner: etyp = etyp.outer.name+"."+etyp.name
+	concrete = concrete.replace(u"EventType", etyp)
 	
         # TODO: more precise sig match
         l_param = concrete.find('(')

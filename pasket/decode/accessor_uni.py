@@ -95,10 +95,12 @@ class AccessorUni(object):
   def add_prvt_fld(acc, k, typ, num):
     name = u'_'.join([C.ACC.prvt, unicode(num), k])
     fld = acc.fld_by_name(name)
-    if not fld:
+    if fld and fld.typ != typ:
+      fld.typ = typ
+    if not fld: 
       logging.debug("adding private field {} for {} of type {}".format(name, acc.name, typ))
       fld = Field(clazz=acc, typ=typ, name=name)
-      acc.add_fld(fld)
+    acc.add_fld(fld)
     return fld
 
   # getter code
@@ -210,14 +212,14 @@ class AccessorUni(object):
         setr = setters[k][e] if e in setters[k].keys() else None
 
         effective = getr.id in self._invoked
-        if not effective: effective = setr and setr.id in self._invoked
+        if not effective: effective = (setr != None and setr.id in self._invoked)
 
         if effective:
           fld = AccessorUni.add_prvt_fld(getr.clazz, k, getr.typ, int(gs[k][e]))
           logging.debug("getter: {}_{}: {}".format(k, e, repr(getr)))
           AccessorUni.def_getter(getr, fld)
 
-          if setr:
+          if setr != None:
             fld = AccessorUni.add_prvt_fld(setr.clazz, k, setr.param_typs[0], int(gs[k][e]))
             logging.debug("setter: {}_{}: {}".format(k, e, repr(setr)))
             AccessorUni.def_setter(setr, fld, setr.param_typs[0])

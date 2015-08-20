@@ -180,6 +180,12 @@ class Clazz(v.BaseNode):
       self._flds.append(fld)
       return True
     
+  def remove_fld(self, fld):
+    if fld not in self._flds: return False
+    else:
+      self._flds.remove(fld)
+      return True
+    
   def add_flds(self, v):
     self._flds.extend(v)
 

@@ -118,7 +118,7 @@ class AccessorUni(object):
 
   @staticmethod
   def get_candidate_imp(tmpl):
-    return filter(lambda x: x.is_init and C.mod.PB in x.mods and len(x.params) == 0 and not AccessorUni.is_container(x) and x.name != C.J.I and x.name != C.J.STR and x.name != C.J.v and x.name != C.J.i and x.name != C.J.z and x.name != C.J.OBJ, reduce(lambda x,y: x+y, map(lambda c: c.mtds, tmpl.classes)))
+    return filter(lambda x: x.is_init and not x.is_abstract and C.mod.PB in x.mods and len(x.params) == 0 and not AccessorUni.is_container(x) and x.name != C.J.I and x.name != C.J.STR and x.name != C.J.v and x.name != C.J.i and x.name != C.J.z and x.name != C.J.OBJ, reduce(lambda x,y: x+y, map(lambda c: c.mtds, tmpl.classes)))
 
   # add a global counter
   @staticmethod
@@ -542,6 +542,33 @@ class AccessorUni(object):
     map(mtd_range, conf.iterkeys())
 
     map(imp_range, rv_imp)
+
+    # disjoint accessors
+    rg_chk = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"disjointAccessor")
+    checkers = []
+    for r_i, r_j in combinations(rv_accs, 2):
+      checkers.append("assert " + getattr(aux, r_i) + " != " + getattr(aux, r_j) + ";")
+    rg_chk.body += to_statements(rg_chk, u'\n'.join(checkers))
+    aux.add_mtds([rg_chk])
+
+    # disjoint constructors
+    rg_chk = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"disjointConstructor")
+    checkers = []
+    for r_i, r_j in combinations(rv_cons, 2):
+      checkers.append("assert " + getattr(aux, r_i) + " != " + getattr(aux, r_j) + ";")
+    rg_chk.body += to_statements(rg_chk, u'\n'.join(checkers))
+    aux.add_mtds([rg_chk])
+
+    # Don't mess up multiple instances
+    rg_chk = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"disjointInstance")
+    checkers = []
+    for r_i in conf.keys():
+      for r_j in conf.keys():
+        if r_i != r_j:
+          for n in range(conf[r_j][1]):
+            checkers.append("assert " + getattr(aux, '_'.join([C.ACC.ACC, r_i])) + " != belongsTo(" + getattr(aux, '_'.join([C.ACC.GET, r_j, str(n)])) + ");")
+    rg_chk.body += to_statements(rg_chk, u'\n'.join(checkers))
+    aux.add_mtds([rg_chk])
 
     # disjoint getters
     rg_chk = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"disjointGetter")
