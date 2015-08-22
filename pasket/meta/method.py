@@ -151,6 +151,15 @@ class Method(v.BaseNode):
     f = op.methodcaller("accept", visitor)
     self._body = util.flatten(map(f, self._body))
 
+  def jsonify(self):
+    m = {}
+    if self._mods: m["mods"] = self._mods
+    m["type"] = self._typ
+    m["name"] = self._name
+    if self._params:
+      m["params"] = [ {"type": ty, "name": nm} for (ty, nm) in self._params ]
+    return m
+
   # merge method definition in another template
   def merge(self, other):
     # double-check it refers to the same method

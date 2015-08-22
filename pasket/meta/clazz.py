@@ -295,6 +295,22 @@ class Clazz(v.BaseNode):
     map(f, self._flds)
     map(f, self._mtds)
 
+  def jsonify(self):
+    m = {}
+    if self._pkg: m["pkg"] = self._pkg
+    if self._mods: m["mods"] = self._mods
+    m["kind"] = self._kind
+    m["name"] = self._name
+    if self._sup: m["super"] = self._sup
+    if self._itfs: m["impls"] = self._itfs
+    if self._flds:
+      m["flds"] = [ fld.jsonify() for fld in self._flds ]
+    if self._mtds:
+      m["mtds"] = [ mtd.jsonify() for mtd in self._mtds ]
+    if self.inners:
+      m["inners"] = [ inner.jsonify() for inner in self._inners ]
+    return m
+
   # merge class definition in another template
   def merge(self, other):
     # double-check it refers to the same class

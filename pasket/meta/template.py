@@ -186,6 +186,9 @@ class Template(v.BaseNode):
     clss = util.flatten_classes(self._classes, "inners")
     map(op.methodcaller("accept", visitor), clss)
 
+  def jsonify(self):
+    return [ cls.jsonify() for cls in self._classes ]
+
   # to make the template type-consistent
   #   collect all the types in the template
   #   build class hierarchy
@@ -329,6 +332,9 @@ if __name__ == "__main__":
   from optparse import OptionParser
   usage = "usage: python -m spec.meta.template (template.java | template_folder)+ [opt]"
   parser = OptionParser(usage=usage)
+  parser.add_option("--json",
+    action="store_true", dest="json", default=False,
+    help="print AST in a json format")
   parser.add_option("--hierarchy",
     action="store_true", dest="hierarchy", default=False,
     help="print inheritance hierarchy")
@@ -360,6 +366,10 @@ if __name__ == "__main__":
   ast = util.toAST(tmpl_files)
   tmpl = Template(ast)
 
+  if opt.json:
+    import json
+    print json.dumps(tmpl.jsonify(), indent=2)
+
   if opt.hierarchy:
 
     def toStringTree(cls, depth=0):
@@ -388,6 +398,6 @@ if __name__ == "__main__":
     for evt in tmpl.events:
       print evt
 
-  if not sum([opt.hierarchy, opt.method, opt.event]):
+  if not sum([opt.json, opt.hierarchy, opt.method, opt.event]):
     print str(tmpl)
 

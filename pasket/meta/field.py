@@ -101,6 +101,13 @@ class Field(v.BaseNode):
     visitor.visit(self)
     if self._init: self._init = self._init.accept(visitor)
 
+  def jsonify(self):
+    m = {}
+    if self._mods: m["mods"] = self._mods
+    m["type"] = self._typ
+    m["name"] = self._name
+    return m
+
   # merge field definition in another template
   def merge(self, other):
     # double-check it refers to the same field
