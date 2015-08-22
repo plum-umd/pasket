@@ -559,6 +559,16 @@ class AccessorUni(object):
     rg_chk.body += to_statements(rg_chk, u'\n'.join(checkers))
     aux.add_mtds([rg_chk])
 
+    # implicit cannot be subclass of current class
+    rg_chk = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"avoidMutualDependent")
+    checkers = []
+    for r in conf.keys():
+      if conf[r][3]:
+        for i in range(conf[r][0]):
+          checkers.append("assert ! subcls(" + getattr(aux, '_'.join([C.ACC.IMP, r, str(i)])) + ", " + getattr(aux, '_'.join([C.ACC.ACC, r])) + ");")
+    rg_chk.body += to_statements(rg_chk, u'\n'.join(checkers))
+    aux.add_mtds([rg_chk])
+
     # Don't mess up multiple instances
     rg_chk = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"disjointInstance")
     checkers = []
