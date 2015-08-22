@@ -1,6 +1,6 @@
 package java.awt;
 
-@Singleton
+//@Singleton
 public class Toolkit {
   public static Toolkit getDefaultToolkit();
   public EventQueue getSystemEventQueue();

@@ -15,6 +15,7 @@ from ..analysis.empty import EmptyFinder
 from collection import Collection
 from observer import Observer
 from accessor import Accessor
+from singleton import Singleton
 
 pkgs_android = [u"android."]
 
@@ -192,6 +193,7 @@ def to_java(cmd, java_dir, tmpls, output_paths, patterns):
     p2v = {}
     p2v[C.P.OBS] = Observer(output_path)
     p2v[C.P.ACC] = Accessor(output_path)
+    p2v[C.P.SNG] = Singleton(output_path)
 
     keys = p2v.keys()
     if not _patterns: # then try all the patterns
