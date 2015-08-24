@@ -93,7 +93,7 @@ class AccessorUni(object):
   # add a private field
   @staticmethod
   def add_prvt_fld(acc, k, typ, num):
-    name = u'_'.join([C.ACC.prvt, unicode(num), k])
+    name = u'_'.join([C.ACC.prvt, unicode(num), k, u"for", acc.name])
     fld = acc.fld_by_name(name)
     if fld and fld.typ != typ:
       fld.typ = typ

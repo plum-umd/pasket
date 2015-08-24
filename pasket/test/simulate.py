@@ -88,7 +88,7 @@ def run(cmd, demo, patterns, out_dir, log_fname):
   cwd = os.getcwd()
   os.chdir(out_dir)
   logging.info("renaming package")
-  res = call(["./rename.sh"])
+  res = call(["./rename-"+cmd+".sh"])
   if res: return res
 
   # build
