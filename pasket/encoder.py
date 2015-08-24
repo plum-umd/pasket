@@ -1259,6 +1259,8 @@ def gen_smpl_sk(sk_path, smpl, tmpl, main):
   for cls in util.flatten_classes(tmpl.classes, "inners"):
     clinit = cls.mtd_by_sig(C.J.CLINIT)
     if not clinit: continue
+    # to only call the base class's <clinit>
+    if clinit.clazz != cls: continue
     buf.write("  {}();\n".format(trans_mname(unicode(repr(cls)), clinit.name)))
 
   # execute template's *main*
