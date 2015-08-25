@@ -60,22 +60,6 @@ class View(object):
     mname = node.name
 
     ##
-    ## speicial initialization for classes in the View hierarchy
-    ##
-    if node.is_init:
-      if cname == C.ADR.VIEW:
-        body = u"""
-          setEnabled(true);
-        """
-        node.body = to_statements(node, body)
-
-      elif cname == "CompoundButton":
-        body = u"""
-          setChecked(true);
-        """
-        node.body = to_statements(node, body)
-
-    ##
     ## View id setup
     ##
     if cname == C.ADR.VIEW:
