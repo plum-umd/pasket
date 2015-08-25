@@ -3,8 +3,6 @@ import lib.const as C
 # special cases for the accessor pattern
 acc_default = [
   C.GUI.TOOL, # EventQueue
-  #"JColorChooser", # ColorSelectionModel
-  #"JTextComponent", # Document
   "JMenuItem", "JMenu" # AccessibleContext
 ]
 
@@ -20,10 +18,10 @@ acc_conf_uni = {
 
   "JButton": (1, 1, 1, False), # (get|set)ActionCommand
 
-  #"JTextComponent": (4, 4, 4, True), #(get|set)(Document|Editable|CaretPosition)
-  "JTextComponent": (1, 1, 0, True), #(getDocument)
+  #"JTextComponent": (4, 4, 4, True), # (get|set)(Document|Editable|CaretPosition)
+  "JTextComponent": (1, 1, 0, True), # getDocument
   "JColorChooser": (1, 1, 0, True), # getSelectionModel
-  #"Document": (-1, 1, 0), #getLength
+  #"Document": (-1, 1, 0), # getLength
 }
 
 # configuration for the accessor pattern (of Map<K,V> type)
