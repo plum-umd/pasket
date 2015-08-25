@@ -15,8 +15,8 @@ acc_conf_uni = {
   C.ADR.INTT: (1, 1, 0, False), # getComponent
   C.ADR.CMP: (2, 2, 0, False), # get(Class|Package)Name
 
-  C.ADR.VIEW: (2, 1, 1, True), # (set|is)Enabled
-  C.ADR.CMPB: (2, 1, 1, True), # (set|is)Checked
+  C.ADR.VIEW: (-1, 2, 2, False), # (set|is)Enabled, (set|get)Visibility
+  C.ADR.CMPB: (-1, 1, 1, False), # (set|is)Checked
 
   #u"InputEvent": (1, 1, 1, False), # (get|set)Source <- abstract
   u"MotionEvent": (2, 2, 1, False), # getAction(Masked)

@@ -37,19 +37,20 @@ public class CheckBoxActivity extends Activity implements OnClickListener {
   public void onClick(View v) {
     int vid = v.getId();
     if (vid == R.id.checkbox) {
-	  if (checkbox.isChecked()) {
-		checkbox.setText("I'm checked");
-	  } else {
-		checkbox.setText("I'm not checked");
+      if (checkbox.isChecked()) {
+        checkbox.setText("I'm checked");
+      } else {
+        checkbox.setText("I'm not checked");
       }
     } else if (vid == R.id.button) {
-	  if (checkbox.isShown()) {
-		checkbox.setVisibility(View.INVISIBLE);
-		button.setText("Unhide CheckBox");
-	  } else {
-		checkbox.setVisibility(View.VISIBLE);
-		button.setText("Hide CheckBox");
-	  }
+      int vis = checkbox.getVisibility();
+      if (vis == View.VISIBLE) {
+        checkbox.setVisibility(View.INVISIBLE);
+        button.setText("Unhide CheckBox");
+      } else {
+        checkbox.setVisibility(View.VISIBLE);
+        button.setText("Hide CheckBox");
+      }
     }
   }
 

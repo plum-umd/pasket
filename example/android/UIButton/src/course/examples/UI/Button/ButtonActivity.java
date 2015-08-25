@@ -18,9 +18,9 @@ public class ButtonActivity extends Activity implements OnClickListener {
 
         Button button = (Button) findViewById(R.id.button);
 
-        if (button.isEnabled()) {
+        //if (button.isEnabled()) {
             button.setOnClickListener(this);
-        }
+        //}
     }
 
     @Override

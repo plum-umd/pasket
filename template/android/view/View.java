@@ -21,7 +21,7 @@ public class View {
 
   public void setVisibility(int visibility);
   public int getVisibility();
-  public boolean isShown();
+  //public boolean isShown();
 
   public static final int NO_ID = -1;
 
