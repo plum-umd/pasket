@@ -39,9 +39,9 @@ public class CheckBoxActivity extends Activity implements OnClickListener {
     if (vid == R.id.checkbox) {
 	  if (checkbox.isChecked()) {
 		checkbox.setText("I'm checked");
-	  } /* else {
+	  } else {
 		checkbox.setText("I'm not checked");
-      } */
+      }
     } else if (vid == R.id.button) {
 	  if (checkbox.isShown()) {
 		checkbox.setVisibility(View.INVISIBLE);
