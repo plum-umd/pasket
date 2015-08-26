@@ -18,7 +18,7 @@ acc_conf_uni = {
   C.ADR.VIEW: (-1, 2, 2, False), # (set|is)Enabled, (set|get)Visibility
   C.ADR.CMPB: (-1, 1, 1, False), # (set|is)Checked
 
-  #u"InputEvent": (1, 1, 1, False), # (get|set)Source <- abstract
+  u"InputEvent": (1, 0, 0, False), # (get|set)Source <- abstract
   u"MotionEvent": (2, 2, 1, False), # getAction(Masked)
   #u"KeyEvent": (2, 2, 1, Fasle), # getKeyCode
 }
