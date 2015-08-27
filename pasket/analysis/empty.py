@@ -17,6 +17,8 @@ class EmptyFinder(object):
     self._cls_cnt = 0
     self._mtd_cnt = 0
     self._empty_cnt = 0
+    self._fld_cnt = 0
+    self._ffld_cnt = 0
 
   @property
   def cls_count(self):
@@ -29,6 +31,14 @@ class EmptyFinder(object):
   @property
   def empty_count(self):
     return self._empty_cnt
+
+  @property
+  def fld_count(self):
+    return self._fld_cnt
+
+  @property
+  def ffld_count(self):
+    return self._ffld_cnt
 
   @v.on("node")
   def visit(self, node):
@@ -45,12 +55,18 @@ class EmptyFinder(object):
     if node.is_android or node.is_gui:
       self._cls_cnt = self._cls_cnt + 1
 
+  def inClassOfInterest(self):
+    return self._cur_cls.is_android or self._cur_cls.is_gui
+
   @v.when(Field)
-  def visit(self, node): pass
+  def visit(self, node):
+    if self.inClassOfInterest():
+      self._fld_cnt = self._fld_cnt + 1
+      if node.is_final: self._ffld_cnt = self._ffld_cnt + 1
 
   @v.when(Method)
   def visit(self, node):
-    if self._cur_cls.is_android or self._cur_cls.is_gui:
+    if self.inClassOfInterest():
       self._mtd_cnt = self._mtd_cnt + 1
       if not node.body: self._empty_cnt = self._empty_cnt + 1
 
@@ -88,4 +104,5 @@ if __name__ == "__main__":
 
   print "classes: {}".format(counter.cls_count)
   print "methods: {} (empty: {})".format(counter.mtd_count, counter.empty_count)
+  print "fields: {} (final: {})".format(counter.fld_count, counter.ffld_count)
 
