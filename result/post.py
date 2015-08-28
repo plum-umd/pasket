@@ -8,7 +8,7 @@ import re
 import sys
 
 f_trial_re = re.compile(r"parallel trial.* \((\d+)\) failed")
-s_trial_re = re.compile(r"resolved within (\d+) complete parallel trial")
+s_trial_re = re.compile(r"parallel trial.* \((\d+)\) solved")
 ttime_re = re.compile(r"Total time = ([+|-]?(0|[1-9]\d*)(\.\d*)?([eE][+|-]?\d+)?)")
 
 be_separator_re = re.compile(r"=== parallel trial.* \((\d+)\) (\S+) ===")
@@ -39,7 +39,9 @@ def analyze(output):
       else:
         m = re.search(s_trial_re, line)
         if m:
-          s_trial = int(m.group(1))
+          _s_trial = int(m.group(1))
+          if s_trial < 0: s_trial = _s_trial
+          else: s_trial = min(s_trial, _s_trial)
 
       m = re.search(ttime_re, line)
       if m:
@@ -71,13 +73,13 @@ def analyze(output):
         f_times.append(ttime)
 
     trial = len(f_times) + len(s_times)
-    record["trial"] = trial
+    record["trial"] = max(trial, s_trial)
     s_succeed = "Succeed" if any(s_times) else "Failed"
     record["succeed"] = s_succeed
     f_time_sum = sum(f_times)
     s_time_sum = sum(s_times)
     record["ttime"] = ttime
-    record["stime"] = s_time_sum
+    record["stime"] = float(s_time_sum) / len(s_times) if s_times else 0
     record["ftime"] = float(f_time_sum) / len(f_times) if f_times else 0
     record["ctime"] = f_time_sum + s_time_sum
 
