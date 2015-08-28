@@ -17,6 +17,7 @@ class EmptyFinder(object):
     self._cls_cnt = 0
     self._mtd_cnt = 0
     self._empty_cnt = 0
+    self._empty_mtds = []
     self._fld_cnt = 0
     self._ffld_cnt = 0
 
@@ -31,6 +32,10 @@ class EmptyFinder(object):
   @property
   def empty_count(self):
     return self._empty_cnt
+
+  @property
+  def empty_mtds(self):
+    return self._empty_mtds
 
   @property
   def fld_count(self):
@@ -68,7 +73,9 @@ class EmptyFinder(object):
   def visit(self, node):
     if self.inClassOfInterest():
       self._mtd_cnt = self._mtd_cnt + 1
-      if not node.body: self._empty_cnt = self._empty_cnt + 1
+      if not node.body:
+        self._empty_cnt = self._empty_cnt + 1
+        self._empty_mtds.append(node)
 
   @v.when(Statement)
   def visit(self, node): return [node]
@@ -85,6 +92,9 @@ if __name__ == "__main__":
   from optparse import OptionParser
   usage = "usage: %prog demo_path"
   parser = OptionParser(usage=usage)
+  parser.add_option("-e", "--empty",
+    action="store_true", dest="empty", default=False,
+    help="print out the list of empty methods")
 
   (opt, argv) = parser.parse_args()
 
@@ -105,4 +115,8 @@ if __name__ == "__main__":
   print "classes: {}".format(counter.cls_count)
   print "methods: {} (empty: {})".format(counter.mtd_count, counter.empty_count)
   print "fields: {} (final: {})".format(counter.fld_count, counter.ffld_count)
+
+  if opt.empty:
+    for mtd in counter.empty_mtds:
+      print mtd.signature
 
