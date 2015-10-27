@@ -724,7 +724,13 @@ additiveOp
     ;
 
 multiplicativeExpression
-    :   unaryExpression ( ( '*' | '/' | '%' )^ unaryExpression )*
+    :   unaryExpression multiplicativeOp multiplicativeExpression
+    -> ^(multiplicativeOp ^(EXPR unaryExpression) ^(EXPR multiplicativeExpression))
+    |   unaryExpression
+    ;
+
+multiplicativeOp
+    : ('*' | '/' | '%')
     ;
 
 unaryExpression
