@@ -1,12 +1,10 @@
-pasket
-======
+# pasket
 
 pasket is a *pa*ttern-based *sket*ching tool that leverages design patterns
 so as to synthesize larger-scale programs, e.g., a model of Android platform.
 
 
-Requirements
-------------
+## Requirements
 
 * Sketch
 
@@ -46,16 +44,26 @@ This tool is tested under [Python 2.7.1][py271].
 [py271]: http://www.python.org/download/releases/2.7/
 
 
-Usage (Tool)
-------------
+## Usage (Tool)
 
-First, generate the lexer and parser:
+### Parser Generation
 
-    $ ./run.py -c grammar [-g Java.g]
+Auto-generated files are not maintained under the version control.
+So, generate the lexer and parser first:
+```sh
+$ python -m grammar.gen [-g Java.g]
+```
+or
+```sh
+$ ./grammar/gen.py [-g Java.g]
+```
 
 The default ANTLR grammar file is Java.g, which is modified to allow
 annotations in an expression level.  The command above will generate
 the lexer and parser in grammar/ folder.
+
+
+### Custom Codegen
 
 Next, compile the custom code generator for sketch:
 
@@ -66,6 +74,9 @@ so that the build process can refer to sketch jar file.
 You can also use the following commands, if preferred:
 
     $ cd codegen; ant; cd ..
+
+
+### Model Synthesis
 
 Then, synthesize a framework model:
 
@@ -145,8 +156,7 @@ The existing examples can be tested as follows:
 [redexer]: http://www.cs.umd.edu/projects/PL/redexer/
 
 
-Usage (Model)
--------------
+## Usage (Model)
 
 To run Java PathFinder (JPF) together with the synthesized model,
 install jpf-core, jpf-symbc, and jpf-awt first.
@@ -173,8 +183,7 @@ example/src/oreilly/ch*/*.awt(-synth).jpf
 Then, run jpf-symbc/bin/jpf, passing paths to those configurations.
 
 
-Structure
----------
+## Structure
 
 - Java.g -- an ANTLR grammar file for Java
 - README.md -- the file you're currently reading
