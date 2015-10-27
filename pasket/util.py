@@ -9,8 +9,8 @@ from itertools import chain, islice, ifilter, ifilterfalse
 
 import antlr3
 from antlr3.tree import CommonTree as AST
-import grammar.JavaLexer as Lexer
-import grammar.JavaParser as Parser
+from grammar.JavaLexer import JavaLexer as Lexer
+from grammar.JavaParser import JavaParser as Parser
 
 import lib.glob2 as glob2
 from lib.typecheck import *

@@ -8,8 +8,6 @@ import operator as op
 import os
 import sys
 
-from antlr3.tree import CommonTree as AST
-
 from lib.typecheck import *
 import lib.const as C
 import lib.visit as v

@@ -4,8 +4,8 @@ import operator as op
 
 import antlr3
 from antlr3.tree import CommonTree as AST
-import grammar.JavaLexer as Lexer
-import grammar.JavaParser as Parser
+from grammar.JavaLexer import JavaLexer as Lexer
+from grammar.JavaParser import JavaParser as Parser
 
 from lib.typecheck import *
 import lib.const as C
