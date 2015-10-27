@@ -158,19 +158,28 @@ def ctrl_flow_run(sk_dir, output_path, out_dir):
 
 
 """
-  pasket $ python -m spec.sketch -p demo [--parallel]
-  pasket $ ./spec/sketch.py -p demo [...]
+  pasket $ python -m pasket.sketch -p demo [--parallel]
+  pasket $ ./pasket/sketch.py -p demo [...]
 """
 if __name__ == "__main__":
   from optparse import OptionParser
-  usage = "usage: python -m spec.sketch [opt]"
+  usage = "usage: python -m pasket.sketch [opt]"
   parser = OptionParser(usage=usage)
   parser.add_option("-p", "--pattern", # same as run.py at the top level
     action="store", dest="demo", default=None,
     help="demo name")
   parser.add_option("--parallel",
     action="store_true", dest="parallel", default=False,
-    help="run sketch in parallel")
+    help="run Sketch in parallel")
+  parser.add_option("--timeout",
+    action="store", dest="timeout", default=None, type="int",
+    help="Sketch timeout")
+  parser.add_option("--p_cpus",
+    action="store", dest="p_cpus", default=None, type="int",
+    help="the number of cores to use for parallel running")
+  parser.add_option("--ntimes",
+    action="store", dest="ntimes", default=None, type="int",
+    help="number of rounds on a single sketch-backend invocation")
   parser.add_option("-v", "--verbose",
     action="store_true", dest="verbose", default=False,
     help="print intermediate messages verbosely")
@@ -198,9 +207,15 @@ if __name__ == "__main__":
   _opts.append("--fe-keep-tmp")
 
   if opt.verbose: _opts.extend(["-V", "10"])
+  if opt.timeout: _opts.extend(["--slv-timeout", str(opt.timeout)])
+
   if opt.parallel:
-    _opts.append("--be:randassign")
+    _opts.append("--slv-randassign")
     _opts.extend(["--bnd-dag-size", "16000000"]) # 16M ~> 8G memory
+    if opt.p_cpus:
+      _opts.extend(["--slv-p-cpus", str(opt.p_cpus)])
+    if opt.ntimes:
+      _opts.extend(["--slv-ntimes", str(opt.ntimes)])
 
   # custom codegen
   _opts.extend(["--fe-custom-codegen", codegen_jar])

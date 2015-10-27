@@ -219,6 +219,7 @@ public class SanityChecker {
         Scanner sc = new Scanner(f);
         while (sc.hasNextLine()) {
             String curr = sc.nextLine();
+	    System.out.println("line:" + curr);
             if (curr.contains("Exception in thread")) {
                 System.out.println("Exception thrown!");
                 return null;

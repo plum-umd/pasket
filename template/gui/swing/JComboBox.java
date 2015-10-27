@@ -1,6 +1,6 @@
 package javax.swing;
 
-//@ObserverPattern(ActionEvent)
+@ObserverPattern(ActionEvent)
 //public class JComboBox extends JComponent implements ActionListener, ItemSelectable {
 public class JComboBox extends JComponent {
   public JComboBox();

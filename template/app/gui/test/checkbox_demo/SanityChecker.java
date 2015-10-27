@@ -25,7 +25,7 @@ class SwingEventHandler implements EventHandler {
             for (int i = 0; i < listeners.length; i++) {
                 listeners[i].actionPerformed(evt);
             }*/
-            temp.dispatchEvent(evt);
+            temp.fireItemStateChanged(evt);
         }
         return;
     }
@@ -76,7 +76,7 @@ public class SanityChecker {
         Queue<String> records = getInfo(temp, demo);
         if (records == null)
             return;
-        temp.delete();
+        //temp.delete();
         
         
         File[] samples = smpl_dir.toFile().listFiles();
@@ -216,7 +216,7 @@ public class SanityChecker {
     public Queue<String> getInfo(File f, String pattern)
     throws FileNotFoundException {
         Queue<String> output = new ArrayDeque<String>();
-        
+       
         Scanner sc = new Scanner(f);
         while (sc.hasNextLine()) {
             String curr = sc.nextLine();

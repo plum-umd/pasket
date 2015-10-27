@@ -1,0 +1,1 @@
+../../../../example/android/UICheckBox/src/course/examples/UI/CheckBox/CheckBoxActivity.java

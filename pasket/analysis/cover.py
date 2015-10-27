@@ -9,7 +9,7 @@ from lib.typecheck import *
 from .. import util
 from ..meta import class_lookup, methods
 from ..meta.template import Template
-from ..meta.clazz import find_mtd
+from ..meta.clazz import find_mtds_by_sig
 from ..meta.method import find_formals
 
 from api import APICollector
@@ -32,17 +32,15 @@ def covered(tmpl_files, demo_files):
   tmpl.accept(collector)
 
   def find_api(cname, mname, arg_typs):
-    mtd = find_mtd(cname, mname, arg_typs)
-    if mtd: return True, [mtd]
+    mtds = find_mtds_by_sig(cname, mname, arg_typs)
+    if mtds: return True, mtds
 
+    cls = class_lookup(cname)
     candidates = []
     for mtd in methods():
       if mtd.name == mname:
-        if mtd.clazz.name == cname:
+        if cls and cls <= mtd.clazz:
           candidates.append(mtd)
-        else:
-          sup = mtd.clazz.in_hierarchy(lambda cls: cls.name == cname)
-          if sup: candidates.append(mtd)
 
     return False, candidates
 
@@ -63,7 +61,7 @@ def covered(tmpl_files, demo_files):
 
 """
 To import lib.*, run as follows:
-  pasket $ python -m spec.analysis.cover [-t tmpl_path] (demo_file | demo_path)+
+  pasket $ python -m pasket.analysis.cover [-t tmpl_path] (demo_file | demo_path)+
 """
 if __name__ == "__main__":
   from optparse import OptionParser
@@ -84,12 +82,12 @@ if __name__ == "__main__":
     parser.error("incorrect number of arguments")
 
   pwd = os.path.dirname(__file__)
-  spec_dir = os.path.join(pwd, "..")
-  root_dir = os.path.join(spec_dir, "..")
+  src_dir = os.path.join(pwd, "..")
+  root_dir = os.path.join(src_dir, "..")
   sys.path.append(root_dir)
 
   ## logging configuration
-  logging.config.fileConfig(os.path.join(spec_dir, "logging.conf"))
+  logging.config.fileConfig(os.path.join(src_dir, "logging.conf"))
   logging.getLogger().setLevel(logging.DEBUG)
 
   tmpls = opt.tmpl[:]

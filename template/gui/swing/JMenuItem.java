@@ -7,8 +7,6 @@ public class JMenuItem extends AbstractButton implements Accessible {
   public JMenuItem(String text, Icon icon);
   public JMenuItem(String text, int mnemonic);
 
-  public void addSeparator();
-
   public KeyStroke getAccelerator();
   public void setAccelerator(KeyStroke keyStroke);
 

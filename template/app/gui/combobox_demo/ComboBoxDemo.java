@@ -1,1 +1,1 @@
-../../../../example/src/tutorial/combobox_demo/ComboBoxDemo.java
+../../../../example/gui/src/tutorial/combobox_demo/ComboBoxDemo.java

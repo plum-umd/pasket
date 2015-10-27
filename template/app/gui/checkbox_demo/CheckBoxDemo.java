@@ -1,1 +1,1 @@
-../../../../example/src/tutorial/checkbox_demo/CheckBoxDemo.java
+../../../../example/gui/src/tutorial/checkbox_demo/CheckBoxDemo.java

@@ -56,25 +56,18 @@ def pure_base(path):
 regarding Java features
 """
 
-# Java's Enum
-# NOTE: adding an Enum type to Python is still an open PEP:
-# http://www.python.org/dev/peps/pep-0435/
-def enum(*sequential, **named):
-  enums = dict(zip(sequential, range(len(sequential))), **named)
-  return type('Enum', (), enums)
-
-
 # extract parameterized types
 # Map<K, V> -> [K, V]
 # List<T> -> [T]
 # Map<K, List<T>> -> [K, List<T>]
-@takes(unicode)
+@takes(unicode, optional(unicode))
 @returns(list_of(unicode))
-def extract_generics(tname):
-  regex = r"^({})<(.+)>$".format('|'.join(C.collections))
+def extract_generics(tname, base=u"\S+"):
+  regex = r"^({})<(.+)>$".format(base)
   m = re.match(regex, tname.strip())
   if m: # m.group(1) = collection name
-    return map(op.methodcaller("strip"), m.group(2).split(','))
+    typs = [m.group(1)] + m.group(2).split(',')
+    return map(op.methodcaller("strip"), typs)
   else: return []
 
 
@@ -84,8 +77,8 @@ def extract_generics(tname):
 def of_collection(tname):
   for collection in C.collections:
     if collection in tname:
-      generics = extract_generics(tname)
-      if any(generics): return [collection] + generics
+      typs = extract_generics(tname, u'|'.join(C.collections))
+      if any(typs): return typs
   return []
 
 
@@ -94,6 +87,31 @@ def of_collection(tname):
 @returns(bool)
 def is_collection(tname):
   return any(of_collection(tname))
+
+
+# check whether the given type name has bounded type parameter(s)
+@takes(unicode)
+@returns(bool)
+def is_generic(tname):
+  return any(extract_generics(tname))
+
+
+# ArrayAdapter<?> -> [ArrayAdapter, ?]
+@takes(unicode)
+@returns(list_of(unicode))
+def explode_generics(tname):
+  if is_generic(tname):
+    return extract_generics(tname)
+  else: return [tname]
+
+
+# extrace base type out of array
+# e.g., X[] -> X
+@takes(unicode)
+@returns(optional(unicode))
+def componentType(tname):
+  if tname.endswith("[]"): return tname[:-2]
+  else: return None
 
 
 # check whether the given type name is kind of array
@@ -112,6 +130,7 @@ def is_class_name(tname):
 
 # sanitize type name
 # e.g., Demo$1 -> Demo_1, Outer.Inner -> Outer_Inner
+# ArrayAdapter<?> (-> ArrayAdapter_?) -> ArrayAdapter_Object
 @takes(unicode)
 @returns(unicode)
 def sanitize_ty(tname):
@@ -119,7 +138,106 @@ def sanitize_ty(tname):
   #repl_dic = dict((re.escape(k), v) for k, v in repl_map.iteritems())
   #pattern = re.compile(" | ".join(repl_dic.keys()))
   #return pattern.sub(lambda m: repl_dic[re.escape(m.group(0))], tname)
-  return tname.replace('$','_').replace('.','_')
+  _tname = tname.replace('$','_').replace('.','_')
+  if is_generic(_tname):
+    _tname = u'_'.join(explode_generics(_tname))
+  return _tname.replace('?', C.J.OBJ)
+
+
+# convert type name to JVM notation
+# e.g., x.y.Z -> Lx/y/Z;
+@takes(unicode)
+@returns(unicode)
+def toJVM(tname):
+  if is_class_name(tname.split('.')[-1]):
+    return u'L' + tname.replace('.','/') + u';'
+  elif is_array(tname):
+    return u'[' + toJVM(componentType(tname))
+  else: return tname
+
+
+# default value of the given time, depending on framework
+_default_values = {
+  C.J.i: u"0",
+  C.J.z: C.J.FALSE,
+  u"default": C.J.N
+}
+@takes(str, unicode, unicode)
+@returns(unicode)
+def default_value(cmd, ty, vname):
+  if cmd == "android":
+    if ty in C.primitives:
+      if ty == C.J.z:
+        v = u"SymUtil.new_sym_bit(\"{}\")".format(vname)
+      else:
+        v = u"SymUtil.new_sym_int(\"{}\")".format(vname)
+    else:
+      v = u"SymUtil.new_sym(\"{}\", \"{}\")".format(vname, ty)
+  else:
+    if ty in _default_values:
+      v = _default_values[ty]
+    else: v = _default_values[u"default"]
+  return v
+
+
+# autoboxing, e.g., int -> Integer
+@takes(unicode)
+@returns(unicode)
+def autoboxing(tname):
+  if tname in C.primitives:
+    for i, v in enumerate(C.primitives):
+      if tname == v: return C.autoboxing[i]
+
+  return tname
+
+
+# unboxing, e.g., Character -> char
+@takes(unicode)
+@returns(unicode)
+def unboxing(tname):
+  if tname in C.autoboxing:
+    for i, v in enumerate(C.autoboxing):
+      if tname == v: return C.primitives[i]
+
+  return tname
+
+
+# short form representation of type name
+@takes(unicode)
+@returns(optional(unicode))
+def to_shorty(tname):
+  # TODO: (multi-dimensional) array
+  if tname in C.primitives:
+    for key, value in C.J.__dict__.iteritems():
+      if tname == value: return unicode(key)
+  elif is_class_name(tname):
+    return u'L'
+  else: # erroneous
+    return None
+
+
+# Sketch-ish short form representation of type name
+@takes(unicode)
+@returns(unicode)
+def to_shorty_sk(tname):
+  shorty = to_shorty(tname)
+  if shorty in [u'b', u's', u'i', u'j']: return u'i'
+  elif shorty == u'z': return u'z'
+  else: return u''
+
+
+# check if quoted with double quotation marks
+@takes(unicode)
+@returns(bool)
+def is_str(x):
+  return len(x) >= 2 and (x[0] == '"' and x[-1] == '"')
+
+
+# check if quoted with single quotation marks
+@takes(unicode)
+@returns(bool)
+def is_char(x):
+  return len(x) >= 2 and (x[0] == '\'' and x[-1] == '\'')
 
 
 # capitalize the first character only

@@ -5,12 +5,14 @@ from antlr3.tree import CommonTree as AST
 
 from lib.typecheck import *
 import lib.const as C
+from lib.enum import enum
 
 import util
 # to avoid circular import (TODO: do we really need those annotations?)
 #from meta.expression import parse_e
 
-C.A = util.enum(HARNESS="Harness", \
+C.A = enum(OVERRIDE="Override", SUPWARN="SuppressWarnings", \
+  HARNESS="Harness", \
   EVENT="Event", REACT="React", OBS="ObserverPattern", \
   OBSS="Observers", ATTACH="Attach", DETACH="Detach", NOTI="Notified", \
   STATE="State", ERR="Error", UPDATE="Update", \
@@ -71,10 +73,16 @@ def parse_anno(node):
   _anno = Anno(name = node.getChild(0).getChild(0).getText())
 
   ##
+  ## Java annotations
+  ##
+  if _anno.name == C.A.OVERRIDE: pass
+  elif _anno.name == C.A.SUPWARN: pass
+
+  ##
   ## Observer
   ##
   # (A... (NAME ObserverPattern) (ELEMS "event" (, "event")*)?)
-  if _anno.name == C.A.OBS:
+  elif _anno.name == C.A.OBS:
     events = []
     if node.getChildCount() > 1:
       events = util.implode_id(node.getChild(1)).split(',')

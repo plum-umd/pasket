@@ -64,6 +64,7 @@ public class AdaptedButtonDemo extends JPanel
         b1.setHorizontalTextPosition(AbstractButton.LEADING); //aka LEFT, for left-to-right locales
         b1.setMnemonic(KeyEvent.VK_D);
         b1.setActionCommand("disable");
+        b1.getActionCommand(); //XXX for modeling purpose only
 
         b2 = new JButton("Middle button", middleButtonIcon);
         b2.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -74,6 +75,7 @@ public class AdaptedButtonDemo extends JPanel
         //Use the default text position of CENTER, TRAILING (RIGHT).
         b3.setMnemonic(KeyEvent.VK_E);
         b3.setActionCommand("enable");
+        b3.getActionCommand(); //XXX for modeling purpose only
         b3.setEnabled(false);
 
         //Listen for actions on buttons 1 and 3.

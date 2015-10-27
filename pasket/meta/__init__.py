@@ -1,8 +1,10 @@
 import lib.const as C
+from lib.enum import enum
 
 from .. import util
 
-C.mod = util.enum(PR=u"private", PB=u"public", ST=u"static", FN=u"final", \
+C.mod = enum(PR=u"private", PB=u"public", \
+    AB=u"abstract", ST=u"static", FN=u"final", \
     GN=u"generator", HN=u"harness")
 C.PBST = [C.mod.PB, C.mod.ST]
 C.PRST = [C.mod.PR, C.mod.ST]
@@ -93,8 +95,16 @@ def register_class(cls):
   __clss.append(cls)
 
 def class_lookup(cname):
+  _cname = util.sanitize_ty(unicode(cname))
   global __clss
   for c in __clss:
+    cls_r = repr(c)
+    # normal case
     if c.name == cname: return c
+    if c.is_inner:
+      # full name of inner class, e.g., Demo$CancelAction
+      if _cname == cls_r: return c
+      # inner class w/o outer class name, e.g., Align
+      if cname in cls_r.split('_'): return c
   return None
 

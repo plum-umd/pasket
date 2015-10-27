@@ -84,7 +84,7 @@ class APICollector(object):
 
 """
 To import lib.*, run as follows:
-  pasket $ python -m spec.analysis.api [-t tmpl_path] (demo_file | demo_path)+
+  pasket $ python -m pasket.analysis.api [-t tmpl_path] (demo_file | demo_path)+
 """
 if __name__ == "__main__":
   from optparse import OptionParser
@@ -100,12 +100,12 @@ if __name__ == "__main__":
     parser.error("incorrect number of arguments")
 
   pwd = os.path.dirname(__file__)
-  spec_dir = os.path.join(pwd, "..")
-  root_dir = os.path.join(spec_dir, "..")
+  src_dir = os.path.join(pwd, "..")
+  root_dir = os.path.join(src_dir, "..")
   sys.path.append(root_dir)
 
   ## logging configuration
-  logging.config.fileConfig(os.path.join(spec_dir, "logging.conf"))
+  logging.config.fileConfig(os.path.join(src_dir, "logging.conf"))
   logging.getLogger().setLevel(logging.DEBUG)
 
   tmpl_files = []
@@ -131,5 +131,5 @@ if __name__ == "__main__":
   tmpl.accept(collector)
 
   for cname, mname, arg_typs in collector.APIs:
-    print "{}.{}({})".format(cname, mname, ", ".join(arg_typs))
+    logging.info("{}.{}({})".format(cname, mname, ", ".join(arg_typs)))
 

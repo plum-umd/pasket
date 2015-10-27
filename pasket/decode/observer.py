@@ -31,8 +31,8 @@ class Observer(object):
     return util.exists(matched, [Observer.regex_cmp, Observer.regex_idx])
 
   ## receiver instance for all the methods in Aux...
-  ## e.g., rcv_AuxObserver1
-  regex_rcv = r"(rcv_{}\d+)".format(C.OBS.AUX)
+  ## e.g., rcv_AuxObserverActionEvent
+  regex_rcv = r"(rcv_{}\S+)".format(C.OBS.AUX)
 
   @staticmethod
   def repl_rcv(msg):
@@ -49,7 +49,7 @@ class Observer(object):
 
   ## hole assignments for roles
   ## glblInit_subject_????,StmtAssign,subject_???? = n
-  regex_role = r"(({})_{}\d+).* = (\d+)$".format('|'.join(C.obs_roles), C.OBS.AUX)
+  regex_role = r"((({})(_\d)?)_{}[^_]+)_.* = (\d+)$".format('|'.join(C.obs_roles), C.OBS.AUX)
 
   @staticmethod
   def st_of_interest(msg):
@@ -58,13 +58,14 @@ class Observer(object):
   # add a mapping from role variable to its value chosen by sketch
   def add_st(self, msg):
     m = re.match(Observer.regex_role, msg)
-    v, n = m.group(1), m.group(3)
+    v, n = m.group(1), m.group(5)
     self._role[v] = n
 
   # initializer
-  def __init__(self, output_path):
+  def __init__(self, output_path, obs_conf):
     self._output = output_path
     self._demo = util.pure_base(output_path)
+    self._obs_conf = obs_conf
 
     self._cur_mtd = None
     self._exps = {} # { f : [exp...] }
@@ -179,8 +180,8 @@ class Observer(object):
 
   # handle code
   @staticmethod
-  def revise_handle(mtd, upd, aux, obsr, evt):
-    body = '\n'.join(map(str,mtd.body))
+  def revise_handle(mtd, upd, aux, subj, obsr, evt):
+    body = '\n'.join(map(str, mtd.body))
 
     # rcv_Aux... -> this
     body = body.replace("rcv_"+aux.name, C.J.THIS)
@@ -194,30 +195,53 @@ class Observer(object):
     body = body.replace(reflect, concrete)
 
     # List<Aux...> -> List<@Observer>
-    body = body.replace(aux.name, obsr.name)
+    # List<Object> -> List<@Observer>
+    p = "<{}>"
+    body = body.replace(p.format(aux.name), p.format(obsr.name))
+    body = body.replace(p.format(C.J.OBJ), p.format(obsr.name))
+
+    # for (Aux... o : obs) -> for (@Observer o : obs)
+    o = "{} o"
+    body = body.replace(o.format(aux.name), o.format(obsr.name))
 
     # formal parameter of event type
     args = find_formals(mtd.params, [evt.name])
     body = body.replace("evt", args[0])
 
-    # if @Update doesn't receive @Subject
+    # adjust # of arguments for @Update
     if len(upd.params) < 2:
-      # o.update(this, event) -> o.update(event)
-      body = body.replace("this, ",'')
+      upd_param_typ = upd.param_typs[0]
+      # either pass @Subject
+      if upd_param_typ == subj.name:
+        # o.update(this, event) -> o.update(this)
+        body = body.replace(", ({}){}".format(evt.name, args[0]), '')
+      else: # or @Event
+        # o.update(this, event) -> o.update(event)
+        body = body.replace("this, ",'')
 
     logging.debug("revising handle code at {}".format(mtd.name))
     mtd.body = to_statements(mtd, body)
 
   @v.when(Template)
   def visit(self, node):
+    conf = self._obs_conf
+
     def find_role(lst, aux_name, role):
       try:
         _id = self._role['_'.join([role, aux_name])]
         return lst[int(_id)]
       except KeyError: return None
 
+    regex_ev = r"{}(\S+)".format(C.OBS.AUX)
+
     for aux_name in node.obs_auxs:
       aux = class_lookup(aux_name)
+      evt = getattr(aux, "evt").name
+
+      if evt in conf:
+        hdl_cnt, attach_cnt, detach_cnt = conf[evt]
+      else:
+        hdl_cnt, attach_cnt, detach_cnt = (1, 1, 1)
 
       # find and store class roles
       find_cls_role = partial(find_role, classes(), aux_name)
@@ -231,16 +255,30 @@ class Observer(object):
 
       # find and store method roles
       find_mtd_role = partial(find_role, methods(), aux_name)
-      attach, detach = map(find_mtd_role, [C.OBS.A, C.OBS.D])
-      logging.debug("attach: {}.{}".format(attach.clazz.name, attach.name))
-      logging.debug("detach: {}.{}".format(detach.clazz.name, detach.name))
 
-      handle, update = map(find_mtd_role, [C.OBS.H, C.OBS.U])
-      logging.debug("handle: {}.{}".format(handle.clazz.name, handle.name))
-      logging.debug("update: {}.{}".format(update.clazz.name, update.name))
+      if attach_cnt == 0: attach = None
+      else: # attach_cnt == 1
+        attach = find_mtd_role(C.OBS.A)
+        logging.debug("attach: {}.{}".format(attach.clazz.name, attach.name))
+
+      if detach_cnt == 0: detach = None
+      else: # detach_cnt == 1
+        detach = find_mtd_role(C.OBS.D)
+        logging.debug("detach: {}.{}".format(detach.clazz.name, detach.name))
 
       self._attach[aux.name] = attach
       self._detach[aux.name] = detach
+
+
+      if hdl_cnt == 1:
+        handle = find_mtd_role(C.OBS.H)
+        update = find_mtd_role(C.OBS.U)
+        logging.debug("handle: {}.{}".format(handle.clazz.name, handle.name))
+        logging.debug("update: {}.{}".format(update.clazz.name, update.name))
+      else:
+        handle = map(lambda n: find_mtd_role(C.OBS.H+"_"+str(n)), range(hdl_cnt))
+        update = map(lambda n: find_mtd_role(C.OBS.U+"_"+str(n)), range(hdl_cnt))
+
       self._handle[aux.name] = handle
 
       # concretize @Subject if an interface is chosen
@@ -258,17 +296,36 @@ class Observer(object):
       Observer.add_obs(subj, obsr)
 
       # insert or move code snippets from Aux classes to actual participants
-      Observer.def_attach(attach, subj, obsr)
-      Observer.def_detach(detach, subj, obsr)
+      if attach: Observer.def_attach(attach, subj, obsr)
+      if detach: Observer.def_detach(detach, subj, obsr)
 
-      handle.body = aux.mtd_handle.body
-      Observer.revise_handle(handle, update, aux, obsr, aux.evt)
-      setattr(subj, "handle", handle)
+      if hdl_cnt == 1:
+        handle.body += aux.mtd_handle.body
+        Observer.revise_handle(handle, update, aux, subj, obsr, aux.evt)
+        setattr(subj, "handle", handle)
+        old = "handleCode_{0}_{0}_{0}_{1}".format(aux.name, aux.evt.name)
+        concrete = repr(handle)
+        self._exps[concrete] = cp.deepcopy(self._exps[old])
+        self._exps.pop(old, None)
+      else:
+        for n in range(hdl_cnt):
+          handle[n].body += getattr(aux, "mtd_handle_"+str(n)).body
+          Observer.revise_handle(handle[n], update[n], aux, subj, obsr, aux.evt)
+          setattr(subj, "handle_"+str(n), handle[n])
+          old = "handleCode_{1}_{0}_{0}_{0}_{2}".format(aux.name, n, aux.evt.name)
+          concrete = repr(handle[n])
+          self._exps[concrete] = cp.deepcopy(self._exps[old])
+          self._exps.pop(old, None)
 
-      old = "handleCode_{0}_{0}_{0}_{1}".format(aux.name, aux.evt.name)
-      concrete = repr(handle)
-      self._exps[concrete] = cp.deepcopy(self._exps[old])
-      self._exps.pop(old, None)
+	#evt_que = class_lookup(C.GUI.QUE)
+	prm = [(subj.name, u"rcv"), (aux.evt.name, u"evt")] 
+        switch_handle = Method(clazz=subj, mods=[C.mod.PB, C.mod.ST], params=prm, name=u"switchHandle")
+        switch_handle.body += aux.mtd_handle.body
+	switch_handle.accept(self)
+	subj.add_mtds([switch_handle])
+        setattr(subj, C.OBS.H, switch_handle)
+      
+
 
       # remove Aux class
       node.classes.remove(aux)
@@ -291,27 +348,29 @@ class Observer(object):
       node.name = subj.lower()
 
   # Aux...subjectCall(...);
-  regex_one = r"^{}\d+\.subjectCall\(.*\);$".format(C.OBS.AUX)
+  regex_one = r"{}\S+\.subjectCall\(.*\);".format(C.OBS.AUX)
 
   @v.when(Method)
   def visit(self, node):
     self._cur_mtd = node
     if not node.body: return
     cls = node.clazz
-    # if this method belongs to either Subject or Observer
-    if cls in self._subj.values() + self._obsr.values():
-      if node.is_init:
-        # remove auxiliary initializing statements
-        def tmp_filter(st): return C.OBS.tmp not in str(st)
-        node.body = filter(tmp_filter, node.body)
-      else:
-        # remove subjectCall() call
-        s = unicode(node.body[0])
-        m = re.match(Observer.regex_one, s)
+    # remove auxiliary initializing statements
+    if node.is_init:
+      def tmp_filter(st): return C.OBS.tmp not in str(st)
+      node.body = filter(tmp_filter, node.body)
+
+    else: # not <init>
+      # remove subjectCall() call
+      def filter_subjectCall(s):
+        _s = unicode(s)
+        m = re.search(Observer.regex_one, _s)
         if m:
-          logging.debug("at {}, removing {}".format(node.name, s))
-          # assume that call is the only statement in the method
-          node.body.pop(0)
+          logging.debug("at {}, removing\n{}".format(node.name, s))
+          return None
+        else: return s
+
+      node.body = util.ffilter(map(filter_subjectCall, node.body))
 
   @v.when(Statement)
   def visit(self, node):
@@ -323,12 +382,60 @@ class Observer(object):
       if call.startswith(C.OBS.AUX) and \
           "reflect" in call and C.OBS.H in call:
         aux_name = call.split('.')[0]
-        _id = self._role['_'.join([C.OBS.H, aux_name])]
-        handle = methods()[int(_id)]
+        hdl_name = call.split('(')[1].split(',')[0]
+	key = hdl_name.split('.')[-1]
+        subj = self._subj[aux_name]
+        if (key not in self._role.keys()):
+	  handle = subj.mtd_by_name(u"switchHandle")[0]
+        else:
+	  _id = self._role[key]
+          #_id = self._role['_'.join([C.OBS.H, aux_name])]
+          handle = methods()[int(_id)]
 
-        old = u"{0}.reflect({0}.handle_{0}, rcv, ".format(aux_name)
-        new = u"rcv.{}(".format(handle.name)
-        concrete = call.replace(old, new)
+	if u"rcv_"+aux_name in call: call = call.replace(u"rcv_"+aux_name, u"rcv")
+        if "rcv, " in call: # no suffix
+          old = u"{0}.reflect({1}, rcv, ".format(aux_name, hdl_name)
+          new = u"rcv.{}(".format(handle.name)
+          concrete = call.replace(old, new)
+	  concrete = concrete.replace(u"arg, ", u"")
+
+        else: # w/ suffix
+          m = re.search(r"rcv_(\d+)", call)
+          if m:
+            suffix = m.group(1)
+            old = u"{0}.reflect({1}, rcv_{2}, ".format(aux_name, hdl_name, suffix)
+            if handle.name.startswith(u"switchHandle"):
+	      new = u"{2}.{0}(rcv_{1}".format(handle.name, suffix, subj.name)
+	    else:
+	      new = u"rcv_{1}.{0}(".format(handle.name, suffix)
+            concrete = call.replace(old, new)
+	    concrete = concrete.replace(u"arg, ", u"")
+
+
+        # TODO: more precise sig match
+        l_param = concrete.find('(')
+        r_param = concrete.rfind(')')
+        f = concrete[:l_param]
+        args = concrete[l_param+1:r_param]
+        rm_null = lambda arg: arg.strip().replace(C.J.N, '')
+        new_args = filter(None, map(rm_null, args.split(',')))
+        new_call = u"{}({});".format(f, ','.join(new_args))
+        logging.debug("{} -> {}".format(call, new_call))
+        return to_statements(self._cur_mtd, new_call)
+
+      if call.startswith(C.OBS.AUX) and \
+          "reflect" in call and C.OBS.U in call:
+        aux_name = call.split('.')[0]
+        upd_name = call.split('(')[1].split(',')[0]
+	key = upd_name.split('.')[-1]
+        subj = self._subj[aux_name]
+	_id = self._role[key]
+        update = methods()[int(_id)]
+
+        if "o, " in call: # no suffix
+          old = u"{0}.reflect({1}, o, ".format(aux_name, upd_name)
+          new = u"o.{}(".format(update.name)
+          concrete = call.replace(old, new)
 
         # TODO: more precise sig match
         l_param = concrete.find('(')
@@ -348,15 +455,31 @@ class Observer(object):
       if hasattr(node.le, "ty") and C.OBS.AUX in node.le.ty:
         node.le.ty = self._subj[node.le.ty].name
 
-    # discard unnecessary statements that were suppose to add dispatchers
-    elif node.kind == C.S.IF:
-      guard = str(node.e)
-      if guard in "false":
-        logging.debug("removing true branch in {}".format(self._cur_mtd.name))
-        return node.f
-      elif guard in "true":
-        logging.debug("removing false branch in {}".format(self._cur_mtd.name))
-        return node.t
+      assn = unicode(node)
+      call = unicode(node.re)
+      if "egetter" in assn and "eventtype" in assn:
+        aux_name = call.split('.')[0]
+	evtyp_name = u"eventtype_"+aux_name
+	_id = self._role[evtyp_name]
+        egetter = methods()[int(_id)]
+        old = u"{0}.{1}({2}, evt".format(aux_name, u"egetter", evtyp_name)
+        new = u"evt.{}(".format(egetter.name)
+        concrete = assn.replace(old, new)
+	etyp = class_lookup(egetter.typ)
+	if etyp.is_inner: etyp = etyp.outer.name+"."+etyp.name
+	concrete = concrete.replace(u"EventType", etyp)
+	
+        # TODO: more precise sig match
+        l_param = concrete.find('(')
+        r_param = concrete.rfind(')')
+        f = concrete[:l_param]
+        args = concrete[l_param+1:r_param]
+        rm_null = lambda arg: arg.strip().replace(C.J.N, '')
+        new_args = filter(None, map(rm_null, args.split(',')))
+        new_call = u"{}({});".format(f, ','.join(new_args))
+        logging.debug("{} -> {}".format(call, new_call))
+        return to_statements(self._cur_mtd, new_call)
+
 
     elif node.kind == C.S.FOR:
       ## for (Observer o : _obs) { ... }

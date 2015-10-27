@@ -15,7 +15,7 @@
   <!-- set your own path to jpf-awt-synth -->
   <property name="jpf-awt-synth" location="${user.home}/Downloads/jpf/jpf-awt-synth"/>
 
-  <target name="gui" description="copy GUI modelings into jpf-awt-synth">
+  <target name="gui" description="copy GUI model into jpf-awt-synth">
     <delete dir="${jpf-awt-synth}/src/classes/java/util"/>
     <copy todir="${jpf-awt-synth}/src/classes/java/util">
       <fileset dir="${source.dir}/java/util"/>
@@ -39,6 +39,22 @@
     <mkdir dir="${build.dir}"/>
   </target>
 
+  <!-- set your own path to SymDroid -->
+  <property name="symdroid" location="../../symdroid"/>
+  <property name="symdroid-model" location="${symdroid}/model/src_synth/"/>
+
+  <target name="android" description="copy Android model into SymDroid">
+    <delete dir="${symdroid-model}/symdroid/model/android"/>
+    <copy todir="${symdroid-model}/symdroid/model/android">
+      <fileset dir="${source.dir}/android"/>
+    </copy>
+
+    <delete dir="${symdroid-model}/symdroid/model/com/android"/>
+    <copy todir="${symdroid-model}/symdroid/model/com/android">
+      <fileset dir="${source.dir}/com/android"/>
+    </copy>
+  </target>
+
   <!-- compile the java code in ${source.dir} into ${build.dir} -->
   <target name="compile" depends="init" description="compile java sources">
     <javac srcdir="${source.dir}" destdir="${build.dir}" includeantruntime="false">
@@ -50,7 +66,7 @@
 
   <!-- execute the project -->
   <target name="run" description="run the project">
-    <java classname="org.junit.runner.JUnitCore" fork="yes">
+    <java classname="org.junit.runner.JUnitCore" fork="yes" failonerror="true">
       <classpath path="${build.dir}"/>
       <classpath path="${junit.jar}"/>
       <classpath path="${hamcrest.jar}"/>

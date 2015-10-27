@@ -5,27 +5,28 @@ import logging.config
 import subprocess
 import sys
 
+from lib.enum import enum
 from lib.typecheck import *
 import lib.const as C
 
-import util
-
 # Terminals used at AST
-C.T = util.enum(ANNO="ANNOTATION", \
+C.T = enum(ANNO="ANNOTATION", \
     PKG="package", CLS="class", ITF="interface", ENUM="enum", \
     EXT="extends", IMP="implements", THROWS="throws", \
     DECL="DECL", FLD="FIELD", MTD="METHOD", \
     TYPE="TYPE", NAME="NAME", PARA="PARAMS", ELT="ELEMS", \
-    STM="STAT", EXP="EXPR", ARG="ARGV", CAST="CAST", \
-    HOLE=u"??")
+    STM="STAT", EXP="EXPR", ARG="ARGV", CAST="CAST", INS_OF="instanceof", \
+    HOLE=u"??", REG_L=u"{|", REG_R=u"|}", REGEN="REGEN")
 
 # constants regarding Java
-C.J = util.enum(MAIN=u"main", CLINIT=u"clinit", \
-    T=u"true", F=u"false", N=u"null", \
+C.J = enum(MAIN=u"main", CLINIT=u"clinit", \
+    TRUE=u"true", FALSE=u"false", N=u"null", \
     NEW="new", THIS=u"this", SUP=u"super", \
     v=u"void", z=u"boolean", b=u"byte", s=u"short", c=u"char", \
     i=u"int", j=u"long", f=u"float", d=u"double", \
-    OBJ=u"Object", INT=u"Integer", RUN=u"Runnable", \
+    V=u"Void", Z=u"Boolean", B=u"Byte", S=u"Short", C=u"Character", \
+    I=u"Integer", J=u"Long", F=u"Float", D=u"Dobule", \
+    OBJ=u"Object", RUN=u"Runnable", \
     STR=u"String", SB=u"StringBuffer", \
     MAP=u"Map", LST=u"List", STK=u"Stack", QUE=u"Queue", ITER=u"Iterator", \
     TMAP=u"TreeMap", LNK=u"LinkedList", DEQ=u"ArrayDeque")
@@ -33,46 +34,62 @@ C.J = util.enum(MAIN=u"main", CLINIT=u"clinit", \
 # Java primitive types
 C.primitives = [C.J.z, C.J.b, C.J.s, C.J.c, C.J.i, C.J.j, C.J.f, C.J.d]
 
+# Java autoboxing: should be in order!
+C.autoboxing = [C.J.Z, C.J.B, C.J.S, C.J.C, C.J.I, C.J.J, C.J.F, C.J.D]
+
 # constants regarding Java GUI
-C.GUI = util.enum(TOOL=u"Toolkit", QUE=u"EventQueue", \
+C.GUI = enum(TOOL=u"Toolkit", QUE=u"EventQueue", \
     EVT=u"EventObject", IVK=u"InvocationEvent")
+
+# constants regarding Android
+C.ADR = enum(SYS=u"SystemServer", QUE=u"MessageQueue", \
+    MSG=u"Message", BDL=u"Bundle", HDL=u"Handler", LOOP=u"Looper", \
+    CMP=u"ComponentName", CMPB=u"CompoundButton", INTT=u"Intent", \
+    CTX=u"Context", ACT=u"Activity", ACTT=u"ActivityThread", \
+    VIEW=u"View", VG=u"ViewGroup", WIN=u"Window", WMG=u"WindowManagerGlobal", \
+    SSM=u"SystemServiceManager", TPM=u"TelephonyManager")
 
 # Java collections
 C.collections = [C.J.MAP, C.J.LST, C.J.STK, C.J.QUE, C.J.ITER] \
               + [C.J.TMAP, C.J.LNK, C.J.DEQ]
 
 # type information encodings
-C.typ = util.enum(argNum="argNum", argType="argType", retType="retType", \
+C.typ = enum(argNum="argNum", argType="argType", retType="retType", \
     belongsTo="belongsTo", subcls="subcls")
 
 C.typ_arrays = [C.typ.argNum, C.typ.argType, C.typ.retType] \
              + [C.typ.belongsTo, C.typ.subcls]
 
 # design patterns
-C.P = util.enum(BLD="builder", FAC="factory", OBS="observer", PRX="proxy", \
-    SNG="singleton", STA="state", ACC="accessor", NACC="new_accessor")
+C.P = enum(BLD="builder", FAC="factory", SNG="singleton", \
+    OBS="observer", PRX="proxy", ADP="adapter", STA="state", \
+    ACCA="accessor_adhoc", ACCU="accessor_uni", ACCM="accessor_map")
 
 # role variables for the accessor pattern
-C.ACC = util.enum(AUX=u"AuxAccessor", \
-    ACC="accessor", CONS="cons", GET="getter", SET="setter", \
-    ADPT="adapter", ADPE="adaptee", FLD="field", \
+C.ACC = enum(AUX=u"AuxAccessor", \
+    ACC="accessor", CONS="cons", GET="getter", SET="setter", IMP="implicit", \
     GS="gs_field", prvt=u"_prvt_fld")
 
-C.acc_roles = [C.ACC.CONS, C.ACC.GET, C.ACC.SET, C.ACC.GS]
+C.acc_roles = [C.ACC.CONS, C.ACC.GET, C.ACC.SET, C.ACC.GS, C.ACC.IMP]
 
-C.adp_roles = [C.ACC.ADPT, C.ACC.ADPE, C.ACC.FLD]
+# role variables for the adapter pattern
+
+C.ADP = enum(AUX=u"AuxAdapter", \
+    ADPT="adapter", ADPE="adaptee", FLD=u"_adpt_ins")
+
+C.adp_roles = [C.ADP.ADPT, C.ADP.ADPE, C.ADP.FLD]
 
 # role variables for the observer pattern
-C.OBS = util.enum(AUX=u"AuxObserver", \
-    OBSR="observer", SUBJ="subject", EVT="event", \
+C.OBS = enum(AUX=u"AuxObserver", \
+    OBSR="observer", SUBJ="subject", EVT="event", EVTTYP="eventtype", \
     A="attach", D="detach", H="handle", U="update", \
     obs=u"_obs", tmp=u"__tmp__")
 
-C.obs_roles = [C.OBS.OBSR, C.OBS.SUBJ, C.OBS.EVT, \
+C.obs_roles = [C.OBS.OBSR, C.OBS.SUBJ, C.OBS.EVT, C.OBS.EVTTYP, \
     C.OBS.A, C.OBS.D, C.OBS.H, C.OBS.U]
 
 # role variables for the singleton pattern
-C.SNG = util.enum(AUX=u"AuxSingleton", \
+C.SNG = enum(AUX=u"AuxSingleton", \
     SNG="singleton", INS=u"__instance", GET=u"getter")
 
 C.sng_roles = [C.SNG.SNG, C.SNG.GET]
@@ -98,6 +115,7 @@ def get_artifacts():
   return _artifacts
 
 
+import util
 from sample import Sample
 from meta import class_lookup
 from meta.template import Template
@@ -138,11 +156,29 @@ conf = {}
 def configure(opt):
   conf["encoding"] = opt.encoding
   conf["sketch"] = opt.sketch
+  conf["timeout"] = opt.timeout
   conf["randassign"] = opt.randassign
+  conf["randdegree"] = opt.randdegree
   conf["parallel"] = opt.parallel
+  conf["p_cpus"] = opt.p_cpus
+  conf["ntimes"] = opt.ntimes
   conf["verbose"] = opt.verbose
 
+def no_encoding():
+  conf["encoding"] = False
+  
+def no_verbose():
+  conf["verbose"] = False
+  
+def no_timeout():
+  conf["timeout"] = None
+  
+def no_sketch():
+  conf["sketch"] = False
 
+def all_swing():
+  conf["pattern"] = ["button_demo", "checkbox_demo", "filechooser_demo"]
+         
 @takes(str, list_of(str), list_of(str), list_of(str), str, optional(str))
 @returns(int)
 def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
@@ -163,10 +199,15 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
   if cmd == "pattern":
     _patterns = patterns[:]
   else: ## android or gui
-    _patterns = [C.P.ACC, C.P.NACC, C.P.BLD, C.P.FAC, C.P.SNG, C.P.PRX, C.P.OBS, C.P.STA]
+    _patterns = [C.P.ACCA, C.P.ACCU, C.P.ACCM, C.P.ADP, \
+        C.P.BLD, C.P.FAC, C.P.SNG, C.P.PRX, C.P.OBS, C.P.STA]
 
   opts = [] ## sketch options
-  if conf["verbose"]: opts.extend(["-V", "10"])
+  if conf["verbose"]:
+    opts.extend(["-V", "10"])
+  if conf["timeout"]:
+    opts.extend(["--fe-timeout", str(conf["timeout"])])
+    opts.extend(["--slv-timeout", str(conf["timeout"])])
   # place to keep sketch's temporary files
   opts.extend(["--fe-tempdir", out_dir])
   opts.append("--fe-keep-tmp")
@@ -210,12 +251,10 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
     for smpl_path in _smpl_paths:
       smpl_files.extend(util.get_files_from_path(smpl_path, "txt"))
 
-    def is_event(mname): return mname in tmpl.events
-
     sample.reset()
     smpls = []
     for fname in smpl_files:
-      smpl = Sample(fname, is_event)
+      smpl = Sample(fname, tmpl.is_event)
       smpls.append(smpl)
 
     ## make harness
@@ -236,7 +275,7 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
     ## encode (rewritten) templates into sketch files
     sk_dir = os.path.join(out_dir, '_'.join(["sk", p]))
     if conf["encoding"]:
-      encoder.to_sk(smpls, tmpl, sk_dir)
+      encoder.to_sk(cmd, smpls, tmpl, sk_dir)
     else: # not encoding
       logging.info("pass the encoding phase; rather use previous files")
 
@@ -251,7 +290,7 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
       _opts.extend(["--fe-custom-codegen", codegen_jar])
 
       if conf["randassign"] or conf["parallel"]:
-        _opts.append("--be:randassign")
+        _opts.append("--slv-randassign")
         _opts.extend(["--bnd-dag-size", "16000000"]) # 16M ~> 8G memory
 
       sketch.set_default_option(_opts)
@@ -261,6 +300,14 @@ def main(cmd, smpl_paths, tmpl_paths, patterns, out_dir, log_lv=logging.DEBUG):
         #_, r = sketch.be_p_run(sk_dir, output_path)
         # Java implementation inside sketch-frontend
         _opts.append("--slv-parallel")
+        if conf["p_cpus"]:
+          _opts.extend(["--slv-p-cpus", str(conf["p_cpus"])])
+        if conf["ntimes"]:
+          _opts.extend(["--slv-ntimes", str(conf["ntimes"])])
+        if conf["randdegree"]: # assume FIXED strategy
+          _opts.extend(["--slv-randdegree", str(conf["randdegree"])])
+        else: # adaptive concretization
+          _opts.extend(["--slv-strategy", "WILCOXON"])
         _, r = sketch.run(sk_dir, output_path)
       else:
         _, r = sketch.run(sk_dir, output_path)

@@ -12,12 +12,15 @@ from ..meta.clazz import Clazz
 from ..meta.method import Method
 
 from ..analysis.empty import EmptyFinder
-from collection import Collection
+from accessor_uni import AccessorUni
+from accessor_map import AccessorMap
+from adapter import Adapter
 from observer import Observer
-from accessor import Accessor
 from singleton import Singleton
+from collection import Collection
+from semantic_checker import SemanticChecker
 
-pkgs_android = [u"android."]
+pkgs_android = [u"android.", u"com.android."]
 
 pkgs_gui = [u"java.awt", u"javax.swing", u"javax.accessibility"]
 
@@ -116,7 +119,7 @@ def merge_tmpls(prv, elt):
           for attr in attrs:
             obj1 = getattr(obs1, attr)[aux1]
             obj2 = getattr(obs2, attr)[aux2]
-            assert obj1.name == obj2.name
+            assert not (obj1 and obj2) or obj1.name == obj2.name
         except AssertionError:
           logging.error("solution conflict on {}".format(attr))
           logging.error("{} != {}".format(obj1.name, obj2.name))
@@ -158,12 +161,10 @@ def merge_tmpls(prv, elt):
         prv_dict[aux2] = elt_dict[aux2]
       map(cp_role, attrs)
 
-  # merging the accessor pattern
-  #acc1, acc2 = p2v1[C.P.ACC], p2v2[C.P.ACC]
-
   # merge classes
   for cls2 in tmpl2.classes:
-    if cls2.name == C.J.OBJ: continue # skip Object
+    # skip java.lang.* and java.util.*
+    if cls2.pkg in ["java.lang", "java.util"]: continue
     cls1 = class_lookup(cls2.name)
     # TODO: this case never happens now because we don't use reducer.remove_cls
     if not cls1: tmpl.classes.append(cls2)
@@ -191,8 +192,27 @@ def to_java(cmd, java_dir, tmpls, output_paths, patterns):
 
     _patterns = patterns[:]
     p2v = {}
-    p2v[C.P.OBS] = Observer(output_path)
-    p2v[C.P.ACC] = Accessor(output_path)
+
+    if cmd == "android":
+      from ..rewrite.android import obs_conf
+      p2v[C.P.OBS] = Observer(output_path, obs_conf)
+    elif cmd == "gui":
+      from ..rewrite.gui import obs_conf
+      p2v[C.P.OBS] = Observer(output_path, obs_conf)
+
+    if cmd == "android":
+      from ..rewrite.android import acc_conf_uni, acc_conf_map
+      p2v[C.P.ACCU] = AccessorUni(cmd, output_path, acc_conf_uni)
+      p2v[C.P.ACCM] = AccessorMap(cmd, output_path, acc_conf_map)
+    elif cmd == "gui":
+      from ..rewrite.gui import acc_conf_uni, acc_conf_map
+      p2v[C.P.ACCU] = AccessorUni(cmd, output_path, acc_conf_uni)
+      p2v[C.P.ACCM] = AccessorMap(cmd, output_path, acc_conf_map)
+    else: pass
+
+    if cmd == "gui":
+      p2v[C.P.ADP] = Adapter(output_path)
+
     p2v[C.P.SNG] = Singleton(output_path)
 
     keys = p2v.keys()
@@ -202,12 +222,7 @@ def to_java(cmd, java_dir, tmpls, output_paths, patterns):
     ## filter out unknown pattern names
     _patterns = util.intersection(_patterns, keys)
 
-    coll = "collection"
-    p2v[coll] = Collection()
-    _patterns.insert(0, coll)
-    
     p2vs.append(p2v)
-    
     for p in _patterns:
       if p not in p2v: continue
       logging.info("decoding {} pattern for {}".format(p, demo))
@@ -217,6 +232,13 @@ def to_java(cmd, java_dir, tmpls, output_paths, patterns):
 
   ## merge multiple synthesis results
   tmpl, _ = reduce(merge_tmpls, zip(tmpls, p2vs), (None, {}))
+
+  # final semantic checking
+  logging.info("semantics checking")
+  _visitors = []
+  _visitors.append(Collection())
+  _visitors.append(SemanticChecker(cmd))
+  map(lambda vis: tmpl.accept(vis), _visitors)
 
   ## statistics
   counter = EmptyFinder()
@@ -245,10 +267,15 @@ def dump(cmd, dst_dir, tmpl, msg=None):
       u"InputStreamReader", u"BufferedReader", \
       u"FileNotFoundException", u"IOException"]
 
-  gui_pkgs = set([])
+  if cmd == "android":
+    pkgs_of_interest = pkgs_android
+  elif cmd == "gui":
+    pkgs_of_interest = pkgs_gui
+  decl_pkgs = set([])
   for cls in tmpl.classes:
     if not cls.pkg: continue
-    if check_pkg(cls.pkg, pkgs_gui): gui_pkgs.add(cls.pkg)
+    if check_pkg(cls.pkg, pkgs_of_interest):
+      decl_pkgs.add(cls.pkg)
 
   for cls in tmpl.classes:
     ## generate folders according to package hierarchy
@@ -265,13 +292,13 @@ def dump(cmd, dst_dir, tmpl, msg=None):
     cls_body = str(cls)
     imports.extend(find_imports(cls_body, u"java.util", C.collections))
     imports.extend(find_imports(cls_body, u"java.io", ios))
-
     if cmd == "android":
-      pass
+      imports.extend(find_imports(cls_body, u"symdroid.ocaml", [u"SymUtil"]))
     elif cmd == "gui":
       imports.extend(find_imports(cls_body, u"java.util", [C.GUI.EVT]))
-      for pkg in gui_pkgs:
-        if not cls.pkg or cls.pkg != pkg: imports.append(pkg+".*")
+
+    for pkg in decl_pkgs:
+      if not cls.pkg or cls.pkg != pkg: imports.append(pkg+".*")
 
     ## generate Java files
     with open(java_path, 'w') as f:

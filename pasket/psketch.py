@@ -100,9 +100,14 @@ if __name__ == "__main__":
   logging.getLogger().setLevel(logging.DEBUG)
 
   sketch_home = os.environ["SKETCH_HOME"]
-  cegis = os.path.join(sketch_home, "..", "sketch-backend", "src", "SketchSolver", "cegis")
+  if "runtime" in sketch_home: # using tar ball
+    sketch_root = os.path.join(sketch_home, "..", "..")
+  else: # from source
+    sketch_root = os.path.join(sketch_home, "..")
+  cegis = os.path.join(sketch_root, "sketch-backend", "src", "SketchSolver", "cegis")
 
-  # double-check cegis is running with --be:randassign
+  # double-check that cegis is running with -randassign
+  # which could be set via --be:randassign or --slv-randassign
   if "-randassign" in sys.argv:
     _, res = p_run(cegis, sys.argv[1:])
   else:

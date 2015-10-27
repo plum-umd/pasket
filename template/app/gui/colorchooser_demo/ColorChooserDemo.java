@@ -1,1 +1,1 @@
-../../../../example/src/tutorial/colorchooser_demo/ColorChooserDemo.java
+../../../../example/gui/src/tutorial/colorchooser_demo/ColorChooserDemo.java

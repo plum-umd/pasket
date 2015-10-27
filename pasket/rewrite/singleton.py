@@ -1,6 +1,6 @@
 import operator as op
 from functools import partial
-from itertools import permutations
+from itertools import combinations
 import logging
 
 import lib.const as C
@@ -56,7 +56,7 @@ class Singleton(object):
 
   @staticmethod
   def is_candidate_mtd(mtd):
-    return not mtd.is_init and mtd.is_static and \
+    return not mtd.is_init and mtd.is_static and not mtd.annos and \
         len(mtd.params) == 0 and mtd.typ == mtd.clazz.name
 
   @staticmethod
@@ -139,7 +139,7 @@ class Singleton(object):
     ## range check
     rg_chk = Method(clazz=aux, mods=[C.mod.ST, C.mod.HN], name=u"checkRange")
     checkers = []
-    gen_range = lambda ids: gen_E_gen(map(c_to_e, ids))
+    gen_range = lambda ids: gen_E_gen(map(c_to_e, util.rm_dup(ids)))
     get_id = op.attrgetter("id")
 
     # range check for singleton classes
@@ -166,7 +166,7 @@ class Singleton(object):
       return u"assert (argNum("+getattr(aux, '_'.join([C.SNG.GET, c]))+")) == 0;"
     checkers.extend(map(getter_sig, conf))
 
-    for c1, c2 in permutations(conf, 2):
+    for c1, c2 in combinations(conf, 2):
       _c1, _c2 = map(lambda c: getattr(aux, '_'.join([C.SNG.SNG, c])), [c1, c2])
       checkers.append(u"assert {} != {};".format(_c1, _c2))
 
@@ -209,7 +209,7 @@ class Singleton(object):
       mname = u"getterInOne"
       args = u", ".join([unicode(node.id), unicode(node.clazz.id)])
       call = u"return {}({});".format(u".".join([self._aux_name, mname]), args)
-      node.body += to_statements(node, call)
+      node.body = to_statements(node, call) # overwrite
       logging.debug("{}.{} => {}.{}".format(cname, node.name, self._aux_name, mname))
 
   @v.when(Statement)

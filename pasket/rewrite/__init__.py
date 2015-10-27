@@ -5,36 +5,33 @@ import lib.const as C
 
 from .. import util
 
-from accessor import Accessor
-from new_accessor import NewAccessor
+from accessor_adhoc import AccessorAdHoc
+from accessor_uni import AccessorUni
+from accessor_map import AccessorMap
 from builder import Builder
 from factory import Factory
 from proxy import Proxy
+from adapter import Adapter
 from singleton import Singleton
 from state import State
-
-# configuration for the accessor pattern
-C.acc_conf = { \
-  "EventObject": (1, 1, 0), # getSource
-  "InvocationEvent": (2, 0, 0), # to set Runnable
-
-  "ActionEvent": (3, 1, 0), # getActionCommand
-  "ItemEvent": (4, 2, 0), # getItemSelectable/getStateChange
-
-  "JButton": (2, 1, 1), # (get|set)ActionCommand
-}
-
-# special cases for the accessor pattern
-C.acc_default = [ \
-    C.GUI.TOOL,
-    "JColorChooser", # ColorSelectionModel
-    "JTextComponent", # Document
-    "JMenuItem", "JMenu" # AccessibleContext
-]
+from semantic_checker import SemanticChecker
 
 @takes(str, list_of("Sample"), "Template", list_of(str))
 @returns(nothing)
 def visit(cmd, smpls, tmpl, patterns):
+
+  ## non-trivial, framework-specific rewriting
+  if cmd == "android":
+    from android import R
+    from android.system import System
+    from android.view import View
+
+    R.generate_R(tmpl)
+    _visitors = []
+    _visitors.append(System())
+    _visitors.append(View())
+    map(lambda vis: tmpl.accept(vis), _visitors)
+
   p2v = {}
 
   ## structural patterns
@@ -43,28 +40,46 @@ def visit(cmd, smpls, tmpl, patterns):
 
   p2v[C.P.FAC] = Factory(smpls)
 
-  if cmd == "android": pass
+  if cmd == "android":
+    from android import sng_conf
+    p2v[C.P.SNG] = Singleton(smpls, sng_conf)
   elif cmd == "gui":
     from gui import sng_conf
     p2v[C.P.SNG] = Singleton(smpls, sng_conf)
   else:
     p2v[C.P.SNG] = Singleton(smpls)
 
-  p2v[C.P.ACC] = Accessor(smpls)
-
-  p2v[C.P.NACC] = NewAccessor(smpls)
+  if cmd == "android":
+    from android import acc_default, acc_conf_uni, acc_conf_map
+    p2v[C.P.ACCA] = AccessorAdHoc(smpls, acc_default)
+    p2v[C.P.ACCU] = AccessorUni(smpls, acc_default + acc_conf_map.keys(), acc_conf_uni)
+    p2v[C.P.ACCM] = AccessorMap(smpls, acc_default + acc_conf_uni.keys(), acc_conf_map)
+  elif cmd == "gui":
+    from gui import acc_default, acc_conf_uni, acc_conf_map
+    p2v[C.P.ACCA] = AccessorAdHoc(smpls, acc_default)
+    p2v[C.P.ACCU] = AccessorUni(smpls, acc_default + acc_conf_map.keys(), acc_conf_uni)
+    p2v[C.P.ACCM] = AccessorMap(smpls, acc_default + acc_conf_uni.keys(), acc_conf_map)
+  else:
+    p2v[C.P.ACCA] = AccessorAdHoc(smpls)
 
   ## behavioral patterns
 
-  if cmd == "android": pass
+  if cmd == "android":
+    from android import obs_conf
+    from android.observer import Observer
+    p2v[C.P.OBS] = Observer(smpls, obs_conf)
   elif cmd == "gui":
+    from gui import obs_conf
     from gui.observer import Observer
-    p2v[C.P.OBS] = Observer(smpls)
+    p2v[C.P.OBS] = Observer(smpls, obs_conf)
   else:
     from observer import Observer
     p2v[C.P.OBS] = Observer(smpls)
 
   p2v[C.P.PRX] = Proxy(smpls)
+
+  if cmd == "gui":
+    p2v[C.P.ADP] = Adapter(smpls)
 
   p2v[C.P.STA] = State(smpls)
 
@@ -80,4 +95,9 @@ def visit(cmd, smpls, tmpl, patterns):
   for p in patterns:
     logging.info("rewriting {} pattern".format(p))
     tmpl.accept(p2v[p])
+
+  # final semantic checking
+  logging.info("semantics checking")
+  chker = SemanticChecker(cmd)
+  tmpl.accept(chker)
 

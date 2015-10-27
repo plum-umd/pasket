@@ -25,7 +25,7 @@ class SwingEventHandler implements EventHandler {
             for (int i = 0; i < listeners.length; i++) {
                 listeners[i].actionPerformed(evt);
             }*/
-            temp.dispatchEvent(evt);
+            temp.fireActionPerformed(evt);
         }
         return;
     }
@@ -75,12 +75,16 @@ public class SanityChecker {
 	if (records == null)
             return;
         //temp.delete();
-        
+
+	System.out.println(temp);
+	System.out.println(demo);
         
         File[] samples = smpl_dir.toFile().listFiles();
+	
         for (File child : samples) {
             String fname = child.getName();
             if (fname.startsWith("sample")) {
+		
                 //Queue<String> orig_sample = toQueue(child);
                 Queue<String> mcs = extractMethodCalls(child, demo);
                 Queue<String> mcalls = SampleProcessor.process(mcs);
@@ -95,12 +99,17 @@ public class SanityChecker {
                 recarray = records.toArray(recarray);
                 int i = 0;
                 String simulator;
+		
                 if (demo.endsWith("demo"))
                     simulator = "Main.simulate";
                 else
                     simulator = "Main." + demo + "_main" + num + "()";
-                while (!recarray[i++].contains(simulator))
+
+                while (!recarray[i++].contains(simulator)) {
+		    System.out.println(recarray[i]);
                     continue;
+		}
+		
                 while (!recarray[i].contains(simulator)){
                     curr_log.add(recarray[i++].trim().replaceAll("Adapted", "swings." + demo + "."));
                 }
@@ -109,6 +118,7 @@ public class SanityChecker {
                 System.out.println("[debug] curr_log: " + curr_log);
                 Assert.assertTrue("failure", included(mcalls, curr_log));
                 System.out.println("Pass!");
+		
             }
         }
         
@@ -285,7 +295,16 @@ public class SanityChecker {
             return (s.contains("addObserver") || s.contains("dateChanged"));
         else if (pattern.endsWith("demo"))
             return ((s.contains("javax.swing") || s.contains("java.awt"))
-                    && (! s.contains("invokeLater(")) && (! s.contains("pack")) );
+                    && (! s.contains("invokeLater(")) && (! s.contains("pack"))
+			//&& (! s.contains("setDefaultCloseOperation"))
+			//&& (! s.contains("setVerticalTextPosition"))
+			//&& (! s.contains("setHorizontalTextPosition"))
+			//&& (! s.contains("setMnemonic"))
+			//&& (! s.contains("setEnabled"))
+			//&& (! s.contains("setToolTipText"))
+			//&& (! s.contains("setContentPane"))
+			//&& (! s.contains("setVisible")) 
+			 );
         else return false;
     }
     

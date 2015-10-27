@@ -61,7 +61,8 @@ class Template(v.BaseNode):
       if tag in [C.T.CLS, C.T.ITF, C.T.ENUM]:
         clazz = parse_class(_ast)
         clazz.annos = annos
-        if pkg: clazz.pkg = pkg
+        if pkg:
+          for cls in util.flatten_classes([clazz], "inners"): cls.pkg = pkg
         clazz.mods = mods
         self._classes.append(clazz)
 
@@ -108,16 +109,23 @@ class Template(v.BaseNode):
     # no additional class is required to represent events
     evt_obj = class_lookup(C.GUI.EVT)
     if evt_obj:
+      # artificial field to record subtype events' kinds
       fld = Field(clazz=evt_obj, mods=[C.mod.PB], typ=C.J.i, name=u"kind")
       evt_obj.flds.append(fld)
 
-    # o.w. introduce artificial class Event that implodes all event kinds
-    # class Event { int kind; E_kind$n$ evt$n$; }
-    elif events:
-      cls_e = merge_layer(u"Event", map(class_lookup, events))
-      cls_e.add_default_init()
-      self._classes.append(cls_e)
-      add_artifacts([u"Event"])
+    else:
+      # if there exists android.os.Message (i.e., cmd == "android")
+      # no additional class is required, too
+      msg = class_lookup(C.ADR.MSG)
+      if msg: pass
+
+      # o.w. introduce artificial class Event that implodes all event kinds
+      # class Event { int kind; E_kind$n$ evt$n$; }
+      elif events:
+        cls_e = merge_layer(u"Event", map(class_lookup, events))
+        cls_e.add_default_init()
+        self._classes.append(cls_e)
+        add_artifacts([u"Event"])
 
   # keep snapshots of instances of meta-classes
   def freeze(self):
@@ -153,6 +161,22 @@ class Template(v.BaseNode):
   @property
   def is_event_annotated(self):
     return self._evt_annotated
+
+  # retrieve event's kind index
+  def get_event_id(self, cname):
+    # if name appears explicitly, access to its kind index directly
+    if cname in self._events: return self._events[cname]
+    # o.w. consider subtype (e.g., implementing an interface)
+    cls = class_lookup(cname)
+    c_evts = util.ffilter(map(class_lookup, self._events))
+    try:
+      c_evt = util.find(lambda c_evt: cls <= c_evt, c_evts)
+      return self._events[c_evt.name]
+    except Exception: return None
+
+  # check whether the given type is event sort
+  def is_event(self, cname):
+    return self.get_event_id(cname) != None
 
   @property
   def obs_auxs(self):
@@ -204,53 +228,69 @@ class Template(v.BaseNode):
     # for easier(?) membership test
     # { cls!r: Clazz(cname, ...), ... }
     decls = { repr(cls): cls for cls in clss }
+    def is_defined(tname):
+      _tname = util.sanitize_ty(tname)
+      for cls_r in decls.keys():
+        if decls[cls_r].is_inner:
+          if _tname == cls_r: return True
+          if _tname in cls_r.split('_'): return True
+        else:
+          if tname == cls_r: return True
+      return False
 
     def add_decl(tname):
-      # (not) to handle primitive types, such as int
-      # if not util.is_class_name(tname): return
-      if tname in decls: return
+      if is_defined(tname): return
+      logging.debug("adding virtual declaration {}".format(tname))
       cls = Clazz(name=tname)
-      decls[tname] = cls
-      # add declarations in nested generics
+      # to avoid weird subtyping, e.g., int < Object
+      if tname in C.primitives: cls.sup = None
+      decls[repr(cls)] = cls
+      # add declarations in nested generics or arrays
       if util.is_collection(tname):
         map(add_decl, util.of_collection(tname)[1:])
+      elif util.is_array(tname):
+        add_decl(util.componentType(tname))
 
     # finding types that occur at field/method declarations
     for cls in clss:
       for fld in cls.flds:
-        if fld.typ not in decls: add_decl(fld.typ)
+        if not is_defined(fld.typ): add_decl(fld.typ)
       for mtd in cls.mtds:
         for (ty, nm) in mtd.params:
-          if ty not in decls: add_decl(ty)
+          if not is_defined(ty): add_decl(ty)
 
     # build class hierarchy: fill Clazz.subs
     for cls in clss:
       if not cls.sup and not cls.itfs: continue
       sups = map(util.sanitize_ty, cls.itfs)
       if cls.sup: sups.append(util.sanitize_ty(cls.sup))
+      if not sups: continue
       for sup in clss:
-        sname = repr(sup)
-        if sname in sups:
+        if sup == cls: continue
+        if sup.name in sups or repr(sup) in sups:
           if cls not in sup.subs: sup.subs.append(cls)
 
-    # discard interfaces that have no implementers, without constants
-    for itf in ifilter(op.attrgetter("is_itf"), clss):
-      if not itf.subs and not itf.flds:
-        logging.debug("discarding {} with no implementers".format(itf.name))
-        self._classes.remove(itf) # TODO: ValueError raised if itf is inner
-        del decls[repr(itf)]
+    ## discard interfaces that have no implementers, without constants
+    #for itf in ifilter(op.attrgetter("is_itf"), clss):
+    #  if not itf.subs and not itf.flds:
+    #    logging.debug("discarding {} with no implementers".format(repr(itf)))
+    #    if itf in self._classes:
+    #      self._classes.remove(itf)
+    #    elif itf.outer: # inner interface
+    #      itf.outer.inners.remove(itf)
+    #    del decls[repr(itf)]
 
-    # some interfaces might have been discarded, hence retrieve classes again
-    clss = util.flatten_classes(self._classes, "inners")
+    ## some interfaces might have been discarded, hence retrieve classes again
+    #clss = util.flatten_classes(self._classes, "inners")
 
-    # discard methods that refer to undefined types
-    for cls in clss:
-      for mtd in cls.mtds[:]: # to remove items, should use a shallow copy
-        def undefined_type( (ty, _) ): return ty not in decls
-        if util.exists(undefined_type, mtd.params):
-          ty, _ = util.find(undefined_type, mtd.params)
-          logging.debug("discarding {} due to lack of {}".format(mtd.name, ty))
-          cls.mtds.remove(mtd)
+    ## discard methods that refer to undefined types
+    #for cls in clss:
+    #  for mtd in cls.mtds[:]: # to remove items, should use a shallow copy
+    #    def undefined_type( (ty, _) ): return not is_defined(ty)
+    #    if util.exists(undefined_type, mtd.params):
+    #      ty, _ = util.find(undefined_type, mtd.params)
+    #      logging.debug("discarding {} due to lack of {}".format(mtd.name, ty))
+    #      cls.mtds.remove(mtd)
 
   # invoke Clazz.mtds_w_anno for all classes
   @takes("Template", callable)
@@ -323,14 +363,23 @@ class Template(v.BaseNode):
     main.body = st.to_statements(main, body)
     main_cls.mtds.append(main)
 
+  # find class of certain kind, e.g., Activity
+  @takes("Template", unicode)
+  @returns(list_of(Clazz))
+  def find_cls_kind(self, kind):
+    cls_kind = class_lookup(kind)
+    if cls_kind: pred = lambda cls: cls < cls_kind
+    else: pred = lambda cls: kind in cls.name
+    return filter(pred, self._classes)
+
 
 """
 To import lib.*, run as follows:
-  pasket $ python -m spec.meta.template
+  pasket $ python -m pasket.meta.template
 """
 if __name__ == "__main__":
   from optparse import OptionParser
-  usage = "usage: python -m spec.meta.template (template.java | template_folder)+ [opt]"
+  usage = "usage: python -m pasket.meta.template (template.java | template_folder)+ [opt]"
   parser = OptionParser(usage=usage)
   parser.add_option("--json",
     action="store_true", dest="json", default=False,
@@ -382,7 +431,9 @@ if __name__ == "__main__":
       if cls.itfs: buf.write(" : " + ", ".join(map(str, cls.itfs)))
       buf.write('\n')
       for sub in cls.subs:
-        buf.write(toStringTree(sub, depth+2))
+        buf.write(toStringTree(sub, depth+4))
+      for inner in cls.inners:
+        buf.write(toStringTree(inner, depth+2))
       return buf.getvalue()
 
     tmpl.consist()

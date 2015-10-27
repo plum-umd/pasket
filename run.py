@@ -38,13 +38,25 @@ def main():
     help="proceed the whole process without the encoding phase")
   parser.add_option("--no-sketch",
     action="store_false", dest="sketch", default=True,
-    help="proceed the whole process without running sketch")
+    help="proceed the whole process without running Sketch")
+  parser.add_option("--timeout",
+    action="store", dest="timeout", default=None, type="int",
+    help="Sketch timeout")
   parser.add_option("--randassign",
     action="store_true", dest="randassign", default=False,
-    help="run sketch with \"--be:randassign\" option")
+    help="run Sketch with the concretization feature (not parallel)")
+  parser.add_option("--randdegree",
+    action="store", dest="randdegree", default=None, type="int",
+    help="use Sketch's concretization feature, along with the given degree")
   parser.add_option("--parallel",
     action="store_true", dest="parallel", default=False,
-    help="run sketch in parallel until it finds a solution")
+    help="run Sketch in parallel until it finds a solution")
+  parser.add_option("--p_cpus",
+    action="store", dest="p_cpus", default=None, type="int",
+    help="the number of cores to use for parallel running")
+  parser.add_option("--ntimes",
+    action="store", dest="ntimes", default=None, type="int",
+    help="number of rounds on a single sketch-backend invocation")
   parser.add_option("--simulate",
     action="store", dest="sim", default=None,
     help="what to simulate")
@@ -86,7 +98,9 @@ def main():
   else: # android, gui, or pattern
     if opt.sim or opt.sanity:
       if opt.sanity: opt.sim = opt.pattern[-1]
-      import spec.test as test
+      import pasket.test as test
+      import pasket
+      pasket.configure(opt)
       return test.test(opt.cmd, opt.smpl, opt.tmpl, opt.pattern, opt.output, opt.sim)
     else:
       import pasket 

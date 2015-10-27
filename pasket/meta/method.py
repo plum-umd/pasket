@@ -61,16 +61,32 @@ class Method(v.BaseNode):
     return C.mod.ST in self._mods
 
   @property
+  def is_abstract(self):
+    return C.mod.AB in self._mods
+
+  @property
   def typ(self):
     return self._typ
+
+  @typ.setter
+  def typ(self, v):
+    self._typ = v
 
   @property
   def name(self):
     return self._name
 
+  @name.setter
+  def name(self, v):
+    self._name = v
+
   @property
   def is_init(self):
     return util.is_class_name(self._name) and self._name == self._typ
+
+  @property
+  def is_clinit(self):
+    return self._name == C.J.CLINIT
 
   @property
   def params(self):
@@ -116,13 +132,14 @@ class Method(v.BaseNode):
   def body(self, v):
     self._body = v
 
+  @property
+  def has_return(self):
+    return util.exists(op.attrgetter("has_return"), self.body)
+
   def __repr__(self):
-    mname, cname = self._name, util.sanitize_ty(self._clazz.name)
+    mname, cname = self._name, repr(self._clazz)
     params = map(util.sanitize_ty, self.param_typs)
     return u'_'.join([mname, cname] + params)
-
-  def __eq__(self, other):
-    return repr(self) == repr(other)
 
   def __str__(self, s_printer=str):
     buf = cStringIO.StringIO()
@@ -138,13 +155,25 @@ class Method(v.BaseNode):
       buf.write(')')
       if self._throws:
         buf.write(" {} {}".format(C.T.THROWS, ", ".join(self._throws)))
-    # interfaces won't have method body
-    if self._clazz.is_itf: buf.write(';')
+    # interfaces and abstract methods won't have method body
+    if self._clazz.is_itf or self.is_abstract: buf.write(';')
     else:
       buf.write(" {\n")
       buf.write('\n'.join(map(s_printer, self._body)))
       buf.write("\n}\n")
     return buf.getvalue()
+
+  def __eq__(self, other):
+    return repr(self) == repr(other)
+
+  def is_supercall(self, other):
+    if self._name != other.name: return False
+    if len(self._params) != len(other.params): return False
+    if not (self._clazz <= other.clazz): return False
+    args = sig_match(other.params, self._params)
+    for (_, nm), arg in zip(self._params, args):
+      if nm != arg: return False
+    return True
 
   def accept(self, visitor):
     visitor.visit(self)
@@ -253,7 +282,7 @@ def parse(cls, node, annos, mods):
     s_params = map(op.methodcaller("getText"), __params)
     ty = u''
     for p in s_params:
-      if p in ['.', '[', ']']: ty += p
+      if p in ['.', '[', ']', '<', '>', '?']: ty += p
       elif ty.endswith('.'): ty += p
       elif not ty: ty = p
       else:

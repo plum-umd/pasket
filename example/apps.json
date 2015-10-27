@@ -1,8 +1,0 @@
-{
-  "calc": {"main": "Calculator", "src": "Calculator"},
-  "celsius": {"main": "CelsiusConverter2", "src": "CelsiusConverter"},
-  "guessing": {"main": "MVCGame", "src": "GuessingGame"},
-  "lunar": {"main": "LunarPhases", "src": "LunarPhases"},
-  "drawing": {"main": "graph.SimpleDrawingTool", "src": "SimpleDrawingTool"},
-  "vote": {"main": "VoteDialog", "src": "VoteDialog"}
-}

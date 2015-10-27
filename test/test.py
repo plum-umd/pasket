@@ -63,11 +63,12 @@ class TestPatterns(unittest.TestCase):
             subprocess.call(["ant", "-Ddemo="+'_'.join(names)])
             
             # Run unit tests
-            subprocess.call(["ant", "run", "-Dtest="+test])
+            subprocess.call(["ant", "-verbose", "run", "-Dtest="+test])
             
             os.chdir("..")
     
     def run_pasket(self, p, names):
+        
         # Run translation to sketch and then run sketch
         if (p == "pattern"):
             smpl = [os.path.join(smpl_dir, p, names)]
@@ -77,12 +78,15 @@ class TestPatterns(unittest.TestCase):
             tmpl = [] #[os.path.join(tmpl_dir, "app", p, name), os.path.join(tmpl_dir, "gui")]
 
         pasket.no_encoding()
+        pasket.no_verbose()
+        pasket.no_timeout()
         pasket.no_sketch()
+        pasket.all_swing()
         pasket.main(p, smpl, tmpl, names, res_dir)
         
         # Copy java directory to pasket directory
         os.chdir(res_dir)
-        subprocess.call(["./rename.sh", '_'.join(names)])
+        subprocess.call(["./rename-gui.sh"])
         os.chdir("..")
     
     def check_word_finder(self, p, names):

@@ -17,12 +17,13 @@ import util
 class CallBase(object):
 
   # (>|<) pkg...cls.mtd(val1, val2, ...)
-  def __init__(self, line):
+  def __init__(self, line, depth=0):
+    self._depth = depth
     m = re.match(r"(>|<) (.*)\((.*)\)", line)
     if m: # m.group(1) = '>' or '<'
       self._pkg, self._cls, self._mtd = util.explode_mname(m.group(2))
       vals = map(op.methodcaller("strip"), m.group(3).split(','))
-      self._vals = filter(None, vals) # to remove empty strings
+      self._vals = util.ffilter(vals) # to remove empty strings
     else:
       raise Exception("wrong call sequences", line)
 
@@ -31,6 +32,10 @@ class CallBase(object):
     if self._pkg: mid.append(self._pkg)
     mid.extend([self._cls, self._mtd])
     return '.'.join(mid) + '(' + ", ".join(map(str, self._vals)) + ')'
+
+  @property
+  def indent(self):
+    return ' ' * (self._depth * 2)
 
   @property
   def pkg(self):
@@ -60,13 +65,13 @@ class CallBase(object):
 # >
 class CallEnt(CallBase):
   def __str__(self):
-    return "> " + super(CallEnt, self).__str__()
+    return self.indent + "> " + super(CallEnt, self).__str__()
 
 
 # <
 class CallExt(CallBase):
   def __str__(self):
-    return "< " + super(CallExt, self).__str__()
+    return self.indent + "< " + super(CallExt, self).__str__()
 
 
 class Evt(object):
@@ -122,12 +127,18 @@ class Sample(object):
 
     with open(fname) as f:
       logging.debug("reading sample: " + os.path.normpath(f.name))
+      depth = 0
       for line in f.readlines():
         line = unicode(line.strip())
         try:
-          if line[0] == '>': log = CallEnt(line)
-          elif line[0] == '<': log = CallExt(line)
-          elif line[0] in string.ascii_letters: log = Evt(line=line)
+          if line[0] == '>':
+            log = CallEnt(line, depth)
+            depth = depth + 1
+          elif line[0] == '<':
+            depth = depth - 1
+            log = CallExt(line, depth)
+          elif line[0] in string.ascii_letters:
+            log = Evt(line=line)
           else: continue # comments or something
         except IndexError: continue # empty line
 
@@ -240,6 +251,16 @@ def max_evts(smpls):
   return max_smpls(smpls, op.attrgetter("evts"))
 
 
+# max number of View elements in the samples
+@takes(list_of(Sample))
+@returns(int)
+def max_views(smpls):
+  def find_view(smpl):
+    find_view_adder = lambda log: isinstance(log, CallEnt) and log.mtd == "addView"
+    return smpl.find("mtd", find_view_adder)
+  return max_smpls(smpls, find_view)
+
+
 # max number of object instances in the given samples
 @takes(list_of(Sample))
 @returns(int)
@@ -333,7 +354,7 @@ def kind(val):
     if '@' in val: return val
     else: v_typ = str
   except ValueError:
-    if val in [C.J.T, C.J.F]: v_typ = bool
+    if val in [C.J.TRUE, C.J.FALSE]: v_typ = bool
     else: v_typ = str
   return v_typ
 
@@ -402,11 +423,11 @@ def find_setter(smpls, typs, Fname):
 
 """
 To import lib.*, run as follows:
-  pasket $ python -m spec.sample
+  pasket $ python -m pasket.sample
 """
 if __name__ == "__main__":
   from optparse import OptionParser
-  usage = "usage: python -m spec.sample (sample.txt | sample_folder)+ [opt]"
+  usage = "usage: python -m pasket.sample (sample.txt | sample_folder)+ [opt]"
   parser = OptionParser(usage=usage)
   parser.add_option("-m", "--method",
     action="store_true", dest="method", default=False,

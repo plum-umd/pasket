@@ -10,6 +10,7 @@ import grammar.JavaParser as Parser
 
 from lib.typecheck import *
 import lib.const as C
+from lib.enum import enum
 import lib.visit as v
 
 from .. import util
@@ -18,8 +19,10 @@ from ..anno import parse_anno
 from . import class_lookup
 import clazz
 
-# e ::= anno | ?? | {| e* |} | c | id | uop e | e bop e | e.e | e[e] | new e | e(e*) | (e)e
-C.E = util.enum("ANNO", "HOLE", "GEN", "C", "ID", "UOP", "BOP", "DOT", "IDX", "NEW", "CALL", "CAST")
+# e ::= anno | ?? | {| e* |} | c | id
+#     | uop e | e bop e | e.e | e[e]
+#     | new e | e(e*) | (e)e | e instanceof ty
+C.E = enum("ANNO", "HOLE", "GEN", "C", "ID", "UOP", "BOP", "DOT", "IDX", "NEW", "CALL", "CAST", "INS_OF")
 C.uop = ['+', '-', '~', '!', "++", "--"]
 C.bop = ["||", "&&", '|', '^', '&'] \
       + ['+', '-', '*', '/', '%'] \
@@ -46,9 +49,9 @@ class Expression(v.BaseNode):
       buf.write(C.T.HOLE)
 
     elif self._kind == C.E.GEN:
-      if self.consts:
+      if self.es:
         buf.write("{| ")
-        buf.write(" | ".join(map(str, self.consts)))
+        buf.write(" | ".join(map(str, self.es)))
         buf.write(" |}")
       else:
         buf.write(C.T.HOLE)
@@ -64,7 +67,7 @@ class Expression(v.BaseNode):
       buf.write(self.op + ' ' + str(self.e))
 
     elif self._kind == C.E.BOP:
-      buf.write(str(self.le) + ' ' + self.op + ' ' + str(self.re))
+      buf.write(' '.join([str(self.le), self.op, str(self.re)]))
 
     elif self._kind == C.E.DOT:
       buf.write(str(self.le) + '.' + str(self.re))
@@ -82,6 +85,9 @@ class Expression(v.BaseNode):
     elif self._kind == C.E.CAST:
       buf.write('(' + str(self.ty) + ')' + str(self.e))
 
+    elif self._kind == C.E.INS_OF:
+      buf.write(' '.join([str(self.e), C.T.INS_OF, str(self.ty)]))
+
     return buf.getvalue()
 
   def __repr__(self):
@@ -95,15 +101,24 @@ class Expression(v.BaseNode):
       if anno.name in [C.A.NEW, C.A.OBJ]: return anno.typ
       elif anno.name in [C.A.CMP, C.A.CMP_STR]: return C.J.i
 
+    elif self.kind == C.E.C:
+      if self.c == C.J.N: return C.J.OBJ
+      elif self.c in [C.J.TRUE, C.J.FALSE]: return C.J.z
+      else: return C.J.i
+
     elif self.kind == C.E.ID:
       if hasattr(self, "ty"): return self.ty
       v = self.id
-
       try: return mtd.vars[v]
       except (AttributeError, KeyError):
         if util.is_class_name(v): return v
-        elif type(v) in [str, unicode]: return C.J.STR
-        else: return C.J.OBJ
+        elif util.is_str(v): return C.J.STR
+        elif util.is_char(v): return C.J.c
+        else:
+          fld = None
+          if mtd: fld = clazz.find_fld(mtd.clazz.name, v)
+          if fld: return fld.typ
+          else: return C.J.OBJ
 
     elif self.kind == C.E.UOP:
       return C.J.i
@@ -133,11 +148,18 @@ class Expression(v.BaseNode):
 
     elif self.kind == C.E.CALL:
       arg_typs = map(curried, self.a)
-      if self.f.kind == C.E.DOT: # rcv.mid
-        rcv_ty = curried(self.f.le)
-        mname = self.f.re.id
-        mtd_callee = clazz.find_mtd(rcv_ty, mname, arg_typs)
-        return mtd_callee.typ
+      if self.f.kind == C.E.DOT:
+        # inner class's <init>, e.g., ViewGroup.LayoutParams(...)
+        if util.is_class_name(self.f.re.id):
+          return unicode(self.f)
+        else: # rcv.mid
+          rcv_ty = curried(self.f.le)
+          mname = self.f.re.id
+          mtd_callees = clazz.find_mtds_by_sig(rcv_ty, mname, arg_typs)
+          if mtd_callees:
+            # TODO: check all found types are compatible or return least upper bound
+            return mtd_callees[0].typ
+          else: raise Exception("unresolved call: {}".format(str(self)))
       else: # mid
         mname = self.f.id
         if mname in C.typ_arrays:
@@ -148,22 +170,30 @@ class Expression(v.BaseNode):
           return mtd.clazz.sup
         else:
           if mname == C.J.SUP: # super(...)
-            mtd_callee = clazz.find_mtd(mtd.clazz.sup, mtd.name, mtd.param_typs)
+            mtd_callees = clazz.find_mtds_by_sig(mtd.clazz.sup, mtd.name, mtd.param_typs)
           else: # member methods
-            mtd_callee = clazz.find_mtd(mtd.clazz.name, mname, arg_typs)
-          return mtd_callee.typ
+            mtd_callees = clazz.find_mtds_by_sig(mtd.clazz.name, mname, arg_typs)
+          if mtd_callees:
+            # TODO: check all found types are compatible or return least upper bound
+            return mtd_callees[0].typ
+          else: raise Exception("unresolved call: {}".format(str(self)))
 
     elif self.kind == C.E.CAST:
       return curried(self.ty)
 
-    else: # HOLE, GEN, C
+    else: # HOLE, GEN
       return C.J.i
 
   def accept(self, visitor):
     f = op.methodcaller("accept", visitor)
-    if self._kind in [C.E.BOP, C.E.DOT]:
+    if self._kind == C.E.GEN:
+      self.es = map(f, self.es)
+    elif self._kind in [C.E.BOP, C.E.DOT]:
       self.le = f(self.le)
       self.re = f(self.re)
+    elif self._kind == C.E.IDX:
+      self.e = f(self.e)
+      self.idx = f(self.idx)
     elif self._kind in [C.E.UOP, C.E.NEW]:
       self.e = f(self.e)
     elif self._kind == C.E.CALL:
@@ -173,6 +203,39 @@ class Expression(v.BaseNode):
       self.ty = f(self.ty)
       self.e = f(self.e)
     return visitor.visit(self)
+
+  def exists(self, pred):
+    if pred(self): return True
+    f = op.methodcaller("exists", pred)
+    if self._kind == C.E.GEN:
+      return util.exists(f, self.es)
+    elif self._kind in [C.E.BOP, C.E.DOT]:
+      return f(self.le) or f(self.re)
+    elif self._kind == C.E.IDX:
+      return f(self.e) or f(self.idx)
+    elif self._kind in [C.E.UOP, C.E.NEW]:
+      return f(self.e)
+    elif self._kind == C.E.CALL:
+      return f(self.f) or util.exists(f, self.a)
+    elif self._kind == C.E.CAST:
+      return f(self.ty) or f(self.e)
+    else:
+      return False
+
+  @property
+  def has_call(self):
+    f = lambda e: e.kind == C.E.CALL
+    return self.exists(f)
+
+  @property
+  def has_hole(self):
+    f = lambda e: e.kind == C.E.HOLE
+    return self.exists(f)
+
+  @property
+  def has_str(self):
+    f = lambda e: e.kind == C.E.ID and util.is_str(e.id)
+    return self.exists(f)
 
 
 # for easier currying
@@ -198,8 +261,8 @@ def gen_E_hole():
 
 @takes(optional(list_of(Expression)))
 @returns(Expression)
-def gen_E_gen(consts=[]):
-  return Expression(C.E.GEN, consts=consts)
+def gen_E_gen(es=[]):
+  return Expression(C.E.GEN, es=es)
 
 
 # x -> E(C, x)
@@ -266,6 +329,13 @@ def gen_E_cast(ty, e):
   return Expression(C.E.CAST, ty=ty, e=e)
 
 
+# e, ty -> E(INS_OF, e, ty)
+@takes(Expression, Expression)
+@returns(Expression)
+def gen_E_ins_of(e, ty):
+  return Expression(C.E.INS_OF, e=e, ty=ty)
+
+
 # parse an expression
 # (EXPRESSION ...)
 @takes(AST, optional("Clazz"))
@@ -290,6 +360,11 @@ def parse_e(node, cls=None):
   elif kind == C.T.HOLE:
     e = gen_E_hole()
 
+  # {| e* |}
+  elif kind == C.T.REGEN:
+    es = map(curried_e, _nodes)
+    e = gen_E_gen(es)
+
   # (CAST (TYPE (E... ty)) e)
   elif kind == C.T.CAST:
     t_node = _node.getChild(0).getChild(0)
@@ -297,6 +372,14 @@ def parse_e(node, cls=None):
     ty = curried_e(t_node)
     re = curried_e(e_node)
     e = gen_E_cast(ty, re)
+
+  # (INS_OF e (TYPE (E... ty)))
+  elif kind == C.T.INS_OF:
+    e_node = util.mk_v_node_w_children(_node.getChildren()[:-1])
+    t_node = _node.getChildren()[-1].getChild(0)
+    le = curried_e(e_node)
+    ty = curried_e(t_node)
+    e = gen_E_ins_of(le, ty)
 
   # (bop le re)
   elif kind in C.bop + C.rop and _node.getChildCount() == 2:
@@ -313,16 +396,19 @@ def parse_e(node, cls=None):
   # const or id
   elif len(_nodes) <= 1:
     if kind:
-      try: e = gen_E_c(ast.literal_eval(kind))
+      try:
+        if kind in [C.J.TRUE, C.J.FALSE, C.J.N]: e = gen_E_c(unicode(kind))
+        else: e = gen_E_c(ast.literal_eval(kind))
       except Exception: e = gen_E_id(unicode(kind))
     else: e = gen_E_id(_nodes[0].getText())
 
   # (E... new Clazz (ARGUMENT ...) ('{' (DECL ...)* '}')?)
   # (E... new typ([])* '{' ... '}')
+  # (E... new typ '[' sz ']')
   elif _nodes[0].getText() == C.J.NEW:
     is_init = util.exists(lambda n: n.getText() == C.T.ARG, _nodes)
     if is_init: # class <init>
-      if _nodes[-1].getText() == '}': # anonymous class
+      if _nodes[-1].getText() == '}': # anonymous inner class
         for i, n in enumerate(_nodes):
           if n.getText() == '{':
             c_node = util.mk_v_node_w_children(_nodes[1:i])
@@ -330,7 +416,7 @@ def parse_e(node, cls=None):
             break
         c = curried_e(c_node)
         name = clazz.anony_name(cls)
-        anony = clazz.Clazz(name=name, sup=cls.name, itfs=[c.f.id])
+        anony = clazz.Clazz(name=name, itfs=[unicode(c.f)], outer=cls)
         map(partial(clazz.parse_decl, anony), decl_nodes)
         cls.inners.append(anony)
         c.f.id = name
@@ -339,9 +425,14 @@ def parse_e(node, cls=None):
         c_node = util.mk_v_node_w_children(_nodes[1:])
         c = curried_e(c_node)
         e = gen_E_new(c)
-    else: # array initialization
+    else: # array (w/ initial values)
+      w_init_vals = util.exists(lambda n: n.getText() in ['{', '}'], _nodes)
+      if w_init_vals:
+        what_to_find = '{' # starting point of initial values
+      else:
+        what_to_find = '[' # starting point of array size
       for i, n in enumerate(_nodes):
-        if n.getText() == '{':
+        if n.getText() == what_to_find:
           t_node = util.mk_v_node_w_children(_nodes[1:i])
           init_node = util.mk_v_node_w_children(_nodes[i:])
           break

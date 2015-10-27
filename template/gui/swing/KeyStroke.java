@@ -5,4 +5,6 @@ public class KeyStroke extends AWTKeyStroke {
   // as it should return the same instance for the same keyCode
   @Factory
   public static KeyStroke getKeyStroke(int keyCode, int modifiers);
+  @Factory
+  public static KeyStroke getKeyStroke(String s);
 }

@@ -9,17 +9,19 @@ import grammar.JavaParser as Parser
 
 from lib.typecheck import *
 import lib.const as C
+from lib.enum import enum
 import lib.visit as v
 
 from .. import util
 
-from expression import Expression, parse_e, gen_E_id
+from expression import Expression, parse_e, gen_E_id, gen_E_bop
 
-# s ::= e | assert e | return e? | e := e | if e s s?
-#     | while e s | repeat e s # syntactic sugar borrowed from sketch
-#     | for e e s | try s (catch e s)* (finally s)?
+# s ::= e | assume e | assert e | return e? | e := e | if e s s? | while e s
+#     | repeat e s  # syntactic sugar borrowed from sketch
+#     | minrepeat s # syntactic sugar borrowed from sketch
+#     | for e e s | break | try s (catch e s)* (finally s)?
 #     | s; s # represented as a list
-C.S = util.enum("EXP", "ASSERT", "RETURN", "ASSIGN", "IF", "WHILE", "REPEAT", "FOR", "TRY")
+C.S = enum("EXP", "ASSUME", "ASSERT", "RETURN", "ASSIGN", "IF", "WHILE", "REPEAT", "MINREPEAT", "FOR", "BREAK", "TRY")
 
 
 class Statement(v.BaseNode):
@@ -38,6 +40,9 @@ class Statement(v.BaseNode):
     buf = cStringIO.StringIO()
     if self._kind == C.S.EXP:
       buf.write(e_printer(self.e) + ';')
+
+    elif self._kind == C.S.ASSUME:
+      buf.write("assume " + e_printer(self.e) + ';')
 
     elif self._kind == C.S.ASSERT:
       buf.write("assert " + e_printer(self.e) + ';')
@@ -67,11 +72,18 @@ class Statement(v.BaseNode):
       b = '\n'.join(map(curried, self.b))
       buf.write("repeat (" + e + ") {\n" + b + "\n}")
 
+    elif self._kind == C.S.MINREPEAT:
+      b = '\n'.join(map(curried, self.b))
+      buf.write("minrepeat {\n" + b + "\n}")
+
     elif self._kind == C.S.FOR:
       e_def = e_printer(self.i)
       e_iter = e_printer(self.init)
       b = '\n'.join(map(curried, self.b))
       buf.write("for (" + e_def + " : " + e_iter + ") {\n" + b + "\n}")
+
+    elif self._kind == C.S.BREAK:
+      buf.write("break;")
 
     elif self._kind == C.S.TRY:
       b = '\n'.join(map(curried, self.b))
@@ -105,6 +117,8 @@ class Statement(v.BaseNode):
     elif self._kind in [C.S.WHILE, C.S.REPEAT]:
       self.e = f(self.e)
       self.b = util.flatten(map(f, self.b))
+    elif self._kind == C.S.MINREPEAT:
+      self.b = util.flatten(map(f, self.b))
     elif self._kind == C.S.FOR:
       self.i = f(self.i)
       self.init = f(self.init)
@@ -115,12 +129,36 @@ class Statement(v.BaseNode):
       self.fs = util.flatten(map(f, self.fs))
     return visitor.visit(self)
 
+  def exists(self, pred):
+    if pred(self): return True
+    f = op.methodcaller("exists", pred)
+    if self._kind == C.S.IF:
+      return util.exists(f, self.t + self.f)
+    elif self._kind in [C.S.WHILE, C.S.REPEAT, C.S.MINREPEAT, C.S.FOR]:
+      return util.exists(f, self.b)
+    elif self._kind == C.S.TRY: # TODO: catches
+      return util.exists(f, self.b + self.fs)
+    else:
+      return False
+
+  @property
+  def has_return(self):
+    f = lambda s: s.kind == C.S.RETURN
+    return self.exists(f)
+
 
 # e -> S(EXP, e)
 @takes(Expression)
 @returns(Statement)
 def gen_S_e(e):
   return Statement(C.S.EXP, e=e)
+
+
+# e -> S(ASSUME, e)
+@takes(Expression)
+@returns(Statement)
+def gen_S_assume(e):
+  return Statement(C.S.ASSUME, e=e)
 
 
 # e -> S(ASSERT, e)
@@ -166,11 +204,25 @@ def gen_S_repeat(e, ss):
   return Statement(C.S.REPEAT, e=e, b=ss)
 
 
+# ss -> S(MINREPEAT, sS)
+@takes(list_of(Statement))
+@returns(Statement)
+def gen_S_minrepeat(ss):
+  return Statement(C.S.MINREPEAT, b=ss)
+
+
 # e_def, e_init, ss -> S(FOR, e_def, e_init, ss)
 @takes(Expression, Expression, list_of(Statement))
 @returns(Statement)
 def gen_S_for(e_def, e_init, ss):
   return Statement(C.S.FOR, i=e_def, init=e_init, b=ss)
+
+
+# () -> S(BREAK)
+@takes(nothing)
+@returns(Statement)
+def gen_S_break():
+  return Statement(C.S.BREAK)
 
 
 # ss, catches, fs -> S(TRY, ss, catches, fs)
@@ -214,6 +266,11 @@ def parse_s(mtd, node):
       s = gen_S_assign(le, re)
     else: s = gen_S_e(curried_e(_node))
 
+  # (S... assume (E... ) ';')
+  elif kind == "assume":
+    e = curried_e(node.getChild(1))
+    s = gen_S_assume(e)
+
   # (S... assert (E... ) ';')
   elif kind == "assert":
     e = curried_e(node.getChild(1))
@@ -241,6 +298,39 @@ def parse_s(mtd, node):
     fs = map(curried_s, f_s)
     s = gen_S_if(e, ts, fs)
 
+  # (S... switch (E cond) { (case (E case1) (S1...)) ... (default Sd) }
+  #   => # desugaring at this parsing phase
+  # if (cond == case1) { S1 } else if ... else { Sd }
+  elif kind == "switch":
+    def parse_cases(case_node):
+      _case_nodes = case_node.getChildren()
+      label = case_node.getText()
+      if label == "case":
+        e_case = curried_e(_case_nodes[0])
+        ss_case = map(curried_s, _case_nodes[1:])
+      elif label == "default":
+        e_case = None
+        ss_case = map(curried_s, _case_nodes)
+      else:
+        raise Exception("illegular grammar", node.toStringTree())
+      return (label, e_case, ss_case)
+
+    e_cond = curried_e(node.getChild(1))
+    ss = _nodes[2:] # exclude first two nodes: S... switch
+    cases = map(parse_cases, rm_braces(ss))
+    _cases, _default = util.partition(lambda (l,c,ss): l == "case", cases)
+
+    def rm_break(ss):
+      return filter(lambda s: s.kind != C.S.BREAK, ss)
+
+    def desugar(acc, (label, e_case, ss)):
+      if label != "case": return acc # double-check
+      e = gen_E_bop(u"==", e_cond, e_case)
+      return [gen_S_if(e, rm_break(ss), acc)]
+
+    default_ss = rm_break(_default[0][2]) if _default else []
+    s = reduce(desugar, _cases, default_ss)[0]
+
   # (S... while (E... ) { (S... ) })
   elif kind == "while":
     e = curried_e(node.getChild(1))
@@ -255,6 +345,12 @@ def parse_s(mtd, node):
     b = map(curried_s, rm_braces(ss))
     s = gen_S_repeat(e, b)
 
+  # (S... minrepeat { (S... ) })
+  elif kind == "minrepeat":
+    ss = _nodes[1:] # exclude the first node: minrepeat
+    b = map(curried_s, rm_braces(ss))
+    s = gen_S_minrepeat(b)
+
   # (S... for (FOR_CTRL typ var : (E... ) ) { (S... ) })
   elif kind == "for":
     ctrl = node.getChild(1)
@@ -266,6 +362,11 @@ def parse_s(mtd, node):
     ss = _nodes[2:] # exclude first two nodes: for (... )
     b = map(curried_s, rm_braces(ss))
     s = gen_S_for(e_def, e_iter, b)
+
+  # (S... break Id? ';')
+  elif kind == "break":
+    # TODO: break identifier
+    s = gen_S_break()
 
   # (S... try { (S... ) }
   #   (catch (PARAMS typ var) { (S... ) })*
@@ -293,20 +394,22 @@ def parse_s(mtd, node):
     s = gen_S_try(b, catches, fs)
 
   # (S... typ var (= (E... )) ';')
-  elif node.getChildren()[-2].getText() == '=':
-    var = node.getChildren()[-3].getText()
+  elif _nodes[-2].getText() == '=':
+    var = _nodes[-3].getText()
     # type can be a list of nodes, e.g., List < T >
-    ty_node = util.mk_v_node_w_children(node.getChildren()[:-3])
+    ty_node = util.mk_v_node_w_children(_nodes[:-3])
     ty = util.implode_id(ty_node)
     mtd.locals[var] = ty
     le = gen_E_id(var, ty)
-    re = curried_e(node.getChildren()[-2].getChild(0))
+    re = curried_e(_nodes[-2].getChild(0))
     s = gen_S_assign(le, re)
 
   # (DECL typ var ';') # local variable declaration
   elif node.getText() == C.T.DECL:
-    ty = node.getChild(0).getText()
-    var = node.getChild(1).getText()
+    # type can be a list of nodes, e.g., Class < ? extends Activity >
+    ty_node = util.mk_v_node_w_children(_nodes[:-2])
+    ty = util.implode_id(ty_node)
+    var = _nodes[-2].getText()
     mtd.locals[var] = ty
     e_decl = gen_E_id(var, ty)
     s = gen_S_e(e_decl)

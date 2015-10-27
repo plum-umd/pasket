@@ -46,6 +46,12 @@
  * for richer template
  *   modified the grammars about expressions
  *
+ * Jinseong Jeon, Feb 2015 -- May 2015
+ * desugared 'switch' statement
+ * hoisted more Sketch features
+ *   such as modifiers 'harness' and 'generator',
+ *   'assume' statement, and regular expression generator
+ *
  */
 grammar Java;
 options {
@@ -80,8 +86,12 @@ tokens {
   ARGV;
   FOR_CTRL;
   CAST;
+  INS_OF = 'instanceof';
 
   HOLE = '??';
+  REG_L = '{|';
+  REG_R = '|}';
+  REGEN;
 }
 
 @lexer::init {
@@ -345,6 +355,8 @@ modifier
     |   'transient'
     |   'volatile'
     |   'strictfp'
+    |   'generator'
+    |   'harness'
     ;
 
 packageOrTypeName
@@ -525,6 +537,8 @@ localVariableDeclaration
 
 statement
     :   block
+    |   'assume' expression (':' expression)? ';'
+    ->  ^(STAT 'assume' expression (':' expression)? ';')
     |   'assert' expression (':' expression)? ';'
     ->  ^(STAT 'assert' expression (':' expression)? ';')
     |   'if' parExpression statement ('else' statement)?
@@ -535,15 +549,19 @@ statement
     ->  ^(STAT 'while' parExpression statement)
     |   'repeat' parExpression statement // sketch syntax
     ->  ^(STAT 'repeat' parExpression statement)
+    |   'minrepeat' statement // sketch syntax
+    ->  ^(STAT 'minrepeat' statement)
     |   'do' statement 'while' parExpression ';'
     |   'try' block catches? ('finally' block)?
     ->  ^(STAT 'try' block catches? ^('finally' block)?)
     |   'switch' parExpression '{' switchBlockStatementGroups '}'
+    ->  ^(STAT 'switch' parExpression '{' switchBlockStatementGroups '}')
     |   'synchronized' parExpression block
     |   'return' expression? ';'
     ->  ^(STAT 'return' expression? ';')
     |   'throw' expression ';'
     |   'break' Identifier? ';'
+    ->  ^(STAT 'break' Identifier? ';')
     |   'continue' Identifier? ';'
     |   ';'
     |   statementExpression ';'
@@ -569,13 +587,10 @@ switchBlockStatementGroups
     ;
 
 switchBlockStatementGroup
-    :   switchLabel blockStatement*
-    ;
-
-switchLabel
-    :   'case' constantExpression ':'
-    |   'case' enumConstantName ':'
-    |   'default' ':'
+    :   'case' expression ':' blockStatement*
+    -> ^('case' expression blockStatement*)
+    |   'default' ':' blockStatement*
+    -> ^('default' blockStatement*)
     ;
 
 moreStatementExpressions
@@ -608,6 +623,15 @@ parExpression
     ;
 
 expressionList
+    :   expression (','! expression)*
+    ;
+
+regExpression
+    :   REG_L regexList REG_R
+    ->  ^(REGEN regexList)
+    ;
+
+regexList
     :   expression (','! expression)*
     ;
 
@@ -674,7 +698,9 @@ equalityOp
     ;
 
 instanceOfExpression
-    :   relationalExpression ('instanceof' type)?
+    :   relationalExpression INS_OF type
+    -> ^(INS_OF relationalExpression ^(TYPE type))
+    |   relationalExpression
     ;
 
 relationalExpression
@@ -748,6 +774,7 @@ primary
     |   primitiveType ('[' ']')* '.' 'class'
     |   'void' '.' 'class'
     |   HOLE
+    |   regExpression
     ;
 
 annoIdentifier

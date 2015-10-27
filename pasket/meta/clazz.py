@@ -36,8 +36,8 @@ class Clazz(v.BaseNode):
     # identifier
     self._name = kwargs.get("name", None)
     # superclass
-    self._sup = kwargs.get("sup", C.J.OBJ)
-    if self._kind != C.T.CLS: self._sup = None
+    default_sup = None if self._kind == C.T.ITF else C.J.OBJ
+    self._sup = kwargs.get("sup", default_sup)
     # to hold class hierarchy info:
     #   subclasses that extend this class
     #   classes that implement this interface
@@ -92,6 +92,10 @@ class Clazz(v.BaseNode):
   @mods.setter
   def mods(self, v):
     self._mods = v
+
+  @property
+  def is_abstract(self):
+    return C.mod.AB in self._mods
 
   @property
   def kind(self):
@@ -176,6 +180,12 @@ class Clazz(v.BaseNode):
       self._flds.append(fld)
       return True
     
+  def remove_fld(self, fld):
+    if fld not in self._flds: return False
+    else:
+      self._flds.remove(fld)
+      return True
+    
   def add_flds(self, v):
     self._flds.extend(v)
 
@@ -218,6 +228,10 @@ class Clazz(v.BaseNode):
     self._outer = v
 
   @property
+  def is_inner(self):
+    return self._outer != None
+
+  @property
   def client(self):
     return self._client
 
@@ -239,10 +253,16 @@ class Clazz(v.BaseNode):
   def is_event(self):
     return self._name.endswith("Event")
 
+  @property
+  def JVM_notation(self):
+    cname = self._name
+    if self._outer: cname = u'$'.join([self._outer.name, self._name])
+    full_name = u'.'.join(util.ffilter([self._pkg, cname]))
+    return util.toJVM(full_name)
+
   def __repr__(self):
     cname = self._name
     if self._outer: cname = u'.'.join([self._outer.name, self._name])
-    else: cname = self._name
     return util.sanitize_ty(cname)
 
   def __str__(self, s_printer=None):
@@ -263,25 +283,36 @@ class Clazz(v.BaseNode):
 
     m_printer = str
     if s_printer: m_printer = lambda mtd: mtd.__str__(partial(s_printer, mtd))
-    buf.write('\n'.join(map(m_printer, self._mtds)) + '\n')
+    clinit, mtds = util.partition(op.attrgetter("is_clinit"), self._mtds)
+    if self._kind != C.T.ENUM:
+      buf.write('\n'.join(map(m_printer, mtds)) + '\n')
 
     buf.write('\n'.join(map(str, self._inners)))
     buf.write("\n}\n")
     return buf.getvalue()
 
-  # reflective: c == c
   def __eq__(self, other):
-    return self._name == other.name
+    # reflective: c == c
+    return repr(self) == repr(other)
 
-  # topmost: c < Object
-  # superclass: c (extends | implements) d
-  # transitive: c < x and x < d
   def __lt__(self, other):
+    # topmost: c < Object
     if other.name in C.J.OBJ: return True 
+    # pre-defined, e.g., primitives
+    if self._name in C.primitives and other.name in C.primitives:
+      s_id = C.primitives.index(self._name)
+      o_id = C.primitives.index(other.name)
+      if s_id < o_id: return True
+
+    # superclass: c (extends | implements) d
     if self._sup and self._sup == other.name: return True
     if other.name in self._itfs: return True
-    if self._sup: return class_lookup(self._sup) < other
-    return False
+
+    # transitive: c < x and x <= d
+    def check_sup(sname):
+      sup = class_lookup(sname)
+      return sup and sup <= other
+    return util.exists(check_sup, util.ffilter([self._sup] + self._itfs))
 
   def __le__(self, other):
     return self == other or self < other
@@ -315,6 +346,18 @@ class Clazz(v.BaseNode):
   def merge(self, other):
     # double-check it refers to the same class
     assert self._name == other.name
+
+    # merge inner declarations
+    for inner_o in other.inners:
+      needs_merge = True
+      for inner_me in self._inners:
+        if inner_me.name == inner_o.name:
+          needs_merge = False
+          inner_me.merge(inner_o)
+
+      if needs_merge:
+        logging.debug("merging: {} -> {}".format(inner_o.name, self._name))
+        self._inners.append(inner_o)
 
     # merge fields
     for fld_o in other.flds:
@@ -394,12 +437,43 @@ class Clazz(v.BaseNode):
     def match(mtd):
       def subtype_cmp(formal_params, actual_params):
         for f_param, a_param in zip(formal_params, actual_params):
+          # actual argument might be null whose type is regarded as Object
+          if util.is_class_name(f_param) and a_param == C.J.OBJ: continue
+
+          # ignore undefined types
           cls_f, cls_a = class_lookup(f_param), class_lookup(a_param)
-          if cls_f and cls_a and cls_a <= cls_f: continue
-          else: return False
+          if not cls_f or not cls_a: return False
+
+          # actual argument is a subtype of formal parameter
+          if cls_a <= cls_f: continue
+
+          # event type is allowed to be downcasted
+          elif cls_a.is_event and cls_f <= cls_a: continue
+
+          # aux type is allowed to be downcasted: a) formal parameter
+          elif cls_f.is_aux:
+            aux_subtyped = False
+            cls_f_subss = util.flatten_classes(cls_f.subs, "subs")
+            for cls_s in cls_f_subss:
+              aux_subtyped = aux_subtyped or cls_a <= cls_s
+            if aux_subtyped: continue
+
+          # aux type is allowed to be downcasted: b) actual argument
+          elif cls_a.is_aux:
+            aux_subtyped = False
+            cls_a_subss = util.flatten_classes(cls_a.subs, "subs")
+            for cls_s in cls_a_subss:
+              aux_subtyped = aux_subtyped or cls_s <= cls_f
+            if aux_subtyped: continue
+
+          return False
+
+        # end of for loop; means, all parameters are compatible
         return True
-      return mtd.name == mname and \
-          len(mtd.param_typs) == len(sig) and subtype_cmp(mtd.param_typs, sig)
+
+      return mtd.name == mname and len(mtd.param_typs) == len(sig) and \
+          subtype_cmp(mtd.param_typs, sig)
+
     def finder(cls): return util.exists(match, cls.mtds)
     def getter(cls): return util.find(match, cls.mtds)
     return self.in_hierarchy(finder, getter)
@@ -442,7 +516,7 @@ class Clazz(v.BaseNode):
     if util.is_array(tname): return False
     # if an existing Clazz, it should be neither an interface nor an enum
     cls = class_lookup(tname)
-    return not cls or (not cls.is_itf and not cls.is_enum)
+    return not cls or (not cls.is_itf and not cls.is_abstract and not cls.is_enum)
 
   # generate a statement that instantiates the given type
   @staticmethod
@@ -468,25 +542,31 @@ class Clazz(v.BaseNode):
       return init_e
     else:
       cls = class_lookup(tname)
-      if cls and cls.is_itf: # try to find implementers
-        subs = util.flatten_classes(cls.subs, "subs")
+      if cls and (cls.is_itf or cls.is_abstract): # try to find implementers
+        subss = util.flatten_classes(cls.subs, "subs")
         init_e, args = None, []
-        for impl in ifilterfalse(op.attrgetter("is_itf"), subs):
+        for impl in ifilterfalse(lambda c: c.is_itf or c.is_abstract, subss):
           _e, _args = Clazz.call_init(impl.name, params)
           # try to find best matched one
           if len(args) <= len(_args): init_e, args = _e, _args
         return init_e
     return None
 
+  # declare <clinit> if not exists
+  @takes("Clazz")
+  @returns("Method")
+  def get_or_declare_clinit(self):
+    if hasattr(self, C.J.CLINIT): return getattr(self, C.J.CLINIT)
+    clinit = method.Method(clazz=self, mods=[C.mod.ST], name=C.J.CLINIT)
+    self._mtds.append(clinit)
+    setattr(self, C.J.CLINIT, clinit)
+    return clinit
+
   # add static initializer for the given static field
   @takes("Clazz", "Field", list_of("Statement"))
   @returns(nothing)
   def clinit_fld(self, fld, init_ss=[]):
-    # declare <clinit> if not exists
-    if not hasattr(self, "clinit"):
-      clinit = method.Method(clazz=self, mods=[C.mod.ST], name=C.J.CLINIT)
-      self._mtds.append(clinit)
-      setattr(self, "clinit", clinit)
+    clinit = self.get_or_declare_clinit()
 
     # make initializing statements 
     if not init_ss and not fld.is_final:
@@ -526,6 +606,11 @@ def find_fld(cname, fname, visited=[]):
   fld = cls.fld_by_name(fname)
   if fld: return fld
 
+  # try the outer class if exists
+  if cls.outer:
+    fld = cls.outer.fld_by_name(fname)
+    if fld: return fld
+
   # search constants in interfaces
   for iname in cls.itfs:
     itf = class_lookup(iname)
@@ -542,31 +627,52 @@ def find_fld(cname, fname, visited=[]):
   return None
 
 
-# find the method by the given class and method name
-@takes(unicode, unicode, list_of(unicode))
-@returns(optional("Method"))
-def find_mtd(cname, mname, sig=[]):
+@takes(unicode, callable)
+@returns(list_of("Method"))
+def __find_mtd(cname, f):
   cls = class_lookup(cname)
-  if not cls: return None
+  if not cls: return []
 
   # try to concretize a call to interface
-  if cls.is_itf and cls.subs:
+  if (cls.is_itf or cls.is_abstract) and cls.subs:
+    mtds = []
     for sub in cls.subs:
-      mtd = find_mtd(sub.name, mname, sig)
-      if mtd: return mtd
+      __mtds = __find_mtd(sub.name, f)
+      mtds.extend(__mtds)
+    if mtds: return util.rm_dup(mtds)
 
-  # try the current and super class
-  mtds = cls.mtd_by_name(mname)
-  if mtds:
-    if len(mtds) == 1: return mtds[0]
-    else: return cls.mtd_by_sig(mname, sig)
+  # try the current class and super classes in the hierarchy
+  if cls.is_class:
+    mtds = f(cls)
+    if mtds: return mtds
+
+  # try the outer class if exists
+  if cls.outer:
+    mtds = f(cls.outer)
+    if mtds: return mtds
 
   # aux type is allowed to move down to actual classes, like downcast
   if cls.is_aux and cls.subs:
     for sub in cls.subs:
-      mtd = find_mtd(sub.name, mname, sig)
-      if mtd: return mtd
-  return None
+      mtds = __find_mtd(sub.name, f)
+      if mtds: return mtds
+  return []
+
+
+# find the method by the given class name and method name
+@takes(unicode, unicode)
+@returns(list_of("Method"))
+def find_mtds_by_name(cname, mname):
+  f = lambda cls: cls.mtd_by_name(mname)
+  return __find_mtd(cname, f)
+
+
+# find the method by the given class name, method name, and parameter types
+@takes(unicode, unicode, list_of(unicode))
+@returns(list_of("Method"))
+def find_mtds_by_sig(cname, mname, sig):
+  f = lambda cls: util.ffilter([cls.mtd_by_sig(mname, sig)])
+  return __find_mtd(cname, f)
 
 
 # find the base class of the family in which the given class is involved
@@ -694,7 +800,13 @@ def parse_enum(node):
   _nodes = node.getChildren()[1:] # exclude name
   constants = util.implode_id(util.mk_v_node_w_children(_nodes)).split(',')
   for c in constants:
+    # define representative field
     fld = field.Field(clazz=cls, mods=C.PBST, typ=cls.name, name=c)
     cls.add_fld(fld)
+    # initialize it in <clinit>
+    f = exp.gen_E_id(cls.name)
+    init_e = exp.gen_E_new(exp.gen_E_call(f, []))
+    init_s = st.gen_S_assign(exp.gen_E_id(c), init_e)
+    cls.clinit_fld(fld, [init_s])
   return cls
 
