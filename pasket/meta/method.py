@@ -57,6 +57,10 @@ class Method(v.BaseNode):
     return self._mods
 
   @property
+  def is_private(self):
+    return C.mod.PR in self._mods
+
+  @property
   def is_static(self):
     return C.mod.ST in self._mods
 
