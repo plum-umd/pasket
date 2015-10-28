@@ -720,7 +720,7 @@ additiveExpression
     ;
 
 additiveOp
-    : ('+' | '-')
+    :   ('+' | '-')
     ;
 
 multiplicativeExpression
@@ -730,7 +730,7 @@ multiplicativeExpression
     ;
 
 multiplicativeOp
-    : ('*' | '/' | '%')
+    :   ('*' | '/' | '%')
     ;
 
 unaryExpression
