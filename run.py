@@ -19,7 +19,7 @@ def main():
   parser.add_option("-c", "--cmd",
     action="store", dest="cmd",
     type="choice", choices=["android", "gui", "pattern", \
-      "grammar", "codegen", "clean"],
+      "codegen", "clean"],
     default="android", help="command to run")
   parser.add_option("-p", "--pattern",
     action="append", dest="pattern", default=[],
@@ -63,9 +63,6 @@ def main():
   parser.add_option("--sanity",
     action="store_true", dest="sanity", default=False,
     help="sanity check")
-  parser.add_option("-g", "--grammar",
-    action="store", dest="grammar", default="Java.g",
-    help="grammar description file")
   parser.add_option("-v", "--verbose",
     action="store_true", dest="verbose", default=False,
     help="print intermediate messages verbosely")
@@ -75,13 +72,7 @@ def main():
   ##
   ## run
   ##
-  if opt.cmd == "grammar":
-    antlr_jar = os.path.join(root_dir, "lib", "antlr-3.1.3.jar")
-    os.environ["CLASSPATH"] = antlr_jar
-    antlr_opt = ["org.antlr.Tool", opt.grammar, "-o", "grammar"]
-    return subprocess.call(["java"] + antlr_opt)
-
-  elif opt.cmd == "codegen":
+  if opt.cmd == "codegen":
     os.chdir(opt.cmd)
     return subprocess.call(["ant"])
 
