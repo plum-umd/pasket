@@ -69,6 +69,10 @@ class Method(v.BaseNode):
     return C.mod.AB in self._mods
 
   @property
+  def is_generator(self):
+    return C.mod.GN in self._mods
+
+  @property
   def typ(self):
     return self._typ
 
