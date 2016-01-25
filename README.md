@@ -10,7 +10,7 @@ so as to synthesize models for event-driven frameworks, such as Swing and Androi
   Jinseong Jeon, Xiaokang Qiu, Jonathan Fetter-Degges, Jeffrey S. Foster, and Armando Solar-Lezama.
   In _38th International Conference on Software Engineering (ICSE '16)_, May 2016.
 
-[icse16]: http://dx.doi.org/TBD
+[icse16]: http://dx.doi.org/10.1145/2884781.2884856
 
 
 ## Requirements
