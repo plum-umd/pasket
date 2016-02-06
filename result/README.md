@@ -80,5 +80,5 @@ top-level to generate intermediate sketch files.
 
 This script will post-analyze output files under output/ folder:
 
-    ...result $ ./post.py [-d output_path]
+    ...result $ ./post.py [-d output_path] [-b demo]*
 

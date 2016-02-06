@@ -155,6 +155,14 @@ def main():
   outputs = filter(lambda f: os.path.getsize(f) > 0, outputs)
 
   for output in outputs:
+    bname = os.path.basename(output)
+    if any(opt.benchmarks):
+      found = False
+      for b in opt.benchmarks:
+        found |= bname.startswith(b)
+        if found: break
+      if not found: continue
+
     record = analyze(output)
     pprint.pprint(record)
 
