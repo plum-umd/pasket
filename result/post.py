@@ -147,6 +147,9 @@ def main():
   parser.add_option("-d", "--dir",
     action="store", dest="out_dir", default="output",
     help="output folder")
+  parser.add_option("--rm-failed",
+    action="store_true", dest="rm_failed", default=False,
+    help="remove failed output")
 
   (opt, args) = parser.parse_args()
 
@@ -165,6 +168,11 @@ def main():
 
     record = analyze(output)
     pprint.pprint(record)
+
+    if not opt.rm_failed: continue
+    if record["succeed"] != "Succeed":
+      print "deleting {}".format(output)
+      os.remove(output)
 
 
 if __name__ == "__main__":
