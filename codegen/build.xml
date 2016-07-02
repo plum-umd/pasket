@@ -13,9 +13,9 @@
   <property name="codegen.jar" value="${lib.dir}/codegen.jar"/>
 
   <property environment="env"/>
-<!--
+<!-- If you're using tar ball, use these properties instead of sketch.classes
   <property name="sketch.dir" location="${env.SKETCH_HOME}/.."/>
-  <property name="sketch.jar" value="${sketch.dir}/sketch-1.6.7-noarch.jar"/>
+  <property name="sketch.jar" value="${sketch.dir}/sketch-1.6.9-noarch.jar"/>
 -->
   <property name="sketch.dir" location="${env.SKETCH_HOME}"/>
   <property name="sketch.classes" location="${sketch.dir}/target/classes"/>
@@ -28,7 +28,7 @@
 
   <!-- compile the java code in ${source.dir} into ${build.dir} -->
   <target name="compile" depends="init" description="compile java sources">
-<!--
+<!-- If you're using tar ball, refer to sketch jar directly
     <javac srcdir="${source.dir}" destdir="${build.dir}" classpath="${sketch.jar}"/>
 -->
     <javac srcdir="${source.dir}" destdir="${build.dir}" classpath="${sketch.classes}"/>
