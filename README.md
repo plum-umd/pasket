@@ -200,15 +200,15 @@ To copy such synthesized model into that folder, run as follows:
 Next, go to `jpf-awt-synth` and build it same as other jpf-* projects.
 
 JPF has its own event generating mechanism;
-refer to `example/src/oreilly/ch*/*Test.java`
-Classpath to compile JPF test classes is set up in `example/build.xml`,
+refer to `example/gui/src/oreilly/ch*/*Test.java`
+Classpath to compile JPF test classes is set up in `example/gui/build.xml`,
 so place your own target in that build.xml when you add new applications.
 Also, generate app-specific test class accordingly.
-To build examples and applications, refer to `example/README.md`.
+To build examples and applications, refer to `example/gui/README.md`.
 
 To run `jpf-symbc` both with `jpf-awt` and `jpf-awt-synth`,
 you need to design configurations like:
-`example/src/oreilly/ch*/*.awt(-synth).jpf`
+`example/gui/src/oreilly/ch*/*.awt(-synth).jpf`
 Then, run `jpf-symbc/bin/jpf`, passing paths to those configurations.
 
 
